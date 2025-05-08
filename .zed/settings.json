@@ -1,0 +1,24 @@
+{
+  "languages": {
+    "TypeScript": {
+      "language_servers": [
+        "wakatime",
+        "deno",
+        "!typescript-language-server",
+        "!vtsls",
+        "!eslint"
+      ],
+      "formatter": "language_server"
+    },
+    "TSX": {
+      "language_servers": [
+        "wakatime",
+        "deno",
+        "!typescript-language-server",
+        "!vtsls",
+        "!eslint"
+      ],
+      "formatter": "language_server"
+    }
+  }
+}

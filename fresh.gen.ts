@@ -4,22 +4,26 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
-import * as $api_joke from "./routes/api/joke.ts";
-import * as $greet_name_ from "./routes/greet/[name].tsx";
+import * as $api_oauth_callback from "./routes/api/oauth/callback.ts";
+import * as $api_oauth_initiate from "./routes/api/oauth/initiate.ts";
 import * as $index from "./routes/index.tsx";
+import * as $login_index from "./routes/login/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
+import * as $HandleInput from "./islands/HandleInput.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
-    "./routes/api/joke.ts": $api_joke,
-    "./routes/greet/[name].tsx": $greet_name_,
+    "./routes/api/oauth/callback.ts": $api_oauth_callback,
+    "./routes/api/oauth/initiate.ts": $api_oauth_initiate,
     "./routes/index.tsx": $index,
+    "./routes/login/index.tsx": $login_index,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
+    "./islands/HandleInput.tsx": $HandleInput,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
