@@ -31,9 +31,10 @@ export async function getSessionAgent(
   req: Request,
   ctx: FreshContext,
 ) {
+  const res = new Response();
   const session = await getIronSession<Session>(
     req,
-    new Response(),
+    res,
     sessionOptions,
   );
 
@@ -42,6 +43,7 @@ export async function getSessionAgent(
   }
 
   try {
+    console.log("restoring session: ", session.did);
     const oauthSession = await oauthClient.restore(session.did);
     return oauthSession ? new Agent(oauthSession) : null;
   } catch (err) {
@@ -49,11 +51,11 @@ export async function getSessionAgent(
       warn: (obj: Record<string, unknown>, msg: string) => void;
     };
     logger.warn({ err }, "oauth restore failed");
-    session.destroy();
+    await session.destroy();
     return null;
   }
 }
 
-export function getSession(req: Request) {
-  return getIronSession<Session>(req, new Response(), sessionOptions);
+export function getSession(req: Request, res: Response = new Response()) {
+  return getIronSession<Session>(req, res, sessionOptions);
 }

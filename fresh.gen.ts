@@ -6,10 +6,15 @@ import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $api_oauth_callback from "./routes/api/oauth/callback.ts";
 import * as $api_oauth_initiate from "./routes/api/oauth/initiate.ts";
+import * as $api_oauth_logout from "./routes/api/oauth/logout.ts";
+import * as $api_profile from "./routes/api/profile.ts";
 import * as $index from "./routes/index.tsx";
+import * as $login_callback from "./routes/login/callback.tsx";
 import * as $login_index from "./routes/login/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $HandleInput from "./islands/HandleInput.tsx";
+import * as $Header from "./islands/Header.tsx";
+import * as $OAuthCallback from "./islands/OAuthCallback.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -18,12 +23,17 @@ const manifest = {
     "./routes/_app.tsx": $_app,
     "./routes/api/oauth/callback.ts": $api_oauth_callback,
     "./routes/api/oauth/initiate.ts": $api_oauth_initiate,
+    "./routes/api/oauth/logout.ts": $api_oauth_logout,
+    "./routes/api/profile.ts": $api_profile,
     "./routes/index.tsx": $index,
+    "./routes/login/callback.tsx": $login_callback,
     "./routes/login/index.tsx": $login_index,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
     "./islands/HandleInput.tsx": $HandleInput,
+    "./islands/Header.tsx": $Header,
+    "./islands/OAuthCallback.tsx": $OAuthCallback,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

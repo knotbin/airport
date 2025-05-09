@@ -1,4 +1,4 @@
-import { FreshContext, Plugin } from "$fresh/server.ts";
+import { Plugin } from "$fresh/server.ts";
 import { Secp256k1Keypair, formatMultikey } from 'npm:@atproto/crypto'
 
 export default {

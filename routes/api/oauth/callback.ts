@@ -3,35 +3,59 @@ import { oauthClient } from "../../../oauth/client.ts";
 import { getSession } from "../../../oauth/session.ts"
 
 export const handler: Handlers = {
-  async GET(_req) {
-    const params = new URLSearchParams(_req.url.split("?")[1]);
-    const url = new URL(_req.url);
+  async GET(req) {
+    const url = new URL(req.url);
+    const params = url.searchParams;
+    const baseUrl = `${url.protocol}//${url.host}`;
+    
+    // Log incoming parameters for debugging
+    console.log("OAuth callback received params:", {
+      state: params.get("state"),
+      iss: params.get("iss"),
+      code: params.get("code"),
+    });
 
     try {
-      const { session } = await oauthClient.callback(params);
-      // Use the common session options
-      const clientSession = await getSession(_req);
+      if (!params.get("code")) {
+        throw new Error("No code parameter received");
+      }
 
-      // Set the DID on the session
+      // Create response first so we can attach cookies
+      const response = new Response(null, {
+        status: 302,
+        headers: new Headers({
+          'Location': `${baseUrl}/login/callback`
+        })
+      });
+
+      // Get the oauth session
+      const { session } = await oauthClient.callback(params);
+      
+      if (!session?.did) {
+        throw new Error("No DID received in session");
+      }
+
+      // Create and save our client session with the response
+      const clientSession = await getSession(req, response);
       clientSession.did = session.did;
       await clientSession.save();
 
-      // Get the origin and determine appropriate redirect
-      const host = params.get("host");
-      const protocol = url.protocol || "http";
-      const baseUrl = `${protocol}://${host}`;
-
       console.info(
-        `OAuth callback successful, redirecting to ${baseUrl}/oauth-callback`,
+        `OAuth callback successful for DID: ${session.did}, redirecting to /login/callback`,
       );
 
-      // Redirect to the frontend oauth-callback page
+      return response;
+    } catch (error: unknown) {
+      // Log detailed error information
+      const err = error instanceof Error ? error : new Error(String(error));
+      
+      console.error({
+        error: err.message,
+        stack: err.stack,
+        params: Object.fromEntries(params.entries()),
+      }, "OAuth callback failed");
 
-      return Response.redirect("/login/callback");
-    } catch (err) {
-      console.error({ err }, "oauth callback failed");
-
-      return Response.redirect("/oauth-callback?error=auth");
+      return Response.redirect(`${baseUrl}/login/callback?error=auth`);
     }
   }
-}
+};

@@ -1,4 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+@font-face {
+    font-family: "Skyfont";
+    src: url("skyfont.regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "F25_Bank_Printer";
+    src: url("F25_Bank_Printer.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
 
 @tailwind base;
 @tailwind components;
@@ -58,8 +70,84 @@
 @layer base {
     body {
         @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+        font-family: F25_Bank_Printer, monospace;
     }
     button {
         @apply rounded-xl;
     }
+
+    h1 {
+        font-family: "Skyfont", sans-serif;
+    }
+}
+
+.ticket {
+    @apply bg-white dark:bg-gray-800 p-8 relative overflow-hidden;
+    position: relative;
+    /* Angled corners */
+    clip-path: polygon(
+        20px 0,                    /* Top left corner */
+        calc(100% - 20px) 0,      /* Top right corner */
+        100% 20px,                /* Top right */
+        100% calc(100% - 20px),   /* Bottom right */
+        calc(100% - 20px) 100%,   /* Bottom right corner */
+        20px 100%,                /* Bottom left corner */
+        0 calc(100% - 20px),      /* Bottom left */
+        0 20px                    /* Back to top left */
+    );
+}
+
+/* Create side perforations using pseudo-elements */
+.ticket::before,
+.ticket::after {
+    content: "";
+    position: absolute;
+    top: 30px;
+    bottom: 30px;
+    width: 1px;
+    background-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 40%,
+        currentColor 40%,
+        currentColor 60%,
+        transparent 60%,
+        transparent 100%
+    );
+    background-size: 100% 20px;
+    background-repeat: repeat-y;
+    opacity: 0.2;
+}
+
+.ticket::before {
+    left: 8px;
+}
+
+.ticket::after {
+    right: 8px;
+}
+
+.dark .ticket {
+    background-image: 
+        radial-gradient(circle at 10px center, rgb(17 24 39) 4px, transparent 4px),
+        radial-gradient(circle at calc(100% - 10px) center, rgb(17 24 39) 4px, transparent 4px);
+}
+
+/* Remove the previous background images and corner cuts */
+.ticket::before,
+.ticket::after {
+    display: none;
+}
+
+.boarding-label {
+    @apply absolute top-2 right-2 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+    transform: rotate(2deg);
+}
+
+.flight-info {
+    @apply flex justify-between items-center mt-4 pt-4 border-t border-dashed;
+}
+
+.passenger-info {
+    @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
 }

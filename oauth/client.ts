@@ -1,35 +1,13 @@
 import { AtprotoOAuthClient } from 'jsr:@bigmoves/atproto-oauth-client'
-import { SignJWT, jwtVerify } from "npm:jose@5.9.6";
 import { SessionStore, StateStore } from "./storage.ts";
 
-// Create a secure key for JWT signing
-const jwtKey = new TextEncoder().encode(
-  Deno.env.get("JWT_SECRET") || "secure-jwt-secret-for-oauth-dpop-tokens"
-);
-
-class CustomJoseKey {
-  async createJwt(payload: Record<string, unknown>) {
-    const jwt = await new SignJWT(payload)
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("1h")
-      .sign(jwtKey);
-    return jwt;
-  }
-
-  async verifyJwt(jwt: string) {
-    const { payload } = await jwtVerify(jwt, jwtKey);
-    return payload;
-  }
-}
-
-export const createClient = async (db: Deno.Kv) => {
+export const createClient = (db: Deno.Kv) => {
   if (Deno.env.get("NODE_ENV") == "production" && !Deno.env.get("PUBLIC_URL")) {
     throw new Error("PUBLIC_URL is not set");
   }
 
   const publicUrl = Deno.env.get("PUBLIC_URL");
-  const url = publicUrl || `http://127.0.0.1:${Deno.env.get("VITE_PORT")}`;
+  const url = publicUrl || `http://127.0.0.1:${Deno.env.get("PORT")}`;
   const enc = encodeURIComponent;
 
   return new AtprotoOAuthClient({

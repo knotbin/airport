@@ -1,8 +1,7 @@
 import { defineConfig } from "$fresh/server.ts";
 import tailwind from "$fresh/plugins/tailwind.ts";
-import session from "./plugins/session.ts";
 import didJson from "./plugins/did.ts";
 
 export default defineConfig({
-  plugins: [tailwind(), session, didJson],
+  plugins: [tailwind(), didJson],
 });
