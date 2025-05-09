@@ -11,10 +11,12 @@ import * as $api_oauth_logout from "./routes/api/oauth/logout.ts";
 import * as $index from "./routes/index.tsx";
 import * as $login_callback from "./routes/login/callback.tsx";
 import * as $login_index from "./routes/login/index.tsx";
+import * as $AirportSign from "./islands/AirportSign.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $HandleInput from "./islands/HandleInput.tsx";
 import * as $Header from "./islands/Header.tsx";
 import * as $OAuthCallback from "./islands/OAuthCallback.tsx";
+import * as $Ticket from "./islands/Ticket.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -30,10 +32,12 @@ const manifest = {
     "./routes/login/index.tsx": $login_index,
   },
   islands: {
+    "./islands/AirportSign.tsx": $AirportSign,
     "./islands/Counter.tsx": $Counter,
     "./islands/HandleInput.tsx": $HandleInput,
     "./islands/Header.tsx": $Header,
     "./islands/OAuthCallback.tsx": $OAuthCallback,
+    "./islands/Ticket.tsx": $Ticket,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

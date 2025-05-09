@@ -43,7 +43,6 @@ export async function getSessionAgent(
   }
 
   try {
-    console.log("restoring session: ", session.did);
     const oauthSession = await oauthClient.restore(session.did);
     return oauthSession ? new Agent(oauthSession) : null;
   } catch (err) {

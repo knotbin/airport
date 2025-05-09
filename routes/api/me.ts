@@ -2,12 +2,6 @@ import { Handlers } from "$fresh/server.ts";
 import { getSessionAgent } from "../../oauth/session.ts";
 import { resolver } from "../../utils/id-resolver.ts";
 
-interface BskyProfile {
-  handle: string;
-  displayName?: string;
-  description?: string;
-}
-
 export const handler: Handlers = {
   async GET(req, ctx) {
     const agent = await getSessionAgent(req, ctx);
