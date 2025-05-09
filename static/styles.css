@@ -1,13 +1,13 @@
 @font-face {
     font-family: "Skyfont";
-    src: url("skyfont.regular.otf") format("opentype");
+    src: url("fonts/skyfont.regular.otf") format("opentype");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: "F25_Bank_Printer";
-    src: url("F25_Bank_Printer.ttf") format("truetype");
+    src: url("fonts/F25_Bank_Printer.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
@@ -150,4 +150,33 @@
 
 .passenger-info {
     @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
+}
+
+/* Modern Airport Sign Styles */
+.airport-sign {
+    position: relative;
+    transform-origin: top;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0.5rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.airport-sign:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dropdown panel styles */
+.airport-sign + div {
+    border-radius: 0.5rem;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove old texture styles */
+.airport-sign, .airport-sign + div {
+    background-blend-mode: overlay;
 }

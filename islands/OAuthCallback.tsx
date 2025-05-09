@@ -36,10 +36,10 @@ export default function OAuthCallback({ error: initialError }: OAuthCallbackProp
             .split(";")
             .map((c) => c.trim())
             .filter(c => c.length > 0);
-            
+
           console.log("Current cookies:", cookies);
 
-          const response = await fetch("/api/profile", {
+          const response = await fetch("/api/me", {
             credentials: 'include',  // Explicitly include credentials
             headers: {
               'Accept': 'application/json'

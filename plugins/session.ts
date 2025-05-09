@@ -1,22 +1,22 @@
-// import { FreshContext, Plugin } from "$fresh/server.ts";
-// import { oauthClient } from "../oauth/client.ts";
+import { FreshContext, Plugin } from "$fresh/server.ts";
+import { oauthClient } from "../oauth/client.ts";
 
-// const plugin: Plugin = {
-//   name: "session",
-//   routes: [],
-//   middlewares: [{
-//     path: "/",
-//     middleware: {
-//       handler: async (req: Request, ctx: FreshContext) => {
-//         let res = await ctx.next();
-//         if (!oauthClient) {
-//           console.warn("Missing required oauthClient in state");
-//           return res;
-//         }
-//         return res;
-//       },
-//     },
-//   }],
-// };
+const plugin: Plugin = {
+  name: "session",
+  routes: [],
+  middlewares: [{
+    path: "/",
+    middleware: {
+      handler: async (req: Request, ctx: FreshContext) => {
+        let res = await ctx.next();
+        if (!oauthClient) {
+          console.warn("Missing required oauthClient in state");
+          return res;
+        }
+        return res;
+      },
+    },
+  }],
+};
 
-// export default plugin;
+export default plugin;

@@ -4,10 +4,10 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_me from "./routes/api/me.ts";
 import * as $api_oauth_callback from "./routes/api/oauth/callback.ts";
 import * as $api_oauth_initiate from "./routes/api/oauth/initiate.ts";
 import * as $api_oauth_logout from "./routes/api/oauth/logout.ts";
-import * as $api_profile from "./routes/api/profile.ts";
 import * as $index from "./routes/index.tsx";
 import * as $login_callback from "./routes/login/callback.tsx";
 import * as $login_index from "./routes/login/index.tsx";
@@ -21,10 +21,10 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/me.ts": $api_me,
     "./routes/api/oauth/callback.ts": $api_oauth_callback,
     "./routes/api/oauth/initiate.ts": $api_oauth_initiate,
     "./routes/api/oauth/logout.ts": $api_oauth_logout,
-    "./routes/api/profile.ts": $api_profile,
     "./routes/index.tsx": $index,
     "./routes/login/callback.tsx": $login_callback,
     "./routes/login/index.tsx": $login_index,
