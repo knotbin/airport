@@ -4,6 +4,7 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_describe from "./routes/api/describe.ts";
 import * as $api_me from "./routes/api/me.ts";
 import * as $api_oauth_callback from "./routes/api/oauth/callback.ts";
 import * as $api_oauth_initiate from "./routes/api/oauth/initiate.ts";
@@ -23,6 +24,7 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/describe.ts": $api_describe,
     "./routes/api/me.ts": $api_me,
     "./routes/api/oauth/callback.ts": $api_oauth_callback,
     "./routes/api/oauth/initiate.ts": $api_oauth_initiate,
