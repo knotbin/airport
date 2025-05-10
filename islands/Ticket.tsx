@@ -48,9 +48,16 @@ export default function Ticket() {
           DESTINATION: NEW PDS
         </div>
         <p class="mb-4">
-          Think of Airport as your digital terminal for AT Protocol migrations. We help you smoothly
+          ATP Airport is your digital terminal for AT Protocol account actions. We help you smoothly
           transfer your PDS account between different providers – no lost luggage, just a first-class
           experience for your data's journey to its new home.
+        </p>
+        <p>
+          Think you might need to migrate in the future but your PDS might be hostile or offline?
+          No worries! You can head to the ticket booth and get a PLC key free of charge and use it
+          for account recovery in the future. You can also go to baggage claim (take the air shuttle
+          to terminal four) and get a downloadable backup of all your current PDS data in case that
+          were to happen.
         </p>
       </div>
 
@@ -68,19 +75,21 @@ export default function Ticket() {
         <ol class="list-decimal list-inside space-y-3">
           <li>Check in with your current PDS credentials</li>
           <li>Select your destination PDS</li>
-          <li>Go through our streamlined security check</li>
+          <li>Go through security</li>
           <li>Sit back while we handle your data transfer</li>
         </ol>
         <div class="mt-6 text-sm text-gray-600 dark:text-gray-400 border-t border-dashed pt-4 border-slate-200 dark:border-slate-700">
-          Your data travels securely with our top-tier encryption – we're like the TSA, but actually fast.
+          Coming from a Bluesky PDS? This is currently a ONE WAY TICKET because Bluesky doesn't support
+          transfers back yet. Although they claim they will support it in the future, assume you won't be
+          able to.
         </div>
         <div class="flight-info mt-6 flex items-center justify-between text-slate-600 dark:text-slate-300 font-mono text-sm">
           <div>
             <div class="text-xs text-gray-500 dark:text-gray-400">FROM</div>
             <div>CURRENT PDS</div>
           </div>
-          <div class="text-amber-500 dark:text-amber-400">➜</div>
-          <div>
+          <div class="text-amber-500 dark:text-amber-400 text-4xl">➜</div>
+          <div class="content-end">
             <div class="text-xs text-gray-500 dark:text-gray-400">TO</div>
             <div>NEW PDS</div>
           </div>
@@ -88,4 +97,4 @@ export default function Ticket() {
       </div>
     </div>
   );
-} 
+}
