@@ -13,16 +13,20 @@ import * as $api_server_migrate from "./routes/api/server/migrate.ts";
 import * as $api_server_migrate_create from "./routes/api/server/migrate/create.ts";
 import * as $api_server_migrate_data from "./routes/api/server/migrate/data.ts";
 import * as $api_server_migrate_finalize from "./routes/api/server/migrate/finalize.ts";
-import * as $api_server_migrate_identity from "./routes/api/server/migrate/identity.ts";
+import * as $api_server_migrate_identity_request from "./routes/api/server/migrate/identity/request.ts";
+import * as $api_server_migrate_identity_sign from "./routes/api/server/migrate/identity/sign.ts";
 import * as $index from "./routes/index.tsx";
 import * as $login_callback from "./routes/login/callback.tsx";
 import * as $login_index from "./routes/login/index.tsx";
-import * as $migrate from "./routes/migrate.tsx";
+import * as $migrate_index from "./routes/migrate/index.tsx";
+import * as $migrate_progress from "./routes/migrate/progress.tsx";
 import * as $AirportSign from "./islands/AirportSign.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $HandleInput from "./islands/HandleInput.tsx";
 import * as $Header from "./islands/Header.tsx";
 import * as $MigrationFlow from "./islands/MigrationFlow.tsx";
+import * as $MigrationProgress from "./islands/MigrationProgress.tsx";
+import * as $MigrationSetup from "./islands/MigrationSetup.tsx";
 import * as $OAuthCallback from "./islands/OAuthCallback.tsx";
 import * as $Ticket from "./islands/Ticket.tsx";
 import type { Manifest } from "$fresh/server.ts";
@@ -40,11 +44,15 @@ const manifest = {
     "./routes/api/server/migrate/create.ts": $api_server_migrate_create,
     "./routes/api/server/migrate/data.ts": $api_server_migrate_data,
     "./routes/api/server/migrate/finalize.ts": $api_server_migrate_finalize,
-    "./routes/api/server/migrate/identity.ts": $api_server_migrate_identity,
+    "./routes/api/server/migrate/identity/request.ts":
+      $api_server_migrate_identity_request,
+    "./routes/api/server/migrate/identity/sign.ts":
+      $api_server_migrate_identity_sign,
     "./routes/index.tsx": $index,
     "./routes/login/callback.tsx": $login_callback,
     "./routes/login/index.tsx": $login_index,
-    "./routes/migrate.tsx": $migrate,
+    "./routes/migrate/index.tsx": $migrate_index,
+    "./routes/migrate/progress.tsx": $migrate_progress,
   },
   islands: {
     "./islands/AirportSign.tsx": $AirportSign,
@@ -52,6 +60,8 @@ const manifest = {
     "./islands/HandleInput.tsx": $HandleInput,
     "./islands/Header.tsx": $Header,
     "./islands/MigrationFlow.tsx": $MigrationFlow,
+    "./islands/MigrationProgress.tsx": $MigrationProgress,
+    "./islands/MigrationSetup.tsx": $MigrationSetup,
     "./islands/OAuthCallback.tsx": $OAuthCallback,
     "./islands/Ticket.tsx": $Ticket,
   },

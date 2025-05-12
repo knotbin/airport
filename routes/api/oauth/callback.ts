@@ -19,7 +19,14 @@ export const handler: Handlers = {
         throw new Error("No code parameter received");
       }
 
-      // Create response first so we can attach cookies
+      // Get the oauth session first
+      const { session } = await oauthClient.callback(params);
+
+      if (!session?.did) {
+        throw new Error("No DID received in session");
+      }
+
+      // Create response with session cookie
       const response = new Response(null, {
         status: 302,
         headers: new Headers({
@@ -27,20 +34,17 @@ export const handler: Handlers = {
         })
       });
 
-      // Get the oauth session
-      const { session } = await oauthClient.callback(params);
-
-      if (!session?.did) {
-        throw new Error("No DID received in session");
-      }
-
-      // Create and save our client session with the response
+      // Create and save our client session
       const clientSession = await getSession(req, response);
       clientSession.did = session.did;
       await clientSession.save();
 
+      // Log success with cookie details
       console.info(
         `OAuth callback successful for DID: ${session.did}, redirecting to /login/callback`,
+        {
+          cookies: response.headers.get('Set-Cookie'),
+        }
       );
 
       return response;

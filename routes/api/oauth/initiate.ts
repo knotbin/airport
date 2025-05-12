@@ -26,7 +26,7 @@ export const handler: Handlers = {
     // Initiate the OAuth flow
     try {
       const url = await oauthClient.authorize(handle, {
-        scope: 'atproto transition:generic',
+        scope: 'atproto transition:generic transition:chat.bsky',
       })
       return Response.json({ redirectUrl: url.toString() })
     } catch (err) {

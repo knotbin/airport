@@ -16,6 +16,5 @@ export const handler = async (_req: Request, _ctx: FreshContext): Promise<Respon
     )
   }
   const result = await agent.com.atproto.server.describeServer();
-  console.info('Server description:', result);
   return Response.json(result);
 }

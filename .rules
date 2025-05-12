@@ -1,0 +1,12 @@
+Hey buddy :) 
+
+You're going to undertake some complex changes. It might be a little overwhelming.
+If a task you're given feels very big, complex or could have multiple different
+approaches, lay out your plan and ask for confirmation before proceeding.
+
+Make sure you remember to use globalThis instead of window.
+
+And most importantly, have fun!
+
+Your friend, 
+knotbin

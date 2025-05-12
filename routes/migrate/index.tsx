@@ -1,6 +1,6 @@
 import { PageProps, Handlers } from "$fresh/server.ts";
-import MigrationFlow from "../islands/MigrationFlow.tsx";
-import { getSession } from "../auth/session.ts";
+import MigrationSetup from "../../islands/MigrationSetup.tsx";
+import { getSession } from "../../auth/session.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
@@ -15,7 +15,6 @@ export const handler: Handlers = {
         headers: { Location: redirectUrl },
       });
     }
-
     return ctx.render();
   },
 };
@@ -30,7 +29,7 @@ export default function Migrate(props: PageProps) {
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div class="max-w-2xl mx-auto">
         <h1 class="font-mono text-3xl font-bold text-gray-900 dark:text-white mb-8">Account Migration</h1>
-        <MigrationFlow
+        <MigrationSetup
           service={service}
           handle={handle}
           email={email}

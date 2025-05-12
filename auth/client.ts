@@ -17,10 +17,10 @@ export const createClient = (db: Deno.Kv) => {
         ? `${url}/oauth-client-metadata.json`
         : `http://localhost?redirect_uri=${
           enc(`${url}/api/oauth/callback`)
-        }&scope=${enc("atproto transition:generic")}`,
+        }&scope=${enc("atproto transition:generic transition:chat.bsky")}`,
       client_uri: url,
       redirect_uris: [`${url}/api/oauth/callback`],
-      scope: "atproto transition:generic",
+      scope: "atproto transition:generic transition:chat.bsky",
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
       application_type: "web",

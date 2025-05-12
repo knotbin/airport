@@ -6,6 +6,16 @@ interface User {
   handle?: string;
 }
 
+function truncateText(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+  let truncated = text.slice(0, maxLength);
+  // Remove trailing dots before adding ellipsis
+  while (truncated.endsWith('.')) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated + '...';
+}
+
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
 
@@ -81,8 +91,12 @@ export default function Header() {
                   </div>
                   <div className="absolute opacity-0 translate-y-[-8px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto top-full right-0 w-56 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 py-3 px-4 rounded-md transition-all duration-200">
                     <div className="text-sm font-mono mb-2 pb-2 border-b border-slate-900/10">
-                      <div>{user.handle || 'Anonymous'}</div>
-                      <div className="text-xs opacity-75 truncate">{user.did}</div>
+                      <div title={user.handle || 'Anonymous'}>
+                        {truncateText(user.handle || 'Anonymous', 20)}
+                      </div>
+                      <div className="text-xs opacity-75" title={user.did}>
+                        {truncateText(user.did, 25)}
+                      </div>
                     </div>
                     <button
                       type="button"

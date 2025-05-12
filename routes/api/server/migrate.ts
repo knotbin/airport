@@ -15,7 +15,7 @@ export const handler: Handlers = {
 
 
     if (!serviceUrl || !newHandle || !newPassword || !email) {
-      return new Response("Missing params service, handle, or password", { status: 400 })
+      return new Response("Missing params service, handle, password, or email", { status: 400 })
     }
 
     const oldAgent = await getSessionAgent(_req, _ctx)
