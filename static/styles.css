@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 @font-face {
     font-family: "Skyfont";
@@ -72,30 +73,41 @@
 @layer base {
     body {
         @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
-        font-family: F25_Bank_Printer, monospace;
+        font-family: Space Mono;
     }
     button {
         @apply rounded-xl;
     }
 
-    h1 {
-        font-family: "Skyfont", sans-serif;
+    input {
+        @apply px-4 py-2;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        font-family:
+            Share Tech Mono,
+            monospace;
     }
 }
 
 .ticket {
+    font-family: F25_Bank_Printer, monospace;
     @apply bg-white dark:bg-gray-800 p-8 relative overflow-hidden;
     position: relative;
     /* Angled corners */
     clip-path: polygon(
-        20px 0,                    /* Top left corner */
-        calc(100% - 20px) 0,      /* Top right corner */
-        100% 20px,                /* Top right */
-        100% calc(100% - 20px),   /* Bottom right */
-        calc(100% - 20px) 100%,   /* Bottom right corner */
-        20px 100%,                /* Bottom left corner */
-        0 calc(100% - 20px),      /* Bottom left */
-        0 20px                    /* Back to top left */
+        20px 0,
+        /* Top left corner */ calc(100% - 20px) 0,
+        /* Top right corner */ 100% 20px,
+        /* Top right */ 100% calc(100% - 20px),
+        /* Bottom right */ calc(100% - 20px) 100%,
+        /* Bottom right corner */ 20px 100%,
+        /* Bottom left corner */ 0 calc(100% - 20px),
+        /* Bottom left */ 0 20px /* Back to top left */
     );
 }
 
@@ -130,9 +142,17 @@
 }
 
 .dark .ticket {
-    background-image: 
-        radial-gradient(circle at 10px center, rgb(17 24 39) 4px, transparent 4px),
-        radial-gradient(circle at calc(100% - 10px) center, rgb(17 24 39) 4px, transparent 4px);
+    background-image:
+        radial-gradient(
+            circle at 10px center,
+            rgb(17 24 39) 4px,
+            transparent 4px
+        ),
+        radial-gradient(
+            circle at calc(100% - 10px) center,
+            rgb(17 24 39) 4px,
+            transparent 4px
+        );
 }
 
 /* Remove the previous background images and corner cuts */
@@ -170,6 +190,7 @@
 }
 
 /* Remove old texture styles */
-.airport-sign, .airport-sign + div {
+.airport-sign,
+.airport-sign + div {
     background-blend-mode: overlay;
 }

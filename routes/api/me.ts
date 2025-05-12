@@ -1,5 +1,5 @@
 import { Handlers } from "$fresh/server.ts";
-import { getSessionAgent } from "../../oauth/session.ts";
+import { getSessionAgent } from "../../auth/session.ts";
 import { resolver } from "../../utils/id-resolver.ts";
 
 export const handler: Handlers = {

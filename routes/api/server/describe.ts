@@ -1,6 +1,6 @@
 import { FreshContext } from "$fresh/server.ts";
 import { Agent } from "npm:@atproto/api";
-import { getSessionAgent } from "../../oauth/session.ts";
+import { getSessionAgent } from "../../../auth/session.ts";
 /**
  * Describe the server configuration and capabilities
  */

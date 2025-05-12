@@ -5,6 +5,7 @@ import { oauthClient } from "./client.ts";
 
 export interface Session {
   did: string;
+  newAccountDid?: string;
 }
 
 export interface State {
@@ -22,20 +23,19 @@ const sessionOptions: SessionOptions = {
     httpOnly: true,
     sameSite: true,
     path: "/",
-    // Don't set domain explicitly - let browser determine it
     domain: undefined,
   },
 };
 
 export async function getSessionAgent(
   req: Request,
-  ctx: FreshContext,
+  ctx: FreshContext
 ) {
   const res = new Response();
   const session = await getIronSession<Session>(
     req,
     res,
-    sessionOptions,
+    sessionOptions
   );
 
   if (!session.did) {
@@ -50,7 +50,7 @@ export async function getSessionAgent(
       warn: (obj: Record<string, unknown>, msg: string) => void;
     };
     logger.warn({ err }, "oauth restore failed");
-    await session.destroy();
+    session.destroy();
     return null;
   }
 }

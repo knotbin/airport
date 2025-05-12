@@ -1,13 +1,12 @@
 import { Handlers } from "$fresh/server.ts"
-import { oauthClient } from "../../../oauth/client.ts";
-import { getSession } from "../../../oauth/session.ts"
+import { oauthClient } from "../../../auth/client.ts";
+import { getSession } from "../../../auth/session.ts"
 
 export const handler: Handlers = {
   async GET(req) {
     const url = new URL(req.url);
     const params = url.searchParams;
-    const baseUrl = `${url.protocol}//${url.host}`;
-    
+
     // Log incoming parameters for debugging
     console.log("OAuth callback received params:", {
       state: params.get("state"),
@@ -24,13 +23,13 @@ export const handler: Handlers = {
       const response = new Response(null, {
         status: 302,
         headers: new Headers({
-          'Location': `${baseUrl}/login/callback`
+          'Location': '/login/callback'
         })
       });
 
       // Get the oauth session
       const { session } = await oauthClient.callback(params);
-      
+
       if (!session?.did) {
         throw new Error("No DID received in session");
       }
@@ -48,14 +47,14 @@ export const handler: Handlers = {
     } catch (error: unknown) {
       // Log detailed error information
       const err = error instanceof Error ? error : new Error(String(error));
-      
+
       console.error({
         error: err.message,
         stack: err.stack,
         params: Object.fromEntries(params.entries()),
       }, "OAuth callback failed");
 
-      return Response.redirect(`${baseUrl}/login/callback?error=auth`);
+      return Response.redirect('/login/callback?error=auth');
     }
   }
 };

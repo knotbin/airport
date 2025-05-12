@@ -1,6 +1,6 @@
 import type { Handlers } from "$fresh/server.ts";
 import { isValidHandle } from 'npm:@atproto/syntax'
-import { oauthClient } from "../../../oauth/client.ts";
+import { oauthClient } from "../../../auth/client.ts";
 
 function isValidUrl(url: string): boolean {
   try {

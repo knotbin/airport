@@ -9,7 +9,7 @@ export default function Home() {
           <AirportSign />
 
           <div class="prose dark:prose-invert max-w-none w-full mb-0">
-            <p class="text-xl mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
+            <p class="font-mono text-xl font-bold mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
               Your terminal for seamless AT Protocol PDS migration and backup.
             </p>
 

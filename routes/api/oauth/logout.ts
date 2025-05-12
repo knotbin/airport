@@ -1,13 +1,13 @@
 import { Handlers } from "$fresh/server.ts";
-import { getSession } from "../../../oauth/session.ts";
-import { oauthClient } from "../../../oauth/client.ts";
+import { getSession } from "../../../auth/session.ts";
+import { oauthClient } from "../../../auth/client.ts";
 
 export const handler: Handlers = {
   async POST(req) {
     try {
       const response = new Response(null, { status: 200 });
       const session = await getSession(req, response);
-      
+
       if (session.did) {
         // First destroy the oauth session
         await oauthClient.revoke(session.did);
@@ -22,4 +22,4 @@ export const handler: Handlers = {
       return new Response("Logout failed", { status: 500 });
     }
   },
-}; 
+};
