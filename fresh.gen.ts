@@ -4,15 +4,17 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_login from "./routes/api/login.ts";
+import * as $api_logout from "./routes/api/logout.ts";
 import * as $api_me from "./routes/api/me.ts";
 import * as $api_oauth_callback from "./routes/api/oauth/callback.ts";
 import * as $api_oauth_initiate from "./routes/api/oauth/initiate.ts";
-import * as $api_oauth_logout from "./routes/api/oauth/logout.ts";
 import * as $api_server_describe from "./routes/api/server/describe.ts";
 import * as $api_server_migrate from "./routes/api/server/migrate.ts";
 import * as $api_server_migrate_create from "./routes/api/server/migrate/create.ts";
 import * as $api_server_migrate_data from "./routes/api/server/migrate/data.ts";
 import * as $api_server_migrate_finalize from "./routes/api/server/migrate/finalize.ts";
+import * as $api_server_migrate_identity from "./routes/api/server/migrate/identity.ts";
 import * as $api_server_migrate_identity_request from "./routes/api/server/migrate/identity/request.ts";
 import * as $api_server_migrate_identity_sign from "./routes/api/server/migrate/identity/sign.ts";
 import * as $index from "./routes/index.tsx";
@@ -24,10 +26,12 @@ import * as $AirportSign from "./islands/AirportSign.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $HandleInput from "./islands/HandleInput.tsx";
 import * as $Header from "./islands/Header.tsx";
+import * as $LoginMethodSelector from "./islands/LoginMethodSelector.tsx";
 import * as $MigrationFlow from "./islands/MigrationFlow.tsx";
 import * as $MigrationProgress from "./islands/MigrationProgress.tsx";
 import * as $MigrationSetup from "./islands/MigrationSetup.tsx";
 import * as $OAuthCallback from "./islands/OAuthCallback.tsx";
+import * as $PasswordLogin from "./islands/PasswordLogin.tsx";
 import * as $Ticket from "./islands/Ticket.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -35,15 +39,17 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/login.ts": $api_login,
+    "./routes/api/logout.ts": $api_logout,
     "./routes/api/me.ts": $api_me,
     "./routes/api/oauth/callback.ts": $api_oauth_callback,
     "./routes/api/oauth/initiate.ts": $api_oauth_initiate,
-    "./routes/api/oauth/logout.ts": $api_oauth_logout,
     "./routes/api/server/describe.ts": $api_server_describe,
     "./routes/api/server/migrate.ts": $api_server_migrate,
     "./routes/api/server/migrate/create.ts": $api_server_migrate_create,
     "./routes/api/server/migrate/data.ts": $api_server_migrate_data,
     "./routes/api/server/migrate/finalize.ts": $api_server_migrate_finalize,
+    "./routes/api/server/migrate/identity.ts": $api_server_migrate_identity,
     "./routes/api/server/migrate/identity/request.ts":
       $api_server_migrate_identity_request,
     "./routes/api/server/migrate/identity/sign.ts":
@@ -59,10 +65,12 @@ const manifest = {
     "./islands/Counter.tsx": $Counter,
     "./islands/HandleInput.tsx": $HandleInput,
     "./islands/Header.tsx": $Header,
+    "./islands/LoginMethodSelector.tsx": $LoginMethodSelector,
     "./islands/MigrationFlow.tsx": $MigrationFlow,
     "./islands/MigrationProgress.tsx": $MigrationProgress,
     "./islands/MigrationSetup.tsx": $MigrationSetup,
     "./islands/OAuthCallback.tsx": $OAuthCallback,
+    "./islands/PasswordLogin.tsx": $PasswordLogin,
     "./islands/Ticket.tsx": $Ticket,
   },
   baseUrl: import.meta.url,

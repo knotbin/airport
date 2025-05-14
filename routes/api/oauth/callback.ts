@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts"
 import { oauthClient } from "../../../auth/client.ts";
-import { getSession } from "../../../auth/session.ts"
+import { getSessions } from "../../../auth/session.ts"
 
 export const handler: Handlers = {
   async GET(req) {
@@ -35,9 +35,14 @@ export const handler: Handlers = {
       });
 
       // Create and save our client session
-      const clientSession = await getSession(req, response);
-      clientSession.did = session.did;
-      await clientSession.save();
+      const sessions = await getSessions(req, response);
+      if (!sessions.old) {
+        sessions.old = { did: session.did, isOAuth: true };
+      } else {
+        sessions.old.did = session.did;
+        sessions.old.isOAuth = true;
+      }
+      await sessions.save();
 
       // Log success with cookie details
       console.info(

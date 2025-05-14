@@ -11,11 +11,22 @@ export const handler: Handlers = {
 
     try {
       const did = agent.assertDid;
-      const handle = await resolver.resolveDidToHandle(did)
+      let handle: string;
+      try {
+        handle = await resolver.resolveDidToHandle(did);
+      } catch (err) {
+        // If handle resolution fails, just use the DID
+        handle = did;
+      }
 
-      return Response.json({ did, handle })
+      const response = Response.json({ did, handle });
+      
+      // Add cache control headers
+      response.headers.set('Cache-Control', 'max-age=300'); // Cache for 5 minutes
+      response.headers.set('Vary', 'Cookie'); // Vary by cookie to ensure proper caching
+      
+      return response;
     } catch (err) {
-      console.error({ err }, "Failed to fetch profile");
       return Response.json(null);
     }
   },

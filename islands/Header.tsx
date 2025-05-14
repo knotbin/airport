@@ -18,18 +18,38 @@ function truncateText(text: string, maxLength: number) {
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!IS_BROWSER) return;
 
     const fetchUser = async () => {
       try {
+        // Only show loading state on initial load
+        if (!user) {
+          setIsLoading(true);
+        }
+        setError(null);
+        
         const response = await fetch("/api/me", {
           credentials: "include",
+          // Add cache control headers
+          headers: {
+            'Cache-Control': 'max-age=300' // Cache for 5 minutes
+          }
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch user profile");
+
+        if (response.status === 401) {
+          // Session expired or invalid
+          setUser(null);
+          return;
         }
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+        }
+
         const userData = await response.json();
         setUser(userData ? {
           did: userData.did,
@@ -37,16 +57,23 @@ export default function Header() {
         } : null);
       } catch (error) {
         console.error("Failed to fetch user:", error);
+        setError(error instanceof Error ? error.message : "Failed to fetch user profile");
         setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUser();
+
+    // Set up periodic refresh of user data
+    const interval = setInterval(fetchUser, 5 * 60 * 1000); // Refresh every 5 minutes
+    return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/oauth/logout", {
+      const response = await fetch("/api/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -59,6 +86,7 @@ export default function Header() {
       globalThis.location.href = "/";
     } catch (error) {
       console.error("Failed to logout:", error);
+      setError(error instanceof Error ? error.message : "Failed to logout");
     }
   };
 
@@ -83,7 +111,12 @@ export default function Header() {
 
             {/* Check-in (Login/Profile) */}
             <div className="relative">
-              {user?.did ? (
+              {isLoading && !user ? (
+                <div className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-6 py-3">
+                  <img src="/icons/ticket_bold.svg" alt="Loading" className="w-6 h-6 mr-2 animate-spin" style={{ filter: 'brightness(0)' }} />
+                  <span className="font-mono font-bold tracking-wider">LOADING...</span>
+                </div>
+              ) : user?.did ? (
                 <div className="relative group">
                   <div className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-6 py-3 hover:translate-y-1 transition-all duration-200 hover:from-amber-500 hover:to-amber-600 cursor-pointer">
                     <img src="/icons/ticket_bold.svg" alt="Check-in" className="w-6 h-6 mr-2" style={{ filter: 'brightness(0)' }} />

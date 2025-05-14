@@ -1,16 +1,7 @@
-import { getSessionAgent } from "../../../../../auth/session.ts";
+import { getSessionAgent } from "../../../../auth/session.ts";
 import { Handlers } from "$fresh/server.ts"
-import { Agent } from "npm:@atproto/api"
-
-// Reference to the migrationData Map from request.ts
-declare const migrationData: Map<string, {
-  recoveryKey: string;
-  recoveryKeyDid: string;
-  credentials: {
-    rotationKeys: string[];
-    [key: string]: unknown;
-  };
-}>;
+import { Secp256k1Keypair } from "npm:@atproto/crypto";
+import * as ui8 from 'npm:uint8arrays'
 
 export const handler: Handlers = {
   async POST(_req, _ctx) {
@@ -23,15 +14,16 @@ export const handler: Handlers = {
         return new Response(JSON.stringify({
           success: false,
           message: "Missing param token"
-        }), { 
+        }), {
           status: 400,
           headers: { "Content-Type": "application/json" }
         })
       }
 
       const oldAgent = await getSessionAgent(_req, _ctx)
+      const newAgent = await getSessionAgent(_req, _ctx, true)
 
-      if (!oldAgent?.did) {
+      if (!oldAgent) {
         return new Response(JSON.stringify({
           success: false,
           message: "Unauthorized"
@@ -40,30 +32,34 @@ export const handler: Handlers = {
           headers: { "Content-Type": "application/json" }
         })
       }
-
-      // Get the temporary migration data
-      const tempData = migrationData.get(oldAgent.did);
-      if (!tempData) {
+      if (!newAgent) {
         return new Response(JSON.stringify({
           success: false,
-          message: "Migration data not found or expired. Please restart the identity migration process."
+          message: "Migration session not found or invalid"
         }), {
           status: 400,
           headers: { "Content-Type": "application/json" }
         })
       }
 
-      // Create new agent for the current service
-      const serviceUrl = (oldAgent as any).api.xrpc.baseUrl || "https://bsky.social";
-      const newAgent = new Agent({ service: serviceUrl });
+      // Generate recovery key
+      const recoveryKey = await Secp256k1Keypair.create({ exportable: true })
+      const privateKeyBytes = await recoveryKey.export()
+      const privateKey = ui8.toString(privateKeyBytes, 'hex')
 
-      // Prepare credentials with recovery key
+      await oldAgent.com.atproto.identity.requestPlcOperationSignature()
+
+      const getDidCredentials =
+        await newAgent.com.atproto.identity.getRecommendedDidCredentials()
+      const rotationKeys = getDidCredentials.data.rotationKeys ?? []
+      if (!rotationKeys) {
+        throw new Error('No rotation key provided')
+      }
       const credentials = {
-        ...tempData.credentials,
-        rotationKeys: [tempData.recoveryKeyDid, ...tempData.credentials.rotationKeys],
+        ...getDidCredentials.data,
+        rotationKeys: [recoveryKey.did(), ...rotationKeys],
       }
 
-      // Sign and submit the operation
       const plcOp = await oldAgent.com.atproto.identity.signPlcOperation({
         token: token,
         ...credentials,
@@ -73,29 +69,26 @@ export const handler: Handlers = {
         operation: plcOp.data.operation,
       })
 
-      // Clean up the temporary data
-      migrationData.delete(oldAgent.did);
-
       return new Response(JSON.stringify({
         success: true,
         message: "Identity migration completed successfully",
-        recoveryKey: tempData.recoveryKey // Return the recovery key one last time
-      }), { 
+        recoveryKey: privateKey
+      }), {
         status: 200,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           ...Object.fromEntries(res.headers) // Include session cookie headers
         }
       })
     } catch (error) {
-      console.error("Identity migration sign error:", error);
+      console.error("Identity migration error:", error);
       return new Response(JSON.stringify({
         success: false,
-        message: error instanceof Error ? error.message : "Failed to complete identity migration"
-      }), { 
+        message: error instanceof Error ? error.message : "Failed to migrate identity"
+      }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
   }
-} 
+}
