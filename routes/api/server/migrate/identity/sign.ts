@@ -2,7 +2,7 @@ import {
   getMigrationSession,
   getMigrationSessionAgent,
   getSessionAgent,
-} from "../../../../../auth/session.ts";
+} from "../../../../../oauth/session.ts";
 import { define } from "../../../../../utils.ts";
 
 export const handler = define.handlers({

@@ -1,6 +1,6 @@
-import { getSessionAgent } from "../../auth/session.ts";
+import { getSessionAgent } from "../../oauth/session.ts";
 import { define } from "../../utils.ts";
-import { resolver } from "../../plugins/id-resolver.ts";
+import { resolver } from "../../tools/id-resolver.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {

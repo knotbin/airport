@@ -1,5 +1,5 @@
 import { isValidHandle } from 'npm:@atproto/syntax'
-import { oauthClient } from "../../../auth/client.ts";
+import { oauthClient } from "../../../oauth/client.ts";
 import { define } from "../../../utils.ts";
 
 function isValidUrl(url: string): boolean {

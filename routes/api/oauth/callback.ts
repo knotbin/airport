@@ -1,12 +1,13 @@
-import { oauthClient } from "../../../auth/client.ts";
-import { getSession } from "../../../auth/session.ts";
-import { Handlers } from "fresh/compat";
+import { oauthClient } from "../../../oauth/client.ts";
+import { getSession } from "../../../oauth/session.ts";
+import { define } from "../../../utils.ts";
 
-export const handler: Handlers = {
+export const handler = define.handlers({
   async GET(ctx) {
     const req = ctx.req;
     const url = new URL(req.url);
     const params = url.searchParams;
+    const baseUrl = `${url.protocol}//${url.host}`;
 
     // Log incoming parameters for debugging
     console.log("OAuth callback received params:", {
@@ -59,7 +60,7 @@ export const handler: Handlers = {
         params: Object.fromEntries(params.entries()),
       }, "OAuth callback failed");
 
-      return Response.redirect("/login/callback?error=auth");
+      return Response.redirect(`${baseUrl}/login/callback?error=auth`);
     }
   },
-};
+});

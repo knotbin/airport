@@ -1,6 +1,6 @@
 
 import { Agent } from "@atproto/api";
-import { getSessionAgent } from "../../../auth/session.ts";
+import { getSessionAgent } from "../../../oauth/session.ts";
 import { define } from "../../../utils.ts";
 /**
  * Describe the server configuration and capabilities

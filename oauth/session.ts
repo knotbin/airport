@@ -28,6 +28,7 @@ export interface State {
 }
 
 const cookieSecret = Deno.env.get("COOKIE_SECRET");
+console.log("COOKIE_SECRET", cookieSecret);
 
 const sessionOptions: SessionOptions = {
   cookieName: "sid",

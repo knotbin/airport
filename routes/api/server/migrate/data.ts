@@ -2,7 +2,7 @@ import { define } from "../../../../utils.ts";
 import {
   getMigrationSessionAgent,
   getSessionAgent,
-} from "../../../../auth/session.ts";
+} from "../../../../oauth/session.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {

@@ -1,7 +1,7 @@
 import {
   getSessionAgent,
   setMigrationSession,
-} from "../../../../auth/session.ts";
+} from "../../../../oauth/session.ts";
 import { Agent } from "@atproto/api";
 import { define } from "../../../../utils.ts";
 
