@@ -1,9 +1,11 @@
-import { Handlers } from "$fresh/server.ts";
 import { getSession } from "../../../auth/session.ts";
 import { oauthClient } from "../../../auth/client.ts";
+import { define } from "../../../utils.ts";
 
-export const handler: Handlers = {
-  async POST(req) {
+export const handler = define.handlers({
+  async POST(ctx) {
+    const req = ctx.req;
+
     try {
       const response = new Response(null, { status: 200 });
       const session = await getSession(req, response);
@@ -22,4 +24,4 @@ export const handler: Handlers = {
       return new Response("Logout failed", { status: 500 });
     }
   },
-};
+});

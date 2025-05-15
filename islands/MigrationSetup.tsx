@@ -14,7 +14,9 @@ interface ServerDescription {
 
 export default function MigrationSetup(props: MigrationSetupProps) {
   const [service, setService] = useState(props.service || "");
-  const [handlePrefix, setHandlePrefix] = useState(props.handle?.split(".")[0] || "");
+  const [handlePrefix, setHandlePrefix] = useState(
+    props.handle?.split(".")[0] || "",
+  );
   const [selectedDomain, setSelectedDomain] = useState("");
   const [email, setEmail] = useState(props.email || "");
   const [password, setPassword] = useState("");
@@ -27,7 +29,9 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   const checkServerDescription = async (serviceUrl: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${serviceUrl}/xrpc/com.atproto.server.describeServer`);
+      const response = await fetch(
+        `${serviceUrl}/xrpc/com.atproto.server.describeServer`,
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch server description");
       }
@@ -42,7 +46,9 @@ export default function MigrationSetup(props: MigrationSetupProps) {
       }
     } catch (err) {
       console.error("Failed to check server description:", err);
-      setError("Failed to connect to server. Please check the URL and try again.");
+      setError(
+        "Failed to connect to server. Please check the URL and try again.",
+      );
       setInviteRequired(false);
       setAvailableDomains([]);
     } finally {
@@ -63,7 +69,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    
+
     if (!service || !handlePrefix || !email || !password) {
       setError("Please fill in all required fields");
       return;
@@ -75,11 +81,11 @@ export default function MigrationSetup(props: MigrationSetupProps) {
     }
 
     const fullHandle = `${handlePrefix}${
-      availableDomains.length === 1 
+      availableDomains.length === 1
         ? availableDomains[0]
-        : availableDomains.length > 1 
-          ? selectedDomain
-          : ".example.com"
+        : availableDomains.length > 1
+        ? selectedDomain
+        : ".example.com"
     }`;
 
     // Redirect to progress page with parameters
@@ -88,7 +94,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
       handle: fullHandle,
       email,
       password,
-      ...(invite ? { invite } : {})
+      ...(invite ? { invite } : {}),
     });
     globalThis.location.href = `/migrate/progress?${params.toString()}`;
   };
@@ -135,27 +141,31 @@ export default function MigrationSetup(props: MigrationSetupProps) {
               required
               class="flex-1 rounded-l-md border-r-0 border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
-            {availableDomains.length > 0 ? (
-              availableDomains.length === 1 ? (
-                <span class="inline-flex items-center px-3 rounded-r-md bg-white text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-                  {availableDomains[0]}
-                </span>
-              ) : (
-                <select
-                  value={selectedDomain}
-                  onChange={(e) => setSelectedDomain(e.currentTarget.value)}
-                  class="rounded-r-md border-l-0 border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                >
-                  {availableDomains.map(domain => (
-                    <option key={domain} value={domain}>{domain}</option>
-                  ))}
-                </select>
+            {availableDomains.length > 0
+              ? (
+                availableDomains.length === 1
+                  ? (
+                    <span class="inline-flex items-center px-3 rounded-r-md bg-white text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                      {availableDomains[0]}
+                    </span>
+                  )
+                  : (
+                    <select
+                      value={selectedDomain}
+                      onChange={(e) => setSelectedDomain(e.currentTarget.value)}
+                      class="rounded-r-md border-l-0 border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      {availableDomains.map((domain) => (
+                        <option key={domain} value={domain}>{domain}</option>
+                      ))}
+                    </select>
+                  )
               )
-            ) : (
-              <span class="inline-flex items-center px-3 rounded-r-md bg-white text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-                .example.com
-              </span>
-            )}
+              : (
+                <span class="inline-flex items-center px-3 rounded-r-md bg-white text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                  .example.com
+                </span>
+              )}
           </div>
         </div>
 
@@ -210,4 +220,4 @@ export default function MigrationSetup(props: MigrationSetupProps) {
       </button>
     </form>
   );
-} 
+}

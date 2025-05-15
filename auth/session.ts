@@ -1,6 +1,5 @@
 import { Agent } from "npm:@atproto/api";
 import { getIronSession, SessionOptions } from "npm:iron-session";
-import { FreshContext } from "$fresh/server.ts";
 import { oauthClient } from "./client.ts";
 
 export interface Session {
@@ -28,7 +27,7 @@ export interface State {
   migrationAgent?: Agent;
 }
 
-const cookieSecret = Deno.env.get("COOKIE_SECRET")
+const cookieSecret = Deno.env.get("COOKIE_SECRET");
 
 const sessionOptions: SessionOptions = {
   cookieName: "sid",
@@ -55,14 +54,13 @@ const migrationSessionOptions: SessionOptions = {
 };
 
 export async function getSessionAgent(
-  req: Request,
-  ctx: FreshContext
+  req: Request
 ) {
   const res = new Response();
   const session = await getIronSession<Session>(
     req,
     res,
-    sessionOptions
+    sessionOptions,
   );
 
   if (!session.did) {
@@ -73,10 +71,7 @@ export async function getSessionAgent(
     const oauthSession = await oauthClient.restore(session.did);
     return oauthSession ? new Agent(oauthSession) : null;
   } catch (err) {
-    const logger = ctx.state.logger as {
-      warn: (obj: Record<string, unknown>, msg: string) => void;
-    };
-    logger.warn({ err }, "oauth restore failed");
+    console.warn({ err }, "oauth restore failed");
     session.destroy();
     return null;
   }
@@ -86,16 +81,16 @@ export function getSession(req: Request, res: Response = new Response()) {
   return getIronSession<Session>(req, res, sessionOptions);
 }
 
-export async function getMigrationSession(
+export function getMigrationSession(
   req: Request,
-  res: Response = new Response()
+  res: Response = new Response(),
 ) {
   return getIronSession<MigrationSession>(req, res, migrationSessionOptions);
 }
 
 export async function getMigrationAgent(
   req: Request,
-  res: Response = new Response()
+  res: Response = new Response(),
 ) {
   const session = await getMigrationSession(req, res);
   if (!session.did || !session.service) {
@@ -103,8 +98,8 @@ export async function getMigrationAgent(
   }
 
   try {
-    return new Agent({ 
-      service: session.service
+    return new Agent({
+      service: session.service,
     });
   } catch (err) {
     console.warn("Failed to create migration agent:", err);
@@ -116,7 +111,7 @@ export async function getMigrationAgent(
 export async function setMigrationSession(
   req: Request,
   res: Response,
-  data: MigrationSession
+  data: MigrationSession,
 ) {
   const session = await getMigrationSession(req, res);
   session.did = data.did;
@@ -129,7 +124,7 @@ export async function setMigrationSession(
 
 export async function getMigrationSessionAgent(
   req: Request,
-  res: Response = new Response()
+  res: Response = new Response(),
 ) {
   const session = await getMigrationSession(req, res);
   console.log("Migration session data:", {
@@ -137,10 +132,12 @@ export async function getMigrationSessionAgent(
     hasService: !!session.service,
     hasHandle: !!session.handle,
     hasPassword: !!session.password,
-    sessionData: session
+    sessionData: session,
   });
 
-  if (!session.did || !session.service || !session.handle || !session.password) {
+  if (
+    !session.did || !session.service || !session.handle || !session.password
+  ) {
     console.log("Missing required session data");
     return null;
   }
@@ -148,19 +145,19 @@ export async function getMigrationSessionAgent(
   try {
     console.log("Creating agent with service:", session.service);
     const agent = new Agent({ service: session.service });
-    
+
     // Attempt to restore session by creating a new one
     try {
       console.log("Attempting to create session for:", session.handle);
       const sessionRes = await agent.com.atproto.server.createSession({
         identifier: session.handle,
-        password: session.password
+        password: session.password,
       });
       console.log("Session created successfully:", !!sessionRes);
-      
+
       // Set the auth tokens in the agent
-      agent.setHeader('Authorization', `Bearer ${sessionRes.data.accessJwt}`);
-      
+      agent.setHeader("Authorization", `Bearer ${sessionRes.data.accessJwt}`);
+
       return agent;
     } catch (err) {
       // Session creation failed, clear the session

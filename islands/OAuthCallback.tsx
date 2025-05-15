@@ -1,13 +1,17 @@
 import { useEffect, useState } from "preact/hooks";
-import { IS_BROWSER } from "$fresh/runtime.ts";
+import { IS_BROWSER } from "fresh/runtime";
 
 interface OAuthCallbackProps {
   error?: string;
 }
 
-export default function OAuthCallback({ error: initialError }: OAuthCallbackProps) {
+export default function OAuthCallback(
+  { error: initialError }: OAuthCallbackProps,
+) {
   const [error, setError] = useState<string | null>(initialError || null);
-  const [message, setMessage] = useState<string>("Completing authentication...");
+  const [message, setMessage] = useState<string>(
+    "Completing authentication...",
+  );
 
   useEffect(() => {
     if (!IS_BROWSER) return;
@@ -35,19 +39,23 @@ export default function OAuthCallback({ error: initialError }: OAuthCallbackProp
           const cookies = document.cookie
             .split(";")
             .map((c) => c.trim())
-            .filter(c => c.length > 0);
+            .filter((c) => c.length > 0);
 
           console.log("Current cookies:", cookies);
 
           const response = await fetch("/api/me", {
-            credentials: 'include',  // Explicitly include credentials
+            credentials: "include", // Explicitly include credentials
             headers: {
-              'Accept': 'application/json'
-            }
+              "Accept": "application/json",
+            },
           });
 
           if (!response.ok) {
-            console.error("Profile API error:", response.status, response.statusText);
+            console.error(
+              "Profile API error:",
+              response.status,
+              response.statusText,
+            );
             const text = await response.text();
             console.error("Response body:", text);
             throw new Error(`API returned ${response.status}`);
@@ -69,11 +77,19 @@ export default function OAuthCallback({ error: initialError }: OAuthCallbackProp
           }
         } catch (apiErr: unknown) {
           console.error("API error during auth check:", apiErr);
-          setError(`Failed to verify authentication: ${apiErr instanceof Error ? apiErr.message : 'Unknown error'}`);
+          setError(
+            `Failed to verify authentication: ${
+              apiErr instanceof Error ? apiErr.message : "Unknown error"
+            }`,
+          );
         }
       } catch (err: unknown) {
         console.error("General error in OAuth callback:", err);
-        setError(`Failed to complete authentication: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError(
+          `Failed to complete authentication: ${
+            err instanceof Error ? err.message : "Unknown error"
+          }`,
+        );
       }
     };
 
@@ -83,30 +99,33 @@ export default function OAuthCallback({ error: initialError }: OAuthCallbackProp
   return (
     <div class="flex items-center justify-center py-16">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 max-w-md w-full text-center">
-        {error ? (
-          <div>
-            <h2 class="text-2xl font-bold text-red-500 mb-4">
-              Authentication Failed
-            </h2>
-            <p class="text-red-500 mb-6">{error}</p>
-            <a
-              href="/login"
-              class="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </a>
-          </div>
-        ) : (
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-              Authentication in Progress
-            </h2>
-            <div class="flex justify-center mb-4">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400"></div>
+        {error
+          ? (
+            <div>
+              <h2 class="text-2xl font-bold text-red-500 mb-4">
+                Authentication Failed
+              </h2>
+              <p class="text-red-500 mb-6">{error}</p>
+              <a
+                href="/login"
+                class="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </a>
             </div>
-            <p class="text-gray-600 dark:text-gray-400">{message}</p>
-          </div>
-        )}
+          )
+          : (
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+                Authentication in Progress
+              </h2>
+              <div class="flex justify-center mb-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400">
+                </div>
+              </div>
+              <p class="text-gray-600 dark:text-gray-400">{message}</p>
+            </div>
+          )}
       </div>
     </div>
   );

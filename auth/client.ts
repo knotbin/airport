@@ -1,4 +1,4 @@
-import { AtprotoOAuthClient } from 'jsr:@bigmoves/atproto-oauth-client'
+import { AtprotoOAuthClient } from "jsr:@bigmoves/atproto-oauth-client";
 import { SessionStore, StateStore } from "./storage.ts";
 
 export const createClient = (db: Deno.Kv) => {
@@ -7,7 +7,7 @@ export const createClient = (db: Deno.Kv) => {
   }
 
   const publicUrl = Deno.env.get("PUBLIC_URL");
-  const url = publicUrl || `http://127.0.0.1:${Deno.env.get("PORT")}`;
+  const url = publicUrl || `http://127.0.0.1:8000`;
   const enc = encodeURIComponent;
 
   return new AtprotoOAuthClient({
@@ -28,9 +28,9 @@ export const createClient = (db: Deno.Kv) => {
       dpop_bound_access_tokens: true,
     },
     stateStore: new StateStore(db),
-    sessionStore: new SessionStore(db)
+    sessionStore: new SessionStore(db),
   });
 };
 
-const kv = await Deno.openKv()
-export const oauthClient = await createClient(kv)
+const kv = await Deno.openKv();
+export const oauthClient = createClient(kv);

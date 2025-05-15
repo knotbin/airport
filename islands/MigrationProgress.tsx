@@ -25,15 +25,25 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     { name: "Finalize Migration", status: "pending" },
   ]);
 
-  const updateStepStatus = (index: number, status: MigrationStep["status"], error?: string) => {
-    console.log(`Updating step ${index} to ${status}${error ? ` with error: ${error}` : ''}`);
-    setSteps(prevSteps => prevSteps.map((step, i) => 
-      i === index 
-        ? { ...step, status, error } 
-        : i > index 
+  const updateStepStatus = (
+    index: number,
+    status: MigrationStep["status"],
+    error?: string,
+  ) => {
+    console.log(
+      `Updating step ${index} to ${status}${
+        error ? ` with error: ${error}` : ""
+      }`,
+    );
+    setSteps((prevSteps) =>
+      prevSteps.map((step, i) =>
+        i === index
+          ? { ...step, status, error }
+          : i > index
           ? { ...step, status: "pending", error: undefined }
           : step
-    ));
+      )
+    );
   };
 
   const validateParams = () => {
@@ -62,17 +72,21 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       handle: props.handle,
       email: props.email,
       hasPassword: !!props.password,
-      invite: props.invite
+      invite: props.invite,
     });
-    
+
     if (!validateParams()) {
       console.log("Parameter validation failed");
       return;
     }
-    
-    startMigration().catch(error => {
+
+    startMigration().catch((error) => {
       console.error("Unhandled migration error:", error);
-      updateStepStatus(0, "error", error instanceof Error ? error.message : String(error));
+      updateStepStatus(
+        0,
+        "error",
+        error instanceof Error ? error.message : String(error),
+      );
     });
   }, []);
 
@@ -81,17 +95,17 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       // Step 1: Create Account
       updateStepStatus(0, "in-progress");
       console.log("Starting account creation...");
-      
+
       try {
         const createRes = await fetch("/api/server/migrate/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            service: props.service, 
-            handle: props.handle, 
-            password: props.password, 
-            email: props.email, 
-            ...(props.invite ? { invite: props.invite } : {})
+          body: JSON.stringify({
+            service: props.service,
+            handle: props.handle,
+            password: props.password,
+            email: props.email,
+            ...(props.invite ? { invite: props.invite } : {}),
           }),
         });
 
@@ -114,20 +128,24 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
         updateStepStatus(0, "completed");
       } catch (error) {
-        updateStepStatus(0, "error", error instanceof Error ? error.message : String(error));
+        updateStepStatus(
+          0,
+          "error",
+          error instanceof Error ? error.message : String(error),
+        );
         throw error;
       }
 
       // Step 2: Migrate Data
       updateStepStatus(1, "in-progress");
       console.log("Starting data migration...");
-      
+
       try {
         const dataRes = await fetch("/api/server/migrate/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         console.log("Data migration response status:", dataRes.status);
         const dataText = await dataRes.text();
         console.log("Data migration response:", dataText);
@@ -149,14 +167,18 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
         updateStepStatus(1, "completed");
       } catch (error) {
-        updateStepStatus(1, "error", error instanceof Error ? error.message : String(error));
+        updateStepStatus(
+          1,
+          "error",
+          error instanceof Error ? error.message : String(error),
+        );
         throw error;
       }
 
       // Step 3: Request Identity Migration
       updateStepStatus(2, "in-progress");
       console.log("Requesting identity migration...");
-      
+
       try {
         const requestRes = await fetch("/api/server/migrate/identity/request", {
           method: "POST",
@@ -168,25 +190,35 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         console.log("Identity request response:", requestText);
 
         if (!requestRes.ok) {
-          throw new Error(requestText || "Failed to request identity migration");
+          throw new Error(
+            requestText || "Failed to request identity migration",
+          );
         }
 
         try {
           const jsonData = JSON.parse(requestText);
           if (!jsonData.success) {
-            throw new Error(jsonData.message || "Identity migration request failed");
+            throw new Error(
+              jsonData.message || "Identity migration request failed",
+            );
           }
           console.log("Identity migration requested successfully");
         } catch (e) {
           console.error("Failed to parse identity request response:", e);
-          throw new Error("Invalid response from server during identity request");
+          throw new Error(
+            "Invalid response from server during identity request",
+          );
         }
 
         updateStepStatus(2, "completed");
         // Move to token input step
         updateStepStatus(3, "in-progress");
       } catch (error) {
-        updateStepStatus(2, "error", error instanceof Error ? error.message : String(error));
+        updateStepStatus(
+          2,
+          "error",
+          error instanceof Error ? error.message : String(error),
+        );
         throw error;
       }
     } catch (error) {
@@ -198,14 +230,19 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     if (!token) return;
 
     try {
-      const identityRes = await fetch(`/api/server/migrate/identity/sign?token=${encodeURIComponent(token)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const identityRes = await fetch(
+        `/api/server/migrate/identity/sign?token=${encodeURIComponent(token)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
       const identityData = await identityRes.text();
       if (!identityRes.ok) {
-        throw new Error(identityData || "Failed to complete identity migration");
+        throw new Error(
+          identityData || "Failed to complete identity migration",
+        );
       }
 
       let data;
@@ -245,12 +282,20 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
         updateStepStatus(4, "completed");
       } catch (error) {
-        updateStepStatus(4, "error", error instanceof Error ? error.message : String(error));
+        updateStepStatus(
+          4,
+          "error",
+          error instanceof Error ? error.message : String(error),
+        );
         throw error;
       }
     } catch (error) {
       console.error("Identity migration error:", error);
-      updateStepStatus(3, "error", error instanceof Error ? error.message : String(error));
+      updateStepStatus(
+        3,
+        "error",
+        error instanceof Error ? error.message : String(error),
+      );
     }
   };
 
@@ -271,16 +316,36 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       case "completed":
         return (
           <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
         );
       case "error":
         return (
           <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </div>
         );
@@ -288,7 +353,8 @@ export default function MigrationProgress(props: MigrationProgressProps) {
   };
 
   const getStepClasses = (status: MigrationStep["status"]) => {
-    const baseClasses = "flex items-center space-x-3 p-4 rounded-lg transition-colors duration-200";
+    const baseClasses =
+      "flex items-center space-x-3 p-4 rounded-lg transition-colors duration-200";
     switch (status) {
       case "pending":
         return `${baseClasses} bg-gray-50 dark:bg-gray-800`;
@@ -308,14 +374,23 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           <div key={step.name} class={getStepClasses(step.status)}>
             {getStepIcon(step.status)}
             <div class="flex-1">
-              <p class={`font-medium ${
-                step.status === "error" ? "text-red-900 dark:text-red-200" :
-                step.status === "completed" ? "text-green-900 dark:text-green-200" :
-                step.status === "in-progress" ? "text-blue-900 dark:text-blue-200" :
-                "text-gray-900 dark:text-gray-200"
-              }`}>{step.name}</p>
+              <p
+                class={`font-medium ${
+                  step.status === "error"
+                    ? "text-red-900 dark:text-red-200"
+                    : step.status === "completed"
+                    ? "text-green-900 dark:text-green-200"
+                    : step.status === "in-progress"
+                    ? "text-blue-900 dark:text-blue-200"
+                    : "text-gray-900 dark:text-gray-200"
+                }`}
+              >
+                {step.name}
+              </p>
               {step.error && (
-                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{step.error}</p>
+                <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+                  {step.error}
+                </p>
               )}
             </div>
           </div>

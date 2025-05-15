@@ -1,6 +1,6 @@
-import type { Handlers } from "$fresh/server.ts";
 import { isValidHandle } from 'npm:@atproto/syntax'
 import { oauthClient } from "../../../auth/client.ts";
+import { define } from "../../../utils.ts";
 
 function isValidUrl(url: string): boolean {
   try {
@@ -12,9 +12,9 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-export const handler: Handlers = {
-  async POST(_req) {
-    const data = await _req.json()
+export const handler = define.handlers({
+  async POST(ctx) {
+    const data = await ctx.req.json()
     const handle = data.handle
     if (
       typeof handle !== 'string' ||
@@ -34,4 +34,4 @@ export const handler: Handlers = {
       return new Response("Couldn't initiate login", {status: 500})
     }
   },
-};
+});

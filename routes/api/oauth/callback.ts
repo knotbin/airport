@@ -1,9 +1,10 @@
-import { Handlers } from "$fresh/server.ts"
 import { oauthClient } from "../../../auth/client.ts";
-import { getSession } from "../../../auth/session.ts"
+import { getSession } from "../../../auth/session.ts";
+import { Handlers } from "fresh/compat";
 
 export const handler: Handlers = {
-  async GET(req) {
+  async GET(ctx) {
+    const req = ctx.req;
     const url = new URL(req.url);
     const params = url.searchParams;
 
@@ -30,8 +31,8 @@ export const handler: Handlers = {
       const response = new Response(null, {
         status: 302,
         headers: new Headers({
-          'Location': '/login/callback'
-        })
+          "Location": "/login/callback",
+        }),
       });
 
       // Create and save our client session
@@ -43,8 +44,8 @@ export const handler: Handlers = {
       console.info(
         `OAuth callback successful for DID: ${session.did}, redirecting to /login/callback`,
         {
-          cookies: response.headers.get('Set-Cookie'),
-        }
+          cookies: response.headers.get("Set-Cookie"),
+        },
       );
 
       return response;
@@ -58,7 +59,7 @@ export const handler: Handlers = {
         params: Object.fromEntries(params.entries()),
       }, "OAuth callback failed");
 
-      return Response.redirect('/login/callback?error=auth');
+      return Response.redirect("/login/callback?error=auth");
     }
-  }
+  },
 };
