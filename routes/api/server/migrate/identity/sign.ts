@@ -1,16 +1,5 @@
-import { getSessionAgent } from "../../../../../auth/session.ts";
+import { getSessionAgent, getMigrationSessionAgent, getMigrationSession } from "../../../../../auth/session.ts";
 import { Handlers } from "$fresh/server.ts"
-import { Agent } from "npm:@atproto/api"
-
-// Reference to the migrationData Map from request.ts
-declare const migrationData: Map<string, {
-  recoveryKey: string;
-  recoveryKeyDid: string;
-  credentials: {
-    rotationKeys: string[];
-    [key: string]: unknown;
-  };
-}>;
 
 export const handler: Handlers = {
   async POST(_req, _ctx) {
@@ -30,8 +19,10 @@ export const handler: Handlers = {
       }
 
       const oldAgent = await getSessionAgent(_req, _ctx)
+      const newAgent = await getMigrationSessionAgent(_req, res)
+      const session = await getMigrationSession(_req, res)
 
-      if (!oldAgent?.did) {
+      if (!oldAgent) {
         return new Response(JSON.stringify({
           success: false,
           message: "Unauthorized"
@@ -40,27 +31,20 @@ export const handler: Handlers = {
           headers: { "Content-Type": "application/json" }
         })
       }
-
-      // Get the temporary migration data
-      const tempData = migrationData.get(oldAgent.did);
-      if (!tempData) {
+      if (!newAgent || !session.recoveryKey || !session.recoveryKeyDid || !session.credentials) {
         return new Response(JSON.stringify({
           success: false,
-          message: "Migration data not found or expired. Please restart the identity migration process."
+          message: "Migration session not found or invalid. Please restart the identity migration process."
         }), {
           status: 400,
           headers: { "Content-Type": "application/json" }
         })
       }
 
-      // Create new agent for the current service
-      const serviceUrl = (oldAgent as any).api.xrpc.baseUrl || "https://bsky.social";
-      const newAgent = new Agent({ service: serviceUrl });
-
       // Prepare credentials with recovery key
       const credentials = {
-        ...tempData.credentials,
-        rotationKeys: [tempData.recoveryKeyDid, ...tempData.credentials.rotationKeys],
+        ...session.credentials,
+        rotationKeys: [session.recoveryKeyDid, ...session.credentials.rotationKeys],
       }
 
       // Sign and submit the operation
@@ -73,13 +57,10 @@ export const handler: Handlers = {
         operation: plcOp.data.operation,
       })
 
-      // Clean up the temporary data
-      migrationData.delete(oldAgent.did);
-
       return new Response(JSON.stringify({
         success: true,
         message: "Identity migration completed successfully",
-        recoveryKey: tempData.recoveryKey // Return the recovery key one last time
+        recoveryKey: session.recoveryKey
       }), { 
         status: 200,
         headers: { 

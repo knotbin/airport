@@ -1,4 +1,4 @@
-import { getSessionAgent, setRegularSession, MigrationResult } from "../../../../auth/session.ts";
+import { getSessionAgent, setMigrationSession } from "../../../../auth/session.ts";
 import { Agent } from "npm:@atproto/api"
 import { Handlers } from "$fresh/server.ts"
 
@@ -39,8 +39,7 @@ export const handler: Handlers = {
       })
       const serviceJwt = serviceJwtRes.data.token
 
-      // Create the account and get credentials
-      const createRes = await newAgent.com.atproto.server.createAccount(
+      await newAgent.com.atproto.server.createAccount(
         {
           handle: newHandle,
           email: email,
@@ -53,49 +52,29 @@ export const handler: Handlers = {
           encoding: 'application/json',
         },
       )
-
-      // Create session
+      
+      // Create session and store it
       const sessionRes = await newAgent.com.atproto.server.createSession({
         identifier: newHandle,
         password: newPassword,
       })
 
-      // Set the regular session with migration flag
-      await setRegularSession(_req, res, {
+      // Store the migration session
+      await setMigrationSession(_req, res, {
         did: sessionRes.data.did,
+        handle: newHandle,
         service: serviceUrl,
-        isMigrated: true,
-        atpSession: {
-          did: sessionRes.data.did,
-          handle: newHandle,
-          accessJwt: sessionRes.data.accessJwt,
-          refreshJwt: sessionRes.data.refreshJwt,
-          active: true
-        }
+        password: newPassword
       });
-
-      // Prepare the response with sensitive data that will only be shown once
-      const migrationResult: MigrationResult = {
-        did: sessionRes.data.did,
-        handle: newHandle
-      };
-
-      // Add any additional sensitive data from the create response if available
-      const createData = createRes.data as any;
-      if (createData.recoveryKey) {
-        migrationResult.recoveryKey = createData.recoveryKey;
-      }
-      if (createData.credentials) {
-        migrationResult.credentials = createData.credentials;
-      }
 
       return new Response(JSON.stringify({
         success: true,
         message: "Account created successfully",
-        ...migrationResult // Include sensitive data only in this response
-      }), {
+        did: accountDid,
+        handle: newHandle
+      }), { 
         status: 200,
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
           ...Object.fromEntries(res.headers) // Include session cookie headers
         }
@@ -105,10 +84,10 @@ export const handler: Handlers = {
       return new Response(JSON.stringify({
         success: false,
         message: error instanceof Error ? error.message : "Failed to create account"
-      }), {
+      }), { 
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
   }
-}
+} 

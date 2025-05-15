@@ -1,4 +1,4 @@
-import { getSessionAgent } from "../../../../auth/session.ts";
+import { getSessionAgent, getMigrationSessionAgent } from "../../../../auth/session.ts";
 import { Handlers } from "$fresh/server.ts"
 
 export const handler: Handlers = {
@@ -14,7 +14,7 @@ export const handler: Handlers = {
       console.log("Data migration: Cookies present:", !!cookies);
       console.log("Data migration: Cookie header:", cookies);
       
-      const newAgent = await getSessionAgent(_req, _ctx, true)
+      const newAgent = await getMigrationSessionAgent(_req, res)
       console.log("Data migration: Got new agent:", !!newAgent);
 
       if (!oldAgent) {

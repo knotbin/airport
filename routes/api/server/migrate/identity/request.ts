@@ -1,18 +1,7 @@
-import { getSessionAgent } from "../../../../../auth/session.ts";
+import { getSessionAgent, getMigrationSessionAgent, getMigrationSession } from "../../../../../auth/session.ts";
 import { Handlers } from "$fresh/server.ts"
 import { Secp256k1Keypair } from "npm:@atproto/crypto";
 import * as ui8 from 'npm:uint8arrays'
-import { Agent } from "npm:@atproto/api";
-
-// Store temporary migration data in memory (this will be cleared after sign step)
-const migrationData = new Map<string, {
-  recoveryKey: string;
-  recoveryKeyDid: string;
-  credentials: {
-    rotationKeys: string[];
-    [key: string]: unknown;
-  };
-}>();
 
 export const handler: Handlers = {
   async POST(_req, _ctx) {
@@ -26,8 +15,12 @@ export const handler: Handlers = {
         did: oldAgent?.did 
       });
 
-      // Get the current session to check migration status
-      if (!oldAgent?.did) {
+      const newAgent = await getMigrationSessionAgent(_req, res)
+      console.log("Got new agent:", { 
+        hasAgent: !!newAgent
+      });
+
+      if (!oldAgent) {
         return new Response(JSON.stringify({
           success: false,
           message: "Unauthorized"
@@ -36,8 +29,15 @@ export const handler: Handlers = {
           headers: { "Content-Type": "application/json" }
         })
       }
-
-      const did = oldAgent.did; // Store DID for later use
+      if (!newAgent) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: "Migration session not found or invalid"
+        }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        })
+      }
 
       // Generate recovery key
       console.log("Generating recovery key...");
@@ -49,12 +49,16 @@ export const handler: Handlers = {
         recoveryDid: recoveryKey.did()
       });
 
+      // Store the recovery key and its DID in the session for the sign step
+      const session = await getMigrationSession(_req, res);
+      session.recoveryKey = privateKey;
+      session.recoveryKeyDid = recoveryKey.did();
+      await session.save();
+      console.log("Stored recovery key in session");
+
       // Get recommended credentials for later use
       console.log("Getting recommended credentials...");
       try {
-        // Create a new agent for the current service
-        const serviceUrl = (oldAgent as any).api.xrpc.baseUrl || "https://bsky.social";
-        const newAgent = new Agent({ service: serviceUrl });
         const getDidCredentials = await newAgent.com.atproto.identity.getRecommendedDidCredentials()
         console.log("Got recommended credentials:", {
           hasRotationKeys: !!getDidCredentials.data.rotationKeys,
@@ -63,26 +67,17 @@ export const handler: Handlers = {
         });
 
         const rotationKeys = getDidCredentials.data.rotationKeys ?? []
-        if (!rotationKeys.length) {
+        if (!rotationKeys) {
           throw new Error('No rotation key provided')
         }
 
-        // Store temporary migration data in memory
-        migrationData.set(did, {
-          recoveryKey: privateKey,
-          recoveryKeyDid: recoveryKey.did(),
-          credentials: {
-            ...getDidCredentials.data,
-            rotationKeys
-          }
-        });
-        console.log("Stored migration data in memory");
-
-        // Set expiry for the migration data (30 minutes)
-        setTimeout(() => {
-          migrationData.delete(did);
-        }, 30 * 60 * 1000);
-
+        // Store credentials in session for sign step
+        session.credentials = {
+          ...getDidCredentials.data,
+          rotationKeys // Ensure rotationKeys is always an array
+        };
+        await session.save();
+        console.log("Stored credentials in session");
       } catch (error) {
         console.error("Error getting recommended credentials:", {
           name: error instanceof Error ? error.name : 'Unknown',
@@ -97,7 +92,12 @@ export const handler: Handlers = {
         await oldAgent.com.atproto.identity.requestPlcOperationSignature()
         console.log("Successfully requested PLC operation signature");
       } catch (error) {
-        console.error("Error requesting PLC operation signature: ", error);
+        console.error("Error requesting PLC operation signature:", {
+          name: error instanceof Error ? error.name : 'Unknown',
+          message: error instanceof Error ? error.message : String(error),
+          status: error instanceof Error ? (error as any).status : undefined,
+          response: error instanceof Error ? (error as any).response : undefined
+        });
         throw error;
       }
 
