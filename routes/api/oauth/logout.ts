@@ -1,5 +1,5 @@
-import { getSession } from "../../../oauth/session.ts";
-import { oauthClient } from "../../../oauth/client.ts";
+import { getSession } from "../../../auth/sessions.ts";
+import { oauthClient } from "../../../auth/oauth/client.ts";
 import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({
@@ -14,7 +14,7 @@ export const handler = define.handlers({
         // First destroy the oauth session
         await oauthClient.revoke(session.did);
         // Then destroy the iron session
-        await session.destroy();
+        session.destroy();
       }
 
       return response;

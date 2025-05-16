@@ -1,9 +1,9 @@
 import {
-  getMigrationSession,
-  getMigrationSessionAgent,
   getSessionAgent,
-} from "../../../../../oauth/session.ts";
-import { define } from "../../../../../utils.ts";
+} from "../../../../auth/sessions.ts";
+import { Secp256k1Keypair } from "npm:@atproto/crypto";
+import * as ui8 from "npm:uint8arrays";
+import { define } from "../../../../utils.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -26,8 +26,7 @@ export const handler = define.handlers({
       }
 
       const oldAgent = await getSessionAgent(ctx.req);
-      const newAgent = await getMigrationSessionAgent(ctx.req, res);
-      const session = await getMigrationSession(ctx.req, res);
+      const newAgent = await getSessionAgent(ctx.req, res, true);
 
       if (!oldAgent) {
         return new Response(
@@ -41,15 +40,11 @@ export const handler = define.handlers({
           },
         );
       }
-      if (
-        !newAgent || !session.recoveryKey || !session.recoveryKeyDid ||
-        !session.credentials
-      ) {
+      if (!newAgent) {
         return new Response(
           JSON.stringify({
             success: false,
-            message:
-              "Migration session not found or invalid. Please restart the identity migration process.",
+            message: "Migration session not found or invalid",
           }),
           {
             status: 400,
@@ -58,14 +53,46 @@ export const handler = define.handlers({
         );
       }
 
-      // Prepare credentials with recovery key
-      const credentials = {
-        ...session.credentials,
-        rotationKeys: [
-          session.recoveryKeyDid,
-          ...session.credentials.rotationKeys,
-        ],
-      };
+      // Generate recovery key
+      console.log("Generating recovery key...");
+      const recoveryKey = await Secp256k1Keypair.create({ exportable: true });
+      const privateKeyBytes = await recoveryKey.export();
+      const privateKey = ui8.toString(privateKeyBytes, "hex");
+      const recoveryKeyDid = recoveryKey.did();
+      console.log("Generated recovery key and DID:", {
+        hasPrivateKey: !!privateKey,
+        recoveryDid: recoveryKeyDid,
+      });
+
+      // Get recommended credentials
+      console.log("Getting recommended credentials...");
+      let credentials;
+      try {
+        const getDidCredentials = await newAgent.com.atproto.identity
+          .getRecommendedDidCredentials();
+        console.log("Got recommended credentials:", {
+          hasRotationKeys: !!getDidCredentials.data.rotationKeys,
+          rotationKeysLength: getDidCredentials.data.rotationKeys?.length,
+          data: getDidCredentials.data,
+        });
+
+        const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
+        if (!rotationKeys) {
+          throw new Error("No rotation key provided");
+        }
+
+        // Prepare credentials with recovery key
+        credentials = {
+          ...getDidCredentials.data,
+          rotationKeys: [recoveryKeyDid, ...rotationKeys],
+        };
+      } catch (error) {
+        console.error("Error getting recommended credentials:", {
+          name: error instanceof Error ? error.name : "Unknown",
+          message: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
 
       // Sign and submit the operation
       const plcOp = await oldAgent.com.atproto.identity.signPlcOperation({
@@ -81,7 +108,7 @@ export const handler = define.handlers({
         JSON.stringify({
           success: true,
           message: "Identity migration completed successfully",
-          recoveryKey: session.recoveryKey,
+          recoveryKey: privateKey,
         }),
         {
           status: 200,

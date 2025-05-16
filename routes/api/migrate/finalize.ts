@@ -1,15 +1,12 @@
-import {
-  getMigrationSessionAgent,
-  getSessionAgent,
-} from "../../../../oauth/session.ts";
-import { define } from "../../../../utils.ts";
+import { getSessionAgent } from "../../../auth/sessions.ts";
+import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
       const oldAgent = await getSessionAgent(ctx.req);
-      const newAgent = await getMigrationSessionAgent(ctx.req, res);
+      const newAgent = await getSessionAgent(ctx.req, res, true);
 
       if (!oldAgent) return new Response("Unauthorized", { status: 401 });
       if (!newAgent) {

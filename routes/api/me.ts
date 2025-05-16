@@ -1,4 +1,4 @@
-import { getSessionAgent } from "../../oauth/session.ts";
+import { getSessionAgent } from "../../auth/sessions.ts";
 import { define } from "../../utils.ts";
 import { resolver } from "../../tools/id-resolver.ts";
 
@@ -7,6 +7,7 @@ export const handler = define.handlers({
     const req = ctx.req;
     const agent = await getSessionAgent(req);
     if (!agent) {
+      console.log("No agent found")
       return Response.json(null);
     }
 

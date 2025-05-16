@@ -1,8 +1,7 @@
-import { define } from "../../../../utils.ts";
+import { define } from "../../../utils.ts";
 import {
-  getMigrationSessionAgent,
   getSessionAgent,
-} from "../../../../oauth/session.ts";
+} from "../../../auth/sessions.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -17,7 +16,7 @@ export const handler = define.handlers({
       console.log("Data migration: Cookies present:", !!cookies);
       console.log("Data migration: Cookie header:", cookies);
 
-      const newAgent = await getMigrationSessionAgent(ctx.req, res);
+      const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Data migration: Got new agent:", !!newAgent);
 
       if (!oldAgent) {

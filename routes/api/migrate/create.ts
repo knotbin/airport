@@ -1,9 +1,7 @@
-import {
-  getSessionAgent,
-  setMigrationSession,
-} from "../../../../oauth/session.ts";
+import { getSessionAgent } from "../../../auth/sessions.ts";
+import { setCredentialSession } from "../../../auth/creds/sessions.ts";
 import { Agent } from "@atproto/api";
-import { define } from "../../../../utils.ts";
+import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -68,12 +66,12 @@ export const handler = define.handlers({
       });
 
       // Store the migration session
-      await setMigrationSession(ctx.req, res, {
+      await setCredentialSession(ctx.req, res, {
         did: sessionRes.data.did,
         handle: newHandle,
         service: serviceUrl,
         password: newPassword,
-      });
+      }, true);
 
       return new Response(
         JSON.stringify({

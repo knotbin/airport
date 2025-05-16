@@ -1,11 +1,7 @@
 import {
-  getMigrationSession,
-  getMigrationSessionAgent,
   getSessionAgent,
-} from "../../../../../oauth/session.ts";
-import { Secp256k1Keypair } from "npm:@atproto/crypto";
-import * as ui8 from "npm:uint8arrays";
-import { define } from "../../../../../utils.ts";
+} from "../../../../auth/sessions.ts";
+import { define } from "../../../../utils.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -19,7 +15,7 @@ export const handler = define.handlers({
         did: oldAgent?.did,
       });
 
-      const newAgent = await getMigrationSessionAgent(ctx.req, res);
+      const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Got new agent:", {
         hasAgent: !!newAgent,
       });
@@ -47,54 +43,6 @@ export const handler = define.handlers({
             headers: { "Content-Type": "application/json" },
           },
         );
-      }
-
-      // Generate recovery key
-      console.log("Generating recovery key...");
-      const recoveryKey = await Secp256k1Keypair.create({ exportable: true });
-      const privateKeyBytes = await recoveryKey.export();
-      const privateKey = ui8.toString(privateKeyBytes, "hex");
-      console.log("Generated recovery key and DID:", {
-        hasPrivateKey: !!privateKey,
-        recoveryDid: recoveryKey.did(),
-      });
-
-      // Store the recovery key and its DID in the session for the sign step
-      const session = await getMigrationSession(ctx.req, res);
-      session.recoveryKey = privateKey;
-      session.recoveryKeyDid = recoveryKey.did();
-      await session.save();
-      console.log("Stored recovery key in session");
-
-      // Get recommended credentials for later use
-      console.log("Getting recommended credentials...");
-      try {
-        const getDidCredentials = await newAgent.com.atproto.identity
-          .getRecommendedDidCredentials();
-        console.log("Got recommended credentials:", {
-          hasRotationKeys: !!getDidCredentials.data.rotationKeys,
-          rotationKeysLength: getDidCredentials.data.rotationKeys?.length,
-          data: getDidCredentials.data,
-        });
-
-        const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
-        if (!rotationKeys) {
-          throw new Error("No rotation key provided");
-        }
-
-        // Store credentials in session for sign step
-        session.credentials = {
-          ...getDidCredentials.data,
-          rotationKeys, // Ensure rotationKeys is always an array
-        };
-        await session.save();
-        console.log("Stored credentials in session");
-      } catch (error) {
-        console.error("Error getting recommended credentials:", {
-          name: error instanceof Error ? error.name : "Unknown",
-          message: error instanceof Error ? error.message : String(error),
-        });
-        throw error;
       }
 
       // Request the signature

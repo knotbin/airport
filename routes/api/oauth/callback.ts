@@ -1,5 +1,5 @@
-import { oauthClient } from "../../../oauth/client.ts";
-import { getSession } from "../../../oauth/session.ts";
+import { oauthClient } from "../../../auth/oauth/client.ts";
+import { getOauthSession } from "../../../auth/oauth/sessions.ts";
 import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({
@@ -37,7 +37,7 @@ export const handler = define.handlers({
       });
 
       // Create and save our client session
-      const clientSession = await getSession(req, response);
+      const clientSession = await getOauthSession(req, response);
       clientSession.did = session.did;
       await clientSession.save();
 

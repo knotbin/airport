@@ -97,7 +97,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log("Starting account creation...");
 
       try {
-        const createRes = await fetch("/api/server/migrate/create", {
+        const createRes = await fetch("/api/migrate/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -141,7 +141,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log("Starting data migration...");
 
       try {
-        const dataRes = await fetch("/api/server/migrate/data", {
+        const dataRes = await fetch("/api/migrate/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -180,7 +180,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log("Requesting identity migration...");
 
       try {
-        const requestRes = await fetch("/api/server/migrate/identity/request", {
+        const requestRes = await fetch("/api/migrate/identity/request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -231,7 +231,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
     try {
       const identityRes = await fetch(
-        `/api/server/migrate/identity/sign?token=${encodeURIComponent(token)}`,
+        `/api/migrate/identity/sign?token=${encodeURIComponent(token)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -251,7 +251,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         if (!data.success) {
           throw new Error(data.message || "Identity migration failed");
         }
-      } catch (e) {
+      } catch {
         throw new Error("Invalid response from server");
       }
 
@@ -261,7 +261,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       // Step 5: Finalize Migration
       updateStepStatus(4, "in-progress");
       try {
-        const finalizeRes = await fetch("/api/server/migrate/finalize", {
+        const finalizeRes = await fetch("/api/migrate/finalize", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -276,7 +276,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           if (!jsonData.success) {
             throw new Error(jsonData.message || "Finalization failed");
           }
-        } catch (e) {
+        } catch {
           throw new Error("Invalid response from server during finalization");
         }
 

@@ -1,5 +1,5 @@
 import { AtprotoOAuthClient } from "jsr:@bigmoves/atproto-oauth-client";
-import { SessionStore, StateStore } from "./storage.ts";
+import { SessionStore, StateStore } from "../storage.ts";
 
 export const createClient = (db: Deno.Kv) => {
   if (Deno.env.get("NODE_ENV") == "production" && !Deno.env.get("PUBLIC_URL")) {
