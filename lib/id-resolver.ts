@@ -1,4 +1,5 @@
 import { IdResolver } from "npm:@atproto/identity";
+import { Did } from "npm:@atproto/api";
 
 interface AtprotoData {
   did: string;
@@ -29,6 +30,10 @@ export function createBidirectionalResolver(resolver: IdResolver) {
         return didDoc.handle;
       }
       return did;
+    },
+
+    async resolveHandleToDid(handle: string) {
+      return await resolver.handle.resolve(handle) as Did
     },
 
     async resolveDidToPdsUrl(did: string): Promise<string | undefined> {

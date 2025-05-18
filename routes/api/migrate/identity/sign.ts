@@ -1,6 +1,6 @@
 import {
   getSessionAgent,
-} from "../../../../auth/sessions.ts";
+} from "../../../../lib/sessions.ts";
 import { Secp256k1Keypair } from "npm:@atproto/crypto";
 import * as ui8 from "npm:uint8arrays";
 import { define } from "../../../../utils.ts";

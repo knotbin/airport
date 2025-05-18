@@ -1,7 +1,7 @@
 import { define } from "../../../utils.ts";
 import {
   getSessionAgent,
-} from "../../../auth/sessions.ts";
+} from "../../../lib/sessions.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
@@ -16,7 +16,7 @@ export const handler = define.handlers({
       console.log("Data migration: Cookies present:", !!cookies);
       console.log("Data migration: Cookie header:", cookies);
 
-      const newAgent = await getSessionAgent(ctx.req, res, true);
+      const newAgent = await getSessionAgent(ctx.req, res, );
       console.log("Data migration: Got new agent:", !!newAgent);
 
       if (!oldAgent) {
@@ -50,6 +50,8 @@ export const handler = define.handlers({
       const repoRes = await oldAgent.com.atproto.sync.getRepo({
         did: accountDid,
       });
+      const session = await newAgent.com.atproto.server.getSession()
+      console.log("Data migration: session:", session)
       await newAgent.com.atproto.repo.importRepo(repoRes.data, {
         encoding: "application/vnd.ipld.car",
       });

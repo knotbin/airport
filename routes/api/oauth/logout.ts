@@ -1,5 +1,5 @@
-import { getSession } from "../../../auth/sessions.ts";
-import { oauthClient } from "../../../auth/oauth/client.ts";
+import { getSession } from "../../../lib/sessions.ts";
+import { oauthClient } from "../../../lib/oauth/client.ts";
 import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({

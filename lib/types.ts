@@ -1,21 +1,17 @@
 import { SessionOptions } from "npm:iron-session";
+import { AtpSessionData } from "@atproto/api";
 
 export interface OauthSession {
   did: string
 }
 
-export interface CredentialSession {
-  did: string;
-  handle: string;
-  service: string;
-  password: string;
-  recoveryKey?: string;
-  recoveryKeyDid?: string;
-  credentials?: {
-    rotationKeys: string[];
-    [key: string]: unknown;
-  };
+export type Credentials = {
+  service: string,
+  did: string,
+  password: string
 }
+
+export type CredSession = AtpSessionData & { service: string }
 
 export const createSessionOptions = (cookieName: string): SessionOptions =>  {
     const cookieSecret = Deno.env.get("COOKIE_SECRET");

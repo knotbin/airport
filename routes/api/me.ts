@@ -1,6 +1,6 @@
-import { getSessionAgent } from "../../auth/sessions.ts";
+import { getSessionAgent } from "../../lib/sessions.ts";
+import { resolver } from "../../lib/id-resolver.ts";
 import { define } from "../../utils.ts";
-import { resolver } from "../../tools/id-resolver.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
@@ -12,8 +12,17 @@ export const handler = define.handlers({
     }
 
     try {
-      const did = agent.assertDid;
+      if (agent.assertDid) {
+        const did = agent.assertDid;
+        const handle = await resolver.resolveDidToHandle(did);
+
+        return Response.json({ did, handle });
+      }
+
+      const session = await agent.com.atproto.server.getSession();
+      const did = session.data.did
       const handle = await resolver.resolveDidToHandle(did);
+
 
       return Response.json({ did, handle });
     } catch (err) {

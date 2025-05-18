@@ -1,4 +1,4 @@
-import { getSessionAgent } from "../../../auth/sessions.ts";
+import { getSessionAgent } from "../../../lib/sessions.ts";
 import { define } from "../../../utils.ts";
 
 export const handler = define.handlers({

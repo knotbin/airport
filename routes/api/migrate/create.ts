@@ -1,5 +1,5 @@
-import { getSessionAgent } from "../../../auth/sessions.ts";
-import { setCredentialSession } from "../../../auth/creds/sessions.ts";
+import { getSessionAgent } from "../../../lib/sessions.ts";
+import { setCredentialSession } from "../../../lib/cred/sessions.ts";
 import { Agent } from "@atproto/api";
 import { define } from "../../../utils.ts";
 
@@ -59,15 +59,9 @@ export const handler = define.handlers({
         },
       );
 
-      // Create session and store it
-      const sessionRes = await newAgent.com.atproto.server.createSession({
-        identifier: newHandle,
-        password: newPassword,
-      });
-
       // Store the migration session
       await setCredentialSession(ctx.req, res, {
-        did: sessionRes.data.did,
+        did: accountDid,
         handle: newHandle,
         service: serviceUrl,
         password: newPassword,
