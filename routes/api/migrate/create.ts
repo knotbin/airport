@@ -21,16 +21,18 @@ export const handler = define.handlers({
         );
       }
 
-      const oldAgent = await getSessionAgent(ctx.req);
+      const oldAgent = await getSessionAgent(ctx.req, res);
       const newAgent = new Agent({ service: serviceUrl });
 
       if (!oldAgent) return new Response("Unauthorized", { status: 401 });
       if (!newAgent) {
         return new Response("Could not create new agent", { status: 400 });
       }
-      const accountDid = oldAgent.assertDid;
 
-      // Create account
+      console.log("getting did")
+      const session = await oldAgent.com.atproto.server.getSession();
+      const accountDid = session.data.did;
+      console.log("got did")
       const describeRes = await newAgent.com.atproto.server.describeServer();
       const newServerDid = describeRes.data.did;
       const inviteRequired = describeRes.data.inviteCodeRequired ?? false;

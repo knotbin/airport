@@ -1,22 +1,58 @@
-import { SessionOptions } from "npm:iron-session";
-import { AtpSessionData } from "@atproto/api";
+import { SessionOptions as BaseSessionOptions } from "npm:iron-session";
+
+interface SessionOptions extends BaseSessionOptions {
+  lockFn?: (key: string) => Promise<() => Promise<void>>;
+}
+
+// Helper function to create a lock using Deno KV
+async function createLock(key: string, db: Deno.Kv): Promise<() => Promise<void>> {
+  const lockKey = ["session_lock", key];
+  const lockValue = Date.now();
+  
+  // Try to acquire lock
+  const result = await db.atomic()
+    .check({ key: lockKey, versionstamp: null })  // Only if key doesn't exist
+    .set(lockKey, lockValue, { expireIn: 5000 })  // 5 second TTL
+    .commit();
+
+  if (!result.ok) {
+    throw new Error("Failed to acquire lock");
+  }
+
+  // Return unlock function
+  return async () => {
+    await db.delete(lockKey);
+  };
+}
 
 export interface OauthSession {
   did: string
 }
 
-export type Credentials = {
-  service: string,
-  did: string,
-  password: string
+export interface CredentialSession {
+  did: string;
+  handle: string;
+  service: string;
+  password: string;
+  accessJwt?: string;
+  recoveryKey?: string;
+  recoveryKeyDid?: string;
+  credentials?: {
+    rotationKeys: string[];
+    [key: string]: unknown;
+  };
 }
 
-export type CredSession = AtpSessionData & { service: string }
+let db: Deno.Kv;
 
-export const createSessionOptions = (cookieName: string): SessionOptions =>  {
+export const createSessionOptions = async (cookieName: string): Promise<SessionOptions> =>  {
     const cookieSecret = Deno.env.get("COOKIE_SECRET");
     if (!cookieSecret) {
         throw new Error("COOKIE_SECRET is not set");
+    }
+
+    if (!db) {
+      db = await Deno.openKv();
     }
 
     return {
@@ -29,5 +65,6 @@ export const createSessionOptions = (cookieName: string): SessionOptions =>  {
             path: "/",
             domain: undefined,
         },
+        lockFn: (key: string) => createLock(key, db)
     }
 };

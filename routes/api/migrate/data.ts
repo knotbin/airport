@@ -16,7 +16,7 @@ export const handler = define.handlers({
       console.log("Data migration: Cookies present:", !!cookies);
       console.log("Data migration: Cookie header:", cookies);
 
-      const newAgent = await getSessionAgent(ctx.req, res, );
+      const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Data migration: Got new agent:", !!newAgent);
 
       if (!oldAgent) {
@@ -44,14 +44,13 @@ export const handler = define.handlers({
         );
       }
 
-      const accountDid = oldAgent.assertDid;
+      const session = await oldAgent.com.atproto.server.getSession();
+      const accountDid = session.data.did;
 
       // Migrate repo data
       const repoRes = await oldAgent.com.atproto.sync.getRepo({
         did: accountDid,
       });
-      const session = await newAgent.com.atproto.server.getSession()
-      console.log("Data migration: session:", session)
       await newAgent.com.atproto.repo.importRepo(repoRes.data, {
         encoding: "application/vnd.ipld.car",
       });
