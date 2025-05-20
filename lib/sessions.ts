@@ -55,3 +55,19 @@ export async function getSessionAgent(
 
   return null;
 }
+
+export async function destroyAllSessions(req: Request) {
+  const oauthSession = await getOauthSession(req);
+  const credentialSession = await getCredentialSession(req);
+  const migrationSession = await getCredentialSession(req, new Response(), true);
+
+  if (oauthSession.did) {
+    await oauthSession.destroy();
+  }
+  if (credentialSession.did) {
+    await credentialSession.destroy();
+  }
+  if (migrationSession.did) {
+    await migrationSession.destroy();
+  }
+}

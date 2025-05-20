@@ -64,7 +64,7 @@ export const handler = define.handlers({
           password,
           handle,
           accessJwt: sessionRes.data.accessJwt
-        }, true);
+        });
 
         // Log the response headers
         console.log("Response headers:", {

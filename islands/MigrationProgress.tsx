@@ -20,8 +20,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
   const [steps, setSteps] = useState<MigrationStep[]>([
     { name: "Create Account", status: "pending" },
     { name: "Migrate Data", status: "pending" },
-    { name: "Request Identity Migration", status: "pending" },
-    { name: "Complete Identity Migration", status: "pending" },
+    { name: "Migrate Identity", status: "pending" },
     { name: "Finalize Migration", status: "pending" },
   ]);
 
@@ -89,6 +88,30 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       );
     });
   }, []);
+
+  const getStepDisplayName = (step: MigrationStep, index: number) => {
+    if (step.status === "completed") {
+      switch (index) {
+        case 0: return "Account Created";
+        case 1: return "Data Migrated";
+        case 2: return "Identity Migrated";
+        case 3: return "Migration Finalized";
+      }
+    }
+    
+    if (step.status === "in-progress") {
+      switch (index) {
+        case 0: return "Creating your new account...";
+        case 1: return "Migrating your data...";
+        case 2: return step.name === "Enter the token sent to your email to complete identity migration" 
+          ? step.name 
+          : "Migrating your identity...";
+        case 3: return "Finalizing migration...";
+      }
+    }
+    
+    return step.name;
+  };
 
   const startMigration = async () => {
     try {
@@ -203,16 +226,16 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             );
           }
           console.log("Identity migration requested successfully");
+          
+          // Don't mark step as completed yet since we need token input
+          steps[2].name = "Enter the token sent to your email to complete identity migration";
+          setSteps([...steps]);
         } catch (e) {
           console.error("Failed to parse identity request response:", e);
           throw new Error(
             "Invalid response from server during identity request",
           );
         }
-
-        updateStepStatus(2, "completed");
-        // Move to token input step
-        updateStepStatus(3, "in-progress");
       } catch (error) {
         updateStepStatus(
           2,
@@ -256,10 +279,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       }
 
       setRecoveryKey(data.recoveryKey);
-      updateStepStatus(3, "completed");
+      updateStepStatus(2, "completed");
+      steps[2].name = "Migrate Identity";  // Reset to default name after completion
+      setSteps([...steps]);
 
-      // Step 5: Finalize Migration
-      updateStepStatus(4, "in-progress");
+      // Step 4: Finalize Migration
+      updateStepStatus(3, "in-progress");
       try {
         const finalizeRes = await fetch("/api/migrate/finalize", {
           method: "POST",
@@ -280,10 +305,10 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           throw new Error("Invalid response from server during finalization");
         }
 
-        updateStepStatus(4, "completed");
+        updateStepStatus(3, "completed");
       } catch (error) {
         updateStepStatus(
-          4,
+          3,
           "error",
           error instanceof Error ? error.message : String(error),
         );
@@ -292,7 +317,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     } catch (error) {
       console.error("Identity migration error:", error);
       updateStepStatus(
-        3,
+        2,
         "error",
         error instanceof Error ? error.message : String(error),
       );
@@ -370,7 +395,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
   return (
     <div class="space-y-8">
       <div class="space-y-4">
-        {steps.map((step) => (
+        {steps.map((step, index) => (
           <div key={step.name} class={getStepClasses(step.status)}>
             {getStepIcon(step.status)}
             <div class="flex-1">
@@ -385,41 +410,40 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                     : "text-gray-900 dark:text-gray-200"
                 }`}
               >
-                {step.name}
+                {getStepDisplayName(step, index)}
               </p>
               {step.error && (
                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">
                   {step.error}
                 </p>
               )}
+              {index === 2 && step.status === "in-progress" && (
+                <div class="mt-4 space-y-4">
+                  <p class="text-sm text-blue-800 dark:text-blue-200">
+                    Please check your email for the migration token and enter it below:
+                  </p>
+                  <div class="flex space-x-2">
+                    <input
+                      type="text"
+                      value={token}
+                      onChange={(e) => setToken(e.currentTarget.value)}
+                      placeholder="Enter token"
+                      class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleIdentityMigration}
+                      class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    >
+                      Submit Token
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
-
-      {steps[3].status === "in-progress" && (
-        <div class="space-y-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-          <p class="text-sm text-blue-800 dark:text-blue-200">
-            Please check your email for the migration token and enter it below:
-          </p>
-          <div class="flex space-x-2">
-            <input
-              type="text"
-              value={token}
-              onChange={(e) => setToken(e.currentTarget.value)}
-              placeholder="Enter token"
-              class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
-            />
-            <button
-              type="button"
-              onClick={handleIdentityMigration}
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-            >
-              Submit Token
-            </button>
-          </div>
-        </div>
-      )}
 
       {recoveryKey && (
         <div class="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border-2 border-yellow-200 dark:border-yellow-800">
@@ -432,7 +456,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         </div>
       )}
 
-      {steps[4].status === "completed" && (
+      {steps[3].status === "completed" && (
         <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border-2 border-green-200 dark:border-green-800">
           <p class="text-sm text-green-800 dark:text-green-200">
             Migration completed successfully! You can now close this page.
