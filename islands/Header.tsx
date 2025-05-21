@@ -73,7 +73,7 @@ export default function Header() {
           {/* Home Link */}
           <a
             href="/"
-            className="airport-sign bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center px-6 py-3 hover:translate-y-1 transition-all duration-200 hover:from-blue-600 hover:to-blue-700"
+            className="airport-sign bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-blue-600 hover:to-blue-700"
           >
             <img
               src="/icons/plane_bold.svg"
@@ -89,7 +89,7 @@ export default function Header() {
             <div className="relative group">
               <a
                 href="/migrate"
-                className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-6 py-3 hover:translate-y-1 transition-all duration-200 hover:from-amber-500 hover:to-amber-600"
+                className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600"
               >
                 <img
                   src="/icons/plane-departure_bold.svg"
@@ -108,7 +108,7 @@ export default function Header() {
               {user?.did
                 ? (
                   <div className="relative group">
-                    <div className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-6 py-3 hover:translate-y-1 transition-all duration-200 hover:from-amber-500 hover:to-amber-600 cursor-pointer">
+                    <div className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600 cursor-pointer">
                       <img
                         src="/icons/ticket_bold.svg"
                         alt="Check-in"
@@ -141,7 +141,7 @@ export default function Header() {
                 : (
                   <a
                     href="/login"
-                    className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-6 py-3 hover:translate-y-1 transition-all duration-200 hover:from-amber-500 hover:to-amber-600"
+                    className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600"
                   >
                     <img
                       src="/icons/ticket_bold.svg"

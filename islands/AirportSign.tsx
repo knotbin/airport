@@ -24,16 +24,16 @@ export default function AirportSign() {
             </div>
 
             {/* Display Board Text */}
-            <div className="relative flex justify-center items-center py-2 pb-4 px-4">
+            <div className="relative flex justify-center items-center py-1 sm:py-2 pb-2 sm:pb-4 px-2 sm:px-4">
               <div className="relative text-center">
-                <span className="font-mono text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white 
+                <span className="font-mono text-[2em] sm:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white 
                            [text-shadow:0_0_20px_rgba(255,255,255,0.2),0_0_40px_rgba(255,255,255,0.1)]
                            relative z-10">
                   ATP INTERNECTIONAL AIRPORT
                 </span>
                 {/* Text glow effect */}
                 <div className="absolute inset-0 blur-[2px] opacity-50">
-                  <span className="font-mono text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white">
+                  <span className="font-mono text-[2em] sm:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white">
                     ATP INTERNECTIONAL AIRPORT
                   </span>
                 </div>
@@ -45,6 +45,19 @@ export default function AirportSign() {
             </div>
             {/* Vignette effect */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.2)_100%)]">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Under Construction Extension BELOW the sign, perfectly matching main sign frame, no outline or padding on top */}
+      <div className="absolute left-1/2 top-full -translate-x-1/2">
+        <div className="bg-gradient-to-b from-slate-800 to-slate-900 pb-1 px-1 rounded-b-lg rounded-t-none shadow-[0_2px_10px_rgba(0,0,0,0.3)] border-t-0">
+          <div className="bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 pb-2 px-2 rounded-b-[6px] rounded-t-none border-t-0">
+            <div className="bg-black px-4 pt-0 pb-0.5 rounded-b-[4px] rounded-t-none border-t-0">
+              <span className="font-mono text-sm font-medium tracking-wider text-yellow-400 [text-shadow:0_0_10px_rgba(255,255,0,0.3)] animate-pulse">
+                UNDER CONSTRUCTION
+              </span>
             </div>
           </div>
         </div>
