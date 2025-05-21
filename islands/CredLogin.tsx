@@ -79,10 +79,13 @@ export default function CredLogin() {
           type="password"
           value={password}
           onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-          placeholder="Enter your password"
+          placeholder="Enter your account password"
           disabled={isPending}
           className="w-full p-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 transition-colors"
         />
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          This is your main account password, not an app password. This is required for migrations.
+        </p>
       </div>
 
       <button

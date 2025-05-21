@@ -35,6 +35,12 @@ export default function LoginMethodSelector() {
           </button>
         </div>
 
+        {loginMethod === 'oauth' && (
+          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded-md text-sm">
+            Note: OAuth login cannot be used for migrations.
+          </div>
+        )}
+
         {loginMethod === 'oauth' ? <HandleInput /> : <CredLogin />}
 
         <div className="mt-4 text-center">
