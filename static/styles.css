@@ -194,3 +194,18 @@
 .airport-sign + div {
     background-blend-mode: overlay;
 }
+
+@keyframes popin {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-popin {
+  animation: popin 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes bounce-short {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-bounce-short {
+  animation: bounce-short 0.5s;
+}

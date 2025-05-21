@@ -32,25 +32,18 @@ export async function getSessionAgent(
   isMigration: boolean = false
 ): Promise<Agent | null> {
   if (isMigration) {
-    console.log("godgo")
     return await getCredentialSessionAgent(req, res, isMigration);
   }
 
   const oauthAgent = await getOauthSessionAgent(req);
   const credentialAgent = await getCredentialSessionAgent(req, res, isMigration);
 
-  console.log("Made it")
   if (oauthAgent) {
-    console.log("oauthing")
     return oauthAgent;
-  } else {
-    console.log("boog")
   }
+
   if (credentialAgent) {
-    console.log("creding")
     return credentialAgent;
-  } else {
-    console.log("soop")
   }
 
   return null;
@@ -62,12 +55,12 @@ export async function destroyAllSessions(req: Request) {
   const migrationSession = await getCredentialSession(req, new Response(), true);
 
   if (oauthSession.did) {
-    await oauthSession.destroy();
+    oauthSession.destroy();
   }
   if (credentialSession.did) {
-    await credentialSession.destroy();
+    credentialSession.destroy();
   }
   if (migrationSession.did) {
-    await migrationSession.destroy();
+    migrationSession.destroy();
   }
 }

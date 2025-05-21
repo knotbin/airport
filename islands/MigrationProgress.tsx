@@ -10,7 +10,7 @@ interface MigrationProgressProps {
 
 interface MigrationStep {
   name: string;
-  status: "pending" | "in-progress" | "completed" | "error";
+  status: "pending" | "in-progress" | "verifying" | "completed" | "error";
   error?: string;
 }
 
@@ -109,6 +109,15 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         case 3: return "Finalizing migration...";
       }
     }
+
+    if (step.status === "verifying") {
+      switch (index) {
+        case 0: return "Verifying account creation...";
+        case 1: return "Verifying data migration...";
+        case 2: return "Verifying identity migration...";
+        case 3: return "Verifying migration completion...";
+      }
+    }
     
     return step.name;
   };
@@ -137,7 +146,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         console.log("Create account response:", responseText);
 
         if (!createRes.ok) {
-          throw new Error(responseText || "Failed to create account");
+          try {
+            const json = JSON.parse(responseText);
+            throw new Error(json.message || "Failed to create account");
+          } catch {
+            throw new Error(responseText || "Failed to create account");
+          }
         }
 
         try {
@@ -149,7 +163,11 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           console.log("Response is not JSON or lacks success field:", e);
         }
 
-        updateStepStatus(0, "completed");
+        updateStepStatus(0, "verifying");
+        const verified = await verifyStep(0);
+        if (!verified) {
+          throw new Error("Account creation verification failed");
+        }
       } catch (error) {
         updateStepStatus(
           0,
@@ -174,7 +192,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         console.log("Data migration response:", dataText);
 
         if (!dataRes.ok) {
-          throw new Error(dataText || "Failed to migrate data");
+          try {
+            const json = JSON.parse(dataText);
+            throw new Error(json.message || "Failed to migrate data");
+          } catch {
+            throw new Error(dataText || "Failed to migrate data");
+          }
         }
 
         try {
@@ -188,7 +211,11 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           throw new Error("Invalid response from server during data migration");
         }
 
-        updateStepStatus(1, "completed");
+        updateStepStatus(1, "verifying");
+        const verified = await verifyStep(1);
+        if (!verified) {
+          throw new Error("Data migration verification failed");
+        }
       } catch (error) {
         updateStepStatus(
           1,
@@ -213,9 +240,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         console.log("Identity request response:", requestText);
 
         if (!requestRes.ok) {
-          throw new Error(
-            requestText || "Failed to request identity migration",
-          );
+          try {
+            const json = JSON.parse(requestText);
+            throw new Error(json.message || "Failed to request identity migration");
+          } catch {
+            throw new Error(requestText || "Failed to request identity migration");
+          }
         }
 
         try {
@@ -227,9 +257,16 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           }
           console.log("Identity migration requested successfully");
           
-          // Don't mark step as completed yet since we need token input
-          steps[2].name = "Enter the token sent to your email to complete identity migration";
-          setSteps([...steps]);
+          // Update step name to prompt for token
+          setSteps(prevSteps =>
+            prevSteps.map((step, i) =>
+              i === 2
+                ? { ...step, name: "Enter the token sent to your email to complete identity migration" }
+                : step
+            )
+          );
+          // Don't continue with migration - wait for token input
+          return;
         } catch (e) {
           console.error("Failed to parse identity request response:", e);
           throw new Error(
@@ -263,9 +300,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
       const identityData = await identityRes.text();
       if (!identityRes.ok) {
-        throw new Error(
-          identityData || "Failed to complete identity migration",
-        );
+        try {
+          const json = JSON.parse(identityData);
+          throw new Error(json.message || "Failed to complete identity migration");
+        } catch {
+          throw new Error(identityData || "Failed to complete identity migration");
+        }
       }
 
       let data;
@@ -279,9 +319,11 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       }
 
       setRecoveryKey(data.recoveryKey);
-      updateStepStatus(2, "completed");
-      steps[2].name = "Migrate Identity";  // Reset to default name after completion
-      setSteps([...steps]);
+      updateStepStatus(2, "verifying");
+      const verified = await verifyStep(2);
+      if (!verified) {
+        throw new Error("Identity migration verification failed");
+      }
 
       // Step 4: Finalize Migration
       updateStepStatus(3, "in-progress");
@@ -293,7 +335,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
         const finalizeData = await finalizeRes.text();
         if (!finalizeRes.ok) {
-          throw new Error(finalizeData || "Failed to finalize migration");
+          try {
+            const json = JSON.parse(finalizeData);
+            throw new Error(json.message || "Failed to finalize migration");
+          } catch {
+            throw new Error(finalizeData || "Failed to finalize migration");
+          }
         }
 
         try {
@@ -305,7 +352,11 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           throw new Error("Invalid response from server during finalization");
         }
 
-        updateStepStatus(3, "completed");
+        updateStepStatus(3, "verifying");
+        const verified = await verifyStep(3);
+        if (!verified) {
+          throw new Error("Migration finalization verification failed");
+        }
       } catch (error) {
         updateStepStatus(
           3,
@@ -336,6 +387,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         return (
           <div class="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex items-center justify-center">
             <div class="w-3 h-3 rounded-full bg-blue-500" />
+          </div>
+        );
+      case "verifying":
+        return (
+          <div class="w-8 h-8 rounded-full border-2 border-yellow-500 border-t-transparent animate-spin flex items-center justify-center">
+            <div class="w-3 h-3 rounded-full bg-yellow-500" />
           </div>
         );
       case "completed":
@@ -385,10 +442,31 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         return `${baseClasses} bg-gray-50 dark:bg-gray-800`;
       case "in-progress":
         return `${baseClasses} bg-blue-50 dark:bg-blue-900`;
+      case "verifying":
+        return `${baseClasses} bg-yellow-50 dark:bg-yellow-900`;
       case "completed":
         return `${baseClasses} bg-green-50 dark:bg-green-900`;
       case "error":
         return `${baseClasses} bg-red-50 dark:bg-red-900`;
+    }
+  };
+
+  // Helper to verify a step after completion
+  const verifyStep = async (stepNum: number) => {
+    updateStepStatus(stepNum, "verifying");
+    try {
+      const res = await fetch(`/api/migrate/status?step=${stepNum + 1}`);
+      const data = await res.json();
+      if (data.ready) {
+        updateStepStatus(stepNum, "completed");
+        return true;
+      } else {
+        updateStepStatus(stepNum, "error", data.reason || "Verification failed");
+        return false;
+      }
+    } catch (e) {
+      updateStepStatus(stepNum, "error", e instanceof Error ? e.message : String(e));
+      return false;
     }
   };
 
@@ -414,32 +492,41 @@ export default function MigrationProgress(props: MigrationProgressProps) {
               </p>
               {step.error && (
                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">
-                  {step.error}
+                  {(() => {
+                    try {
+                      const err = JSON.parse(step.error);
+                      return err.message || step.error;
+                    } catch {
+                      return step.error;
+                    }
+                  })()}
                 </p>
               )}
-              {index === 2 && step.status === "in-progress" && (
-                <div class="mt-4 space-y-4">
-                  <p class="text-sm text-blue-800 dark:text-blue-200">
-                    Please check your email for the migration token and enter it below:
-                  </p>
-                  <div class="flex space-x-2">
-                    <input
-                      type="text"
-                      value={token}
-                      onChange={(e) => setToken(e.currentTarget.value)}
-                      placeholder="Enter token"
-                      class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleIdentityMigration}
-                      class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                    >
-                      Submit Token
-                    </button>
+              {index === 2 && step.status === "in-progress" &&
+                step.name === "Enter the token sent to your email to complete identity migration" && (
+                  <div class="mt-4 space-y-4">
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                      Please check your email for the migration token and enter it below:
+                    </p>
+                    <div class="flex space-x-2">
+                      <input
+                        type="text"
+                        value={token}
+                        onChange={(e) => setToken(e.currentTarget.value)}
+                        placeholder="Enter token"
+                        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleIdentityMigration}
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                      >
+                        Submit Token
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )
+              }
             </div>
           </div>
         ))}

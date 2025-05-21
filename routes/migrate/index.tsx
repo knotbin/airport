@@ -8,10 +8,10 @@ export default function Migrate(props: PageProps) {
   const invite = props.url.searchParams.get("invite");
 
   return (
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+    <div class=" bg-gray-50 dark:bg-gray-900 p-4">
       <div class="max-w-2xl mx-auto">
         <h1 class="font-mono text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Account Migration
+          Account Migration Self-Service Kiosk
         </h1>
         <MigrationSetup
           service={service}
