@@ -40,7 +40,7 @@ export default function Ticket() {
 
   return (
     <div class="max-w-4xl mx-auto">
-      <div class="ticket mb-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 relative before:absolute before:inset-[1px] before:bg-white dark:before:bg-slate-800 before:-z-10 after:absolute after:inset-0 after:bg-slate-200 dark:after:bg-slate-700 after:-z-20 [clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)] after:[clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)]">
+      <div class="ticket mb-8 bg-white dark:bg-slate-800 p-6 relative before:absolute before:bg-white dark:before:bg-slate-800 before:-z-10 after:absolute after:inset-0 after:bg-slate-200 dark:after:bg-slate-700 after:-z-20 [clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)] after:[clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)]">
         <div class="boarding-label text-amber-500 dark:text-amber-400 font-mono font-bold tracking-wider text-sm mb-4">
           BOARDING PASS
         </div>
@@ -71,7 +71,7 @@ export default function Ticket() {
         </p>
       </div>
 
-      <div class="ticket bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 relative before:absolute before:inset-[1px] before:bg-white dark:before:bg-slate-800 before:-z-10 after:absolute after:inset-0 after:bg-slate-200 dark:after:bg-slate-700 after:-z-20 [clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)] after:[clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)]">
+      <div class="ticket mb-8 bg-white dark:bg-slate-800 p-6 relative before:absolute before:bg-white dark:before:bg-slate-800 before:-z-10 after:absolute after:inset-0 after:bg-slate-200 dark:after:bg-slate-700 after:-z-20 [clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)] after:[clip-path:polygon(0_0,20px_0,100%_0,100%_calc(100%-20px),calc(100%-20px)_100%,0_100%,0_calc(100%-20px),20px_100%)]">
         <div class="boarding-label text-amber-500 dark:text-amber-400 font-mono font-bold tracking-wider text-sm mb-4">
           FLIGHT DETAILS
         </div>

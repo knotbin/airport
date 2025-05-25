@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
+import { Button } from "../components/Button.tsx";
 
 interface User {
   did: string;
@@ -18,6 +19,7 @@ function truncateText(text: string, maxLength: number) {
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     if (!IS_BROWSER) return;
@@ -71,55 +73,37 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Home Link */}
-          <a
+          <Button
             href="/"
-            className="airport-sign bg-gradient-to-r from-blue-500 to-blue-600 text-white flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-blue-600 hover:to-blue-700"
-          >
-            <img
-              src="/icons/plane_bold.svg"
-              alt="Plane"
-              className="w-6 h-6 mr-2"
-              style={{ filter: "brightness(0) invert(1)" }}
-            />
-            <span className="font-mono font-bold tracking-wider">AIRPORT</span>
-          </a>
+            color="blue"
+            icon="/icons/plane_bold.svg"
+            iconAlt="Plane"
+            label="AIRPORT"
+          />
 
           <div className="flex items-center gap-3">
             {/* Departures (Migration) */}
-            <div className="relative group">
-              <a
-                href="/migrate"
-                className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600"
-              >
-                <img
-                  src="/icons/plane-departure_bold.svg"
-                  alt="Departures"
-                  className="w-6 h-6 mr-2"
-                  style={{ filter: "brightness(0)" }}
-                />
-                <span className="font-mono font-bold tracking-wider">
-                  DEPARTURES
-                </span>
-              </a>
-            </div>
+            <Button
+              href="/migrate"
+              color="amber"
+              icon="/icons/plane-departure_bold.svg"
+              iconAlt="Departures"
+              label="DEPARTURES"
+            />
 
             {/* Check-in (Login/Profile) */}
             <div className="relative">
-              {user?.did
-                ? (
-                  <div className="relative group">
-                    <div className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600 cursor-pointer">
-                      <img
-                        src="/icons/ticket_bold.svg"
-                        alt="Check-in"
-                        className="w-6 h-6 mr-2"
-                        style={{ filter: "brightness(0)" }}
-                      />
-                      <span className="font-mono font-bold tracking-wider">
-                        CHECKED IN
-                      </span>
-                    </div>
-                    <div className="absolute opacity-0 translate-y-[-8px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto top-full right-0 w-56 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 py-3 px-4 rounded-md transition-all duration-200">
+              {user?.did ? (
+                <div className="relative">
+                  <Button
+                    color="amber"
+                    icon="/icons/ticket_bold.svg"
+                    iconAlt="Check-in"
+                    label="CHECKED IN"
+                    onClick={() => setShowDropdown(!showDropdown)}
+                  />
+                  {showDropdown && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-slate-200 dark:border-slate-700">
                       <div className="text-sm font-mono mb-2 pb-2 border-b border-slate-900/10">
                         <div title={user.handle || "Anonymous"}>
                           {truncateText(user.handle || "Anonymous", 20)}
@@ -136,24 +120,17 @@ export default function Header() {
                         Sign Out
                       </button>
                     </div>
-                  </div>
-                )
-                : (
-                  <a
-                    href="/login"
-                    className="airport-sign bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 flex items-center px-3 sm:px-6 py-2 sm:py-3 transform translate-y-0 transition-transform duration-200 ease-in-out hover:translate-y-1 hover:from-amber-500 hover:to-amber-600"
-                  >
-                    <img
-                      src="/icons/ticket_bold.svg"
-                      alt="Check-in"
-                      className="w-6 h-6 mr-2"
-                      style={{ filter: "brightness(0)" }}
-                    />
-                    <span className="font-mono font-bold tracking-wider">
-                      CHECK-IN
-                    </span>
-                  </a>
-                )}
+                  )}
+                </div>
+              ) : (
+                <Button
+                  href="/login"
+                  color="amber"
+                  icon="/icons/ticket_bold.svg"
+                  iconAlt="Check-in"
+                  label="CHECK-IN"
+                />
+              )}
             </div>
           </div>
         </div>

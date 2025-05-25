@@ -1,5 +1,7 @@
 import Ticket from "../islands/Ticket.tsx";
 import AirportSign from "../islands/AirportSign.tsx";
+import SocialLinks from "../islands/SocialLinks.tsx";
+import { Button } from "../components/Button.tsx";
 
 export default function Home() {
   return (
@@ -15,14 +17,15 @@ export default function Home() {
 
             <Ticket />
 
-            <div class="mt-6 sm:mt-8 text-center">
-              <a
+            <div class="mt-6 sm:mt-8 text-center w-fit mx-auto">
+              <Button
                 href="/login"
-                class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-base sm:text-lg font-mono rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Begin Your Journey
-              </a>
+                color="blue"
+                label="BEGIN YOUR JOURNEY"
+              />
             </div>
+
+            <SocialLinks />
           </div>
         </div>
       </div>

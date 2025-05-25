@@ -25,24 +25,30 @@
     "jsr:@std/path@^1.0.9": "1.0.9",
     "jsr:@std/semver@1": "1.0.5",
     "npm:@atproto-labs/handle-resolver-node@~0.1.14": "0.1.15",
+    "npm:@atproto-labs/simple-store@~0.1.2": "0.1.2",
     "npm:@atproto/api@*": "0.15.6",
     "npm:@atproto/api@~0.15.6": "0.15.6",
     "npm:@atproto/crypto@*": "0.4.4",
     "npm:@atproto/identity@*": "0.4.8",
     "npm:@atproto/jwk@0.1.4": "0.1.4",
     "npm:@atproto/oauth-client@~0.3.13": "0.3.16",
+    "npm:@atproto/oauth-types@~0.2.4": "0.2.7",
     "npm:@atproto/syntax@*": "0.4.0",
     "npm:@atproto/xrpc@*": "0.7.0",
+    "npm:@lucide/lab@*": "0.1.2",
     "npm:@opentelemetry/api@^1.9.0": "1.9.0",
     "npm:@preact/signals@^1.2.3": "1.3.2_preact@10.26.6",
     "npm:@preact/signals@^2.0.4": "2.0.4_preact@10.26.6",
+    "npm:@types/node@*": "22.15.15",
     "npm:autoprefixer@10.4.17": "10.4.17_postcss@8.4.35",
     "npm:cssnano@6.0.3": "6.0.3_postcss@8.4.35",
     "npm:esbuild-wasm@0.23.1": "0.23.1",
     "npm:esbuild@0.23.1": "0.23.1",
     "npm:iron-session@*": "8.0.4",
     "npm:jose@5.9.6": "5.9.6",
+    "npm:lucide-preact@*": "0.511.0_preact@10.26.6",
     "npm:postcss@8.4.35": "8.4.35",
+    "npm:preact-feather@*": "4.2.1_preact@10.26.6",
     "npm:preact-render-to-string@^6.5.11": "6.5.13_preact@10.26.6",
     "npm:preact@^10.25.1": "10.26.6",
     "npm:preact@^10.26.6": "10.26.6",
@@ -166,7 +172,7 @@
       "dependencies": [
         "@atproto-labs/fetch",
         "@atproto-labs/pipe",
-        "@atproto-labs/simple-store",
+        "@atproto-labs/simple-store@0.2.0",
         "@atproto-labs/simple-store-memory",
         "@atproto/did",
         "zod"
@@ -199,7 +205,7 @@
     "@atproto-labs/handle-resolver@0.1.8": {
       "integrity": "sha512-Y0ckccoCGDo/3g4thPkgp9QcORmc+qqEaCBCYCZYtfLIQp4775u22wd+4fyEyJP4DqoReKacninkICgRGfs3dQ==",
       "dependencies": [
-        "@atproto-labs/simple-store",
+        "@atproto-labs/simple-store@0.2.0",
         "@atproto-labs/simple-store-memory",
         "@atproto/did",
         "zod"
@@ -219,9 +225,12 @@
     "@atproto-labs/simple-store-memory@0.1.3": {
       "integrity": "sha512-jkitT9+AtU+0b28DoN92iURLaCt/q/q4yX8q6V+9LSwYlUTqKoj/5NFKvF7x6EBuG+gpUdlcycbH7e60gjOhRQ==",
       "dependencies": [
-        "@atproto-labs/simple-store",
+        "@atproto-labs/simple-store@0.2.0",
         "lru-cache"
       ]
+    },
+    "@atproto-labs/simple-store@0.1.2": {
+      "integrity": "sha512-9vTNvyPPBs44tKVFht16wGlilW8u4wpEtKwLkWbuNEh3h9TTQ8zjVhEoGZh/v73G4Otr9JUOSIq+/5+8OZD2mQ=="
     },
     "@atproto-labs/simple-store@0.2.0": {
       "integrity": "sha512-0bRbAlI8Ayh03wRwncAMEAyUKtZ+AuTS1jgPrfym1WVOAOiottI/ZmgccqLl6w5MbxVcClNQF7WYGKvGwGoIhA=="
@@ -300,7 +309,7 @@
         "@atproto-labs/fetch",
         "@atproto-labs/handle-resolver",
         "@atproto-labs/identity-resolver",
-        "@atproto-labs/simple-store",
+        "@atproto-labs/simple-store@0.2.0",
         "@atproto-labs/simple-store-memory",
         "@atproto/did",
         "@atproto/jwk@0.1.5",
@@ -482,6 +491,9 @@
         "@jridgewell/sourcemap-codec"
       ]
     },
+    "@lucide/lab@0.1.2": {
+      "integrity": "sha512-VprF2BJa7ZuTGOhUd5cf8tHJXyL63wdxcGieAiVVoR9hO0YmPsnZO0AGqDiX2/br+/MC6n8BoJcmPilltOXIJA=="
+    },
     "@noble/curves@1.9.1": {
       "integrity": "sha512-k11yZxZg+t+gWvBbIswW0yoJlu8cHOC7dhunwOzoWH/mXGBiYyR4YY6hAEK/3EUs4UpB8la1RfdRpeGsFHkWsA==",
       "dependencies": [
@@ -533,6 +545,12 @@
     },
     "@trysound/sax@0.2.0": {
       "integrity": "sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA=="
+    },
+    "@types/node@22.15.15": {
+      "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
+      "dependencies": [
+        "undici-types"
+      ]
     },
     "ansi-regex@5.0.1": {
       "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="
@@ -996,6 +1014,12 @@
     "lru-cache@10.4.3": {
       "integrity": "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="
     },
+    "lucide-preact@0.511.0_preact@10.26.6": {
+      "integrity": "sha512-7MhxCepYkNOfXZTWahbDVODh/BkhLUeCTY5mh6WmIvWcCWssul7TeIM/SkNARifRWZ9KUwYcl9oeV6VTIlqJog==",
+      "dependencies": [
+        "preact"
+      ]
+    },
     "mdn-data@2.0.28": {
       "integrity": "sha512-aylIc7Z9y4yzHYAJNuESG3hfhC+0Ibp/MAMiaOZgNv4pmEdFyfZhhhny4MNiAfWdBQ1RQ2mfDWmM1x8SvGyp8g=="
     },
@@ -1349,6 +1373,12 @@
         "source-map-js"
       ]
     },
+    "preact-feather@4.2.1_preact@10.26.6": {
+      "integrity": "sha512-yK5kYW64AoOkm+xTtUjwcFx0zNrqVTbwmtww8G2AmAB6f8wyQgwZgc6oRXllSYeg7q1I8VbkUpErJuKJ6Vq2eA==",
+      "dependencies": [
+        "preact"
+      ]
+    },
     "preact-render-to-string@6.5.13_preact@10.26.6": {
       "integrity": "sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==",
       "dependencies": [
@@ -1547,6 +1577,9 @@
     },
     "uncrypto@0.1.3": {
       "integrity": "sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q=="
+    },
+    "undici-types@6.21.0": {
+      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
     },
     "undici@6.21.2": {
       "integrity": "sha512-uROZWze0R0itiAKVPsYhFov9LxrPMHLMEQFszeI2gCN6bnIIZ8twzBCJcN2LJrBBLfrP0t1FW0g+JmKVl8Vk1g=="
