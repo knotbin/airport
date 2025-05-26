@@ -16,7 +16,7 @@ interface MigrationStep {
 
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
-  const [recoveryKey, setRecoveryKey] = useState("");
+
   const [steps, setSteps] = useState<MigrationStep[]>([
     { name: "Create Account", status: "pending" },
     { name: "Migrate Data", status: "pending" },
@@ -318,7 +318,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         throw new Error("Invalid response from server");
       }
 
-      setRecoveryKey(data.recoveryKey);
+
       updateStepStatus(2, "verifying");
       const verified = await verifyStep(2);
       if (!verified) {
@@ -532,16 +532,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         ))}
       </div>
 
-      {recoveryKey && (
-        <div class="p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border-2 border-yellow-200 dark:border-yellow-800">
-          <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-            Important: Save your recovery key
-          </p>
-          <p class="mt-1 text-sm text-yellow-700 dark:text-yellow-300 break-all font-mono">
-            {recoveryKey}
-          </p>
-        </div>
-      )}
+
 
       {steps[3].status === "completed" && (
         <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border-2 border-green-200 dark:border-green-800">

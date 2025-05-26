@@ -14,6 +14,9 @@ export default function Home() {
             <p class="font-mono text-lg sm:text-xl font-bold mb-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
               Your terminal for seamless AT Protocol PDS migration and backup.
             </p>
+            <p class="font-mono mb-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
+              Airport is in <strong>alpha</strong> currently, and we don't recommend it for main accounts. <br/> Please use its migration tools at your own risk.
+            </p>
 
             <Ticket />
 
@@ -24,7 +27,9 @@ export default function Home() {
                 label="BEGIN YOUR JOURNEY"
               />
             </div>
-
+            <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
+              Airport is made with love by <a class="text-blue-500 hover:underline" href="https://bsky.social/profile/knotbin.com">Roscoe</a> in collaboration with <a class="text-blue-500 hover:underline" href="https://sprk.so">Spark</a>.
+            </p>
             <SocialLinks />
           </div>
         </div>
