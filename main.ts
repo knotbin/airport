@@ -12,8 +12,8 @@ const authMiddleware = define.middleware(async (ctx) => {
   const url = new URL(ctx.req.url);
   const needsAuth = url.pathname.startsWith("/migrate");
   
-  // Skip auth check for login page and API endpoints
-  if (url.pathname === "/login" || url.pathname.startsWith("/api/")) {
+  // Skip auth check if not a protected route
+  if (!needsAuth || url.pathname === "/login" || url.pathname.startsWith("/api/")) {
     return ctx.next();
   }
 
@@ -37,7 +37,7 @@ const authMiddleware = define.middleware(async (ctx) => {
     const isAuthenticated = json && typeof json === 'object' && json.did;
     ctx.state.auth = isAuthenticated;
     
-    if (needsAuth && !isAuthenticated) {
+    if (!isAuthenticated) {
       console.log("[auth] Authentication required but not authenticated");
       return ctx.redirect("/login");
     }
@@ -46,10 +46,7 @@ const authMiddleware = define.middleware(async (ctx) => {
   } catch (err) {
     console.error("[auth] Middleware error:", err);
     ctx.state.auth = false;
-    if (needsAuth) {
-      return ctx.redirect("/login");
-    }
-    return ctx.next();
+    return ctx.redirect("/login");
   }
 });
 app.use(authMiddleware);

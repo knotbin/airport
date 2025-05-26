@@ -22,15 +22,9 @@ export const handler = define.handlers({
         });
       }
 
-      console.log("[/api/me] Got agent, checking authentication");
       const session = await agent.com.atproto.server.getSession();
-      console.log("[/api/me] Session info:", {
-        did: session.data.did,
-        handle: session.data.handle
-      });
 
       const handle = await resolver.resolveDidToHandle(session.data.did);
-      console.log("[/api/me] Resolved handle:", handle);
 
       const responseData = {
         did: session.data.did,
@@ -46,7 +40,7 @@ export const handler = define.handlers({
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("[/api/me] Error:", { 
+      console.error("[/api/me] Error:", {
         error: message,
         stack: err instanceof Error ? err.stack : undefined,
         url: req.url,
