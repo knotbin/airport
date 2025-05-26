@@ -18,7 +18,7 @@ const authMiddleware = define.middleware(async (ctx) => {
       credentials: "include",
     });
     const json = await me.json();
-    if (json !== null && json.did) {
+    if (json && typeof json === 'object' && json.did) {
       return ctx.next();
     } else {
       return ctx.redirect("/login");
