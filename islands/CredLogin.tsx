@@ -1,7 +1,8 @@
 import { useState } from 'preact/hooks'
 import { JSX } from 'preact'
+import { LoginProps } from "./LoginSelector.tsx";
 
-export default function CredLogin() {
+export default function CredLogin({ redirect }: LoginProps) {
   const [handle, setHandle] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +33,7 @@ export default function CredLogin() {
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       // Redirect to home page after successful login
-      globalThis.location.href = '/'
+      globalThis.location.href = '/login/callback?redirect=' + encodeURIComponent(redirect)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed'
       setError(message)

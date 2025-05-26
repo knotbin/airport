@@ -28,7 +28,7 @@ export default function Home() {
               />
             </div>
             <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
-              Airport is made with love by <a class="text-blue-500 hover:underline" href="https://bsky.app/profile/knotbin.com">Roscoe</a> in collaboration with <a class="text-blue-500 hover:underline" href="https://sprk.so">Spark</a>.
+              Airport is made with love by <a class="text-blue-500 hover:underline" href="https://bsky.app/profile/knotbin.com">Roscoe</a> for <a class="text-blue-500 hover:underline" href="https://sprk.so">Spark</a>, a new short-video platform for AT Protocol.
             </p>
             <SocialLinks />
           </div>
