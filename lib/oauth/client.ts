@@ -1,4 +1,4 @@
-import { AtprotoOAuthClient } from "jsr:@bigmoves/atproto-oauth-client";
+import { AtprotoOAuthClient } from "@bigmoves/atproto-oauth-client";
 import { SessionStore, StateStore } from "../storage.ts";
 
 export const createClient = (db: Deno.Kv) => {

@@ -1,8 +1,13 @@
 import { PageProps, HttpError } from "fresh";
+import posthog from "posthog-js";
 
 export default function ErrorPage(props: PageProps) {
   const error = props.error; // Contains the thrown Error or HTTPError
   if (error instanceof HttpError) {
+    posthog.default.capture('error', {
+      error: error.message,
+      status: error.status,
+    });
     const status = error.status; // HTTP status code
     // Render a 404 not found page
     if (status === 404) {

@@ -9,17 +9,39 @@ export default function SocialLinks() {
   const [starCount, setStarCount] = useState<number | null>(null);
 
   useEffect(() => {
+    const CACHE_KEY = 'github_stars';
+    const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+
     const fetchRepoInfo = async () => {
       try {
         const response = await fetch("https://api.github.com/repos/knotbin/airport");
         const data: GitHubRepo = await response.json();
+        const cacheData = {
+          count: data.stargazers_count,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
         setStarCount(data.stargazers_count);
       } catch (error) {
         console.error("Failed to fetch GitHub repo info:", error);
       }
     };
 
-    fetchRepoInfo();
+    const getCachedStars = () => {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { count, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          setStarCount(count);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (!getCachedStars()) {
+      fetchRepoInfo();
+    }
   }, []);
 
   const formatStarCount = (count: number | null) => {

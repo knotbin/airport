@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@bigmoves/atproto-oauth-client@*": "0.1.0",
+    "jsr:@bigmoves/atproto-oauth-client@0.2": "0.2.0",
     "jsr:@fresh/core@^2.0.0-alpha.1": "2.0.0-alpha.33",
     "jsr:@fresh/core@^2.0.0-alpha.33": "2.0.0-alpha.33",
     "jsr:@fresh/plugin-tailwind@^0.0.1-alpha.7": "0.0.1-alpha.7",
@@ -51,6 +52,9 @@
     "npm:jose@5.9.6": "5.9.6",
     "npm:lucide-preact@*": "0.511.0_preact@10.26.6",
     "npm:postcss@8.4.35": "8.4.35",
+    "npm:posthog-js@*": "1.120.0",
+    "npm:posthog-js@1.120.0": "1.120.0",
+    "npm:posthog-js@^1.120.0": "1.247.0",
     "npm:preact-feather@*": "4.2.1_preact@10.26.6",
     "npm:preact-render-to-string@^6.5.11": "6.5.13_preact@10.26.6",
     "npm:preact@^10.25.1": "10.26.6",
@@ -63,6 +67,17 @@
   "jsr": {
     "@bigmoves/atproto-oauth-client@0.1.0": {
       "integrity": "d5858f534a800a46af28b1c03b447b179d15bbf164c24767601ae78513501711",
+      "dependencies": [
+        "npm:@atproto-labs/handle-resolver-node",
+        "npm:@atproto-labs/simple-store",
+        "npm:@atproto/jwk",
+        "npm:@atproto/oauth-client",
+        "npm:@atproto/oauth-types",
+        "npm:jose"
+      ]
+    },
+    "@bigmoves/atproto-oauth-client@0.2.0": {
+      "integrity": "5c3ca124dd52eff51dace83790779ebe48c4b41559b799e16c8750bd415f2124",
       "dependencies": [
         "npm:@atproto-labs/handle-resolver-node",
         "npm:@atproto-labs/simple-store",
@@ -699,6 +714,10 @@
     "cookie@0.7.2": {
       "integrity": "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w=="
     },
+    "core-js@3.42.0": {
+      "integrity": "sha512-Sz4PP4ZA+Rq4II21qkNqOEDTDrCvcANId3xpIgB34NDkWc3UduWj2dqEtN9yZIq8Dk3HyPI33x9sqqU5C8sr0g==",
+      "scripts": true
+    },
     "cross-spawn@7.0.6": {
       "integrity": "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==",
       "dependencies": [
@@ -899,6 +918,9 @@
       "dependencies": [
         "reusify"
       ]
+    },
+    "fflate@0.4.8": {
+      "integrity": "sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA=="
     },
     "fill-range@7.1.1": {
       "integrity": "sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==",
@@ -1394,6 +1416,23 @@
         "source-map-js"
       ]
     },
+    "posthog-js@1.120.0": {
+      "integrity": "sha512-A1FOJabDjt0mFg2ePfgqeZPUQl8WY6L+fNNfN/89gqvPoI7HmHta2hY/9tDQ+mBRHjj4nah5KK/EWqJHq69fGw==",
+      "dependencies": [
+        "fflate",
+        "preact@10.26.7"
+      ],
+      "deprecated": true
+    },
+    "posthog-js@1.247.0": {
+      "integrity": "sha512-ml7QRfNbXhEHTS/g0HML2Vfs/goZELyFoKlmraJZ9nwyoQq9l4Q/8TLV/JLIlr7/6Io/sSDAwM6xBbJ/8pVBzQ==",
+      "dependencies": [
+        "core-js",
+        "fflate",
+        "preact@10.26.7",
+        "web-vitals"
+      ]
+    },
     "preact-feather@4.2.1_preact@10.26.6": {
       "integrity": "sha512-yK5kYW64AoOkm+xTtUjwcFx0zNrqVTbwmtww8G2AmAB6f8wyQgwZgc6oRXllSYeg7q1I8VbkUpErJuKJ6Vq2eA==",
       "dependencies": [
@@ -1620,6 +1659,9 @@
     "util-deprecate@1.0.2": {
       "integrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="
     },
+    "web-vitals@4.2.4": {
+      "integrity": "sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw=="
+    },
     "which@2.0.2": {
       "integrity": "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==",
       "dependencies": [
@@ -1651,13 +1693,24 @@
       "integrity": "sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg=="
     }
   },
+  "redirects": {
+    "https://esm.sh/posthog-js": "https://esm.sh/posthog-js@1.247.0"
+  },
+  "remote": {
+    "https://esm.sh/posthog-js@1.120.0": "e7a2cb35b74bda7ed8ba7e0ee7ce53a11ebba5c3ebf9e595b0ea0168a4c20202",
+    "https://esm.sh/posthog-js@1.120.0/denonext/posthog-js.mjs": "9ca5a3b08bc4188793e010ff059fc81ad48327d0ac618d7768bdb44f4e938492",
+    "https://esm.sh/posthog-js@1.247.0": "cca238e1a47ea00f3d01a6e4bc0cf1985096ee6e0c09553e4e72ce0a0abd9955",
+    "https://esm.sh/posthog-js@1.247.0/denonext/posthog-js.mjs": "6dbdabdcce8c35240b34086133030bd3cdd8a3998fe5c42b03b57180ceb891e4"
+  },
   "workspace": {
     "dependencies": [
+      "jsr:@bigmoves/atproto-oauth-client@0.2",
       "jsr:@fresh/core@^2.0.0-alpha.33",
       "jsr:@fresh/plugin-tailwind@^0.0.1-alpha.7",
       "jsr:@knotbin/posthog-fresh@~0.1.3",
       "npm:@atproto/api@~0.15.6",
       "npm:@preact/signals@^2.0.4",
+      "npm:posthog-js@1.120.0",
       "npm:preact@^10.26.6",
       "npm:tailwindcss@^3.4.3"
     ]
