@@ -64,10 +64,8 @@ export default function Ticket() {
         <p>
           Think you might need to migrate in the future but your PDS might be
           hostile or offline? No worries! Soon you'll be able to go to the
-          ticket booth and get a PLC key free of charge and use it for account
-          recovery in the future. You can also go to baggage claim (take the air
-          shuttle to terminal four) and get a downloadable backup of all your
-          current PDS data in case that were to happen.
+          ticket booth and get a PLC key to use for account recovery in the
+          future. You can also go to baggage claim (take the air shuttle to
           terminal four) and get a downloadable backup of all your current PDS
           data in case that were to happen.
         </p>

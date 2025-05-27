@@ -5,6 +5,9 @@
     "jsr:@fresh/core@^2.0.0-alpha.1": "2.0.0-alpha.33",
     "jsr:@fresh/core@^2.0.0-alpha.33": "2.0.0-alpha.33",
     "jsr:@fresh/plugin-tailwind@^0.0.1-alpha.7": "0.0.1-alpha.7",
+    "jsr:@knotbin/posthog-fresh@*": "0.1.2",
+    "jsr:@knotbin/posthog-fresh@0.1.3": "0.1.3",
+    "jsr:@knotbin/posthog-fresh@~0.1.3": "0.1.3",
     "jsr:@luca/esbuild-deno-loader@0.11": "0.11.1",
     "jsr:@std/assert@0.221": "0.221.0",
     "jsr:@std/bytes@^1.0.2": "1.0.5",
@@ -52,6 +55,7 @@
     "npm:preact-render-to-string@^6.5.11": "6.5.13_preact@10.26.6",
     "npm:preact@^10.25.1": "10.26.6",
     "npm:preact@^10.26.6": "10.26.6",
+    "npm:preact@^10.26.7": "10.26.7",
     "npm:tailwindcss@^3.4.1": "3.4.17_postcss@8.5.3",
     "npm:tailwindcss@^3.4.3": "3.4.17_postcss@8.5.3",
     "npm:uint8arrays@*": "5.1.0"
@@ -61,8 +65,10 @@
       "integrity": "d5858f534a800a46af28b1c03b447b179d15bbf164c24767601ae78513501711",
       "dependencies": [
         "npm:@atproto-labs/handle-resolver-node",
+        "npm:@atproto-labs/simple-store",
         "npm:@atproto/jwk",
         "npm:@atproto/oauth-client",
+        "npm:@atproto/oauth-types",
         "npm:jose"
       ]
     },
@@ -98,6 +104,21 @@
         "npm:cssnano",
         "npm:postcss",
         "npm:tailwindcss@^3.4.1"
+      ]
+    },
+    "@knotbin/posthog-fresh@0.1.2": {
+      "integrity": "595db3874ad74bba104a92147549dad954376689f17a6787d3310b7a73fbe722",
+      "dependencies": [
+        "npm:preact@^10.26.6",
+        "npm:preact@^10.26.7"
+      ]
+    },
+    "@knotbin/posthog-fresh@0.1.3": {
+      "integrity": "e4f7ac4fea6ae4d9c8edddcaa8f01257245d788140a1e387fefc3f0cf70f8be0",
+      "dependencies": [
+        "jsr:@fresh/core@^2.0.0-alpha.33",
+        "npm:preact@^10.26.6",
+        "npm:preact@^10.26.7"
       ]
     },
     "@luca/esbuild-deno-loader@0.11.1": {
@@ -533,14 +554,14 @@
       "integrity": "sha512-naxcJgUJ6BTOROJ7C3QML7KvwKwCXQJYTc5L/b0eEsdYgPB6SxwoQ1vDGcS0Q7GVjAenVq/tXrybVdFShHYZWg==",
       "dependencies": [
         "@preact/signals-core",
-        "preact"
+        "preact@10.26.6"
       ]
     },
     "@preact/signals@2.0.4_preact@10.26.6": {
       "integrity": "sha512-9241aGnIv7y0IGzaq2vkBMe8/0jGnnmEEUeFmAoTWsaj8q/BW2PVekL8nHVJcy69bBww6rwEy3A1tc6yPE0sJA==",
       "dependencies": [
         "@preact/signals-core",
-        "preact"
+        "preact@10.26.6"
       ]
     },
     "@trysound/sax@0.2.0": {
@@ -1017,7 +1038,7 @@
     "lucide-preact@0.511.0_preact@10.26.6": {
       "integrity": "sha512-7MhxCepYkNOfXZTWahbDVODh/BkhLUeCTY5mh6WmIvWcCWssul7TeIM/SkNARifRWZ9KUwYcl9oeV6VTIlqJog==",
       "dependencies": [
-        "preact"
+        "preact@10.26.6"
       ]
     },
     "mdn-data@2.0.28": {
@@ -1376,17 +1397,20 @@
     "preact-feather@4.2.1_preact@10.26.6": {
       "integrity": "sha512-yK5kYW64AoOkm+xTtUjwcFx0zNrqVTbwmtww8G2AmAB6f8wyQgwZgc6oRXllSYeg7q1I8VbkUpErJuKJ6Vq2eA==",
       "dependencies": [
-        "preact"
+        "preact@10.26.6"
       ]
     },
     "preact-render-to-string@6.5.13_preact@10.26.6": {
       "integrity": "sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==",
       "dependencies": [
-        "preact"
+        "preact@10.26.6"
       ]
     },
     "preact@10.26.6": {
       "integrity": "sha512-5SRRBinwpwkaD+OqlBDeITlRgvd8I8QlxHJw9AxSdMNV6O+LodN9nUyYGpSF7sadHjs6RzeFShMexC6DbtWr9g=="
+    },
+    "preact@10.26.7": {
+      "integrity": "sha512-43xS+QYc1X1IPbw03faSgY6I6OYWcLrJRv3hU0+qMOfh/XCHcP0MX2CVjNARYR2cC/guu975sta4OcjlczxD7g=="
     },
     "psl@1.15.0": {
       "integrity": "sha512-JZd3gMVBAVQkSs6HdNZo9Sdo0LNcQeMNP3CozBJb3JYC/QUYZTnKxP+f8oWRX4rHP5EurWxqAHTSwUCjlNKa1w==",
@@ -1631,6 +1655,7 @@
     "dependencies": [
       "jsr:@fresh/core@^2.0.0-alpha.33",
       "jsr:@fresh/plugin-tailwind@^0.0.1-alpha.7",
+      "jsr:@knotbin/posthog-fresh@~0.1.3",
       "npm:@atproto/api@~0.15.6",
       "npm:@preact/signals@^2.0.4",
       "npm:preact@^10.26.6",

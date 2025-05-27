@@ -1,5 +1,6 @@
 import { type PageProps } from "fresh";
 import Header from "../islands/Header.tsx";
+import { PostHogAnalytics } from "@knotbin/posthog-fresh";
 
 export default function App({ Component }: PageProps) {
   return (
@@ -19,6 +20,10 @@ export default function App({ Component }: PageProps) {
       </head>
       <script defer src="https://cloud.umami.is/script.js" data-website-id={Deno.env.get("UMAMI_ID")}></script>
       <body>
+        <PostHogAnalytics
+          apiKey={Deno.env.get("PUBLIC_POSTHOG_KEY")!}
+          apiHost={Deno.env.get("PUBLIC_POSTHOG_HOST")!}
+        />
         <Header />
         <main className="pt-8">
           <Component />
