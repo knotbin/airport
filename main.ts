@@ -2,6 +2,7 @@
 
 import { App, fsRoutes, staticFiles } from "fresh";
 import { define, type State } from "./utils.ts";
+import { getSession } from "./lib/sessions.ts";
 
 export const app = new App<State>();
 
@@ -11,32 +12,20 @@ app.use(staticFiles());
 const authMiddleware = define.middleware(async (ctx) => {
   const url = new URL(ctx.req.url);
   const needsAuth = url.pathname.startsWith("/migrate");
-  
+
   // Skip auth check if not a protected route
   if (!needsAuth || url.pathname === "/login" || url.pathname.startsWith("/api/")) {
     return ctx.next();
   }
 
   try {
-    const me = await fetch(`${url.origin}/api/me`, {
-      credentials: "include",
-      headers: {
-        "Cookie": ctx.req.headers.get("cookie") || ""
-      }
-    });
-    
-    console.log("[auth] /api/me response:", {
-      status: me.status,
-      statusText: me.statusText,
-      headers: Object.fromEntries(me.headers.entries())
-    });
+    const session = await getSession(ctx.req)
 
-    const json = await me.json();
-    console.log("[auth] /api/me response data:", json);
+    console.log("[auth] Session:", session);
 
-    const isAuthenticated = json && typeof json === 'object' && json.did;
+    const isAuthenticated = session !== null && session.did !== null;
     ctx.state.auth = isAuthenticated;
-    
+
     if (!isAuthenticated) {
       console.log("[auth] Authentication required but not authenticated");
       return ctx.redirect("/login");
