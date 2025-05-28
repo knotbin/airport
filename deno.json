@@ -30,5 +30,5 @@
     "jsxPrecompileSkipElements": ["a", "img", "source", "body", "html", "head"],
     "types": ["node"]
   },
-  "unstable": ["kv"]
+  "unstable": ["kv", "otel"]
 }

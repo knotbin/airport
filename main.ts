@@ -14,12 +14,14 @@ const authMiddleware = define.middleware(async (ctx) => {
   const needsAuth = url.pathname.startsWith("/migrate");
 
   // Skip auth check if not a protected route
-  if (!needsAuth || url.pathname === "/login" || url.pathname.startsWith("/api/")) {
+  if (
+    !needsAuth || url.pathname === "/login" || url.pathname.startsWith("/api/")
+  ) {
     return ctx.next();
   }
 
   try {
-    const session = await getSession(ctx.req)
+    const session = await getSession(ctx.req);
 
     console.log("[auth] Session:", session);
 
