@@ -1,18 +1,18 @@
 export default function AirportSign() {
   return (
-    <div class="relative inline-block mb-12">
+    <div class="relative inline-block mb-8 sm:mb-12">
       {/* Left Pole */}
-      <div class="absolute left-8 -top-24 w-4 h-24 bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 rounded-t-lg">
+      <div class="absolute left-4 sm:left-8 -top-16 sm:-top-24 w-3 sm:w-4 h-16 sm:h-24 bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 rounded-t-lg">
       </div>
       {/* Right Pole */}
-      <div class="absolute right-8 -top-24 w-4 h-24 bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 rounded-t-lg">
+      <div class="absolute right-4 sm:right-8 -top-16 sm:-top-24 w-3 sm:w-4 h-16 sm:h-24 bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 rounded-t-lg">
       </div>
       {/* Display Board */}
-      <div class="relative bg-gradient-to-b from-slate-800 to-slate-900 p-1 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+      <div class="relative bg-gradient-to-b from-slate-800 to-slate-900 p-0.5 sm:p-1 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
         {/* Metallic Frame */}
-        <div class="bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 p-2 rounded-[6px]">
+        <div class="bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 p-1 sm:p-2 rounded-[6px]">
           {/* Inner Frame */}
-          <div class="bg-black px-4 py-0.5 rounded-[4px] relative overflow-hidden">
+          <div class="bg-black px-2 sm:px-4 py-0.5 rounded-[4px] relative overflow-hidden">
             {/* Screen Background with Effects */}
             <div class="absolute inset-0 bg-[#0a0a2f]">
               {/* Scan lines */}
@@ -24,16 +24,16 @@ export default function AirportSign() {
             </div>
 
             {/* Display Board Text */}
-            <div className="relative flex justify-center items-center py-1 sm:py-2 pb-2 sm:pb-4 px-2 sm:px-4">
+            <div className="relative flex justify-center items-center py-0.5 sm:py-2 pb-1 sm:pb-4 px-1 sm:px-4">
               <div className="relative text-center">
-                <span className="font-mono text-[2em] sm:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white 
+                <span className="font-mono text-[1.5em] sm:text-[2em] md:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white 
                            [text-shadow:0_0_20px_rgba(255,255,255,0.2),0_0_40px_rgba(255,255,255,0.1)]
                            relative z-10">
                   ATP INTERNECTIONAL AIRPORT
                 </span>
                 {/* Text glow effect */}
                 <div className="absolute inset-0 blur-[2px] opacity-50">
-                  <span className="font-mono text-[2em] sm:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white">
+                  <span className="font-mono text-[1.5em] sm:text-[2em] md:text-[3em] font-semibold tracking-[0.12em] leading-[0.9] text-white">
                     ATP INTERNECTIONAL AIRPORT
                   </span>
                 </div>
@@ -50,12 +50,12 @@ export default function AirportSign() {
         </div>
       </div>
 
-      {/* Under Construction Extension BELOW the sign, perfectly matching main sign frame, no outline or padding on top */}
+      {/* Under Construction Extension */}
       <div className="absolute left-1/2 top-full -translate-x-1/2">
-        <div className="bg-gradient-to-b from-slate-800 to-slate-900 pb-1 px-1 rounded-b-lg rounded-t-none shadow-[0_2px_10px_rgba(0,0,0,0.3)] border-t-0">
-          <div className="bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 pb-2 px-2 rounded-b-[6px] rounded-t-none border-t-0">
-            <div className="bg-black px-4 pt-0 pb-0.5 rounded-b-[4px] rounded-t-none border-t-0">
-              <span className="font-mono text-sm font-medium tracking-wider text-yellow-400 [text-shadow:0_0_10px_rgba(255,255,0,0.3)] animate-pulse">
+        <div className="bg-gradient-to-b from-slate-800 to-slate-900 pb-0.5 sm:pb-1 px-0.5 sm:px-1 rounded-b-lg rounded-t-none shadow-[0_2px_10px_rgba(0,0,0,0.3)] border-t-0">
+          <div className="bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 pb-1 sm:pb-2 px-1 sm:px-2 rounded-b-[6px] rounded-t-none border-t-0">
+            <div className="bg-black px-2 sm:px-4 pt-0 pb-0.5 rounded-b-[4px] rounded-t-none border-t-0">
+              <span className="font-mono text-xs sm:text-sm font-medium tracking-wider text-yellow-400 [text-shadow:0_0_10px_rgba(255,255,0,0.3)] animate-pulse">
                 UNDER CONSTRUCTION
               </span>
             </div>

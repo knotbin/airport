@@ -69,7 +69,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white relative z-10 border-b border-slate-200 dark:border-slate-800">
+    <header className="hidden sm:block bg-white dark:bg-slate-900 text-slate-900 dark:text-white relative z-10 border-b border-slate-200 dark:border-slate-800">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Home Link */}

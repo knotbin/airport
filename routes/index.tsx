@@ -1,5 +1,5 @@
 import Ticket from "../islands/Ticket.tsx";
-import AirportSign from "../islands/AirportSign.tsx";
+import AirportSign from "../components/AirportSign.tsx";
 import SocialLinks from "../islands/SocialLinks.tsx";
 import { Button } from "../components/Button.tsx";
 
@@ -24,10 +24,16 @@ export default function Home() {
               <Button
                 href="/login"
                 color="blue"
-                label="BEGIN YOUR JOURNEY"
+                label="MOBILE NOT SUPPORTED"
+                className="opacity-50 cursor-not-allowed sm:opacity-100 sm:cursor-pointer"
+                onClick={(e: MouseEvent) => {
+                  if (window.innerWidth < 640) {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
-            <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
+            <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 text-center text-gray-600 dark:text-gray-300">
               Airport is made with love by <a class="text-blue-500 hover:underline" href="https://bsky.app/profile/knotbin.com">Roscoe</a> for <a class="text-blue-500 hover:underline" href="https://sprk.so">Spark</a>, a new short-video platform for AT Protocol.
             </p>
             <SocialLinks />
