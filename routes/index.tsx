@@ -27,7 +27,7 @@ export default function Home() {
                 label="MOBILE NOT SUPPORTED"
                 className="opacity-50 cursor-not-allowed sm:opacity-100 sm:cursor-pointer"
                 onClick={(e: MouseEvent) => {
-                  if (window.innerWidth < 640) {
+                  if (globalThis.innerWidth < 640) {
                     e.preventDefault();
                   }
                 }}
