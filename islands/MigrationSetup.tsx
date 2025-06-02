@@ -1,4 +1,5 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
+import { IS_BROWSER } from "fresh/runtime";
 
 interface MigrationSetupProps {
   service?: string | null;
@@ -10,6 +11,13 @@ interface MigrationSetupProps {
 interface ServerDescription {
   inviteCodeRequired: boolean;
   availableUserDomains: string[];
+}
+
+interface UserPassport {
+  did: string;
+  handle: string;
+  pds: string;
+  createdAt?: string;
 }
 
 export default function MigrationSetup(props: MigrationSetupProps) {
@@ -27,6 +35,39 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
+  const [passport, setPassport] = useState<UserPassport | null>(null);
+
+  useEffect(() => {
+    if (!IS_BROWSER) return;
+
+    const fetchPassport = async () => {
+      try {
+        const response = await fetch("/api/me", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch user profile");
+        }
+        const userData = await response.json();
+        if (userData) {
+          // Get PDS URL from the current service
+          const pdsResponse = await fetch(`/api/resolve-pds?did=${userData.did}`);
+          const pdsData = await pdsResponse.json();
+          
+          setPassport({
+            did: userData.did,
+            handle: userData.handle,
+            pds: pdsData.pds || "Unknown",
+            createdAt: new Date().toISOString() // TODO: Get actual creation date from API
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch passport:", error);
+      }
+    };
+
+    fetchPassport();
+  }, []);
 
   const checkServerDescription = async (serviceUrl: string) => {
     try {
@@ -121,6 +162,36 @@ export default function MigrationSetup(props: MigrationSetupProps) {
         <p class="text-gray-600 dark:text-gray-400 mt-4">Please complete your migration check-in</p>
         <div class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-mono">FLIGHT: MIG-2024</div>
       </div>
+
+      {/* Passport Section */}
+      {passport && (
+        <div class="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Current Passport</h3>
+            <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">ISSUED: {new Date().toLocaleDateString()}</div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 mb-1">Handle</div>
+              <div class="font-mono text-gray-900 dark:text-white">{passport.handle}</div>
+            </div>
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 mb-1">DID</div>
+              <div class="font-mono text-gray-900 dark:text-white break-all">{passport.did}</div>
+            </div>
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 mb-1">Citizen of PDS</div>
+              <div class="font-mono text-gray-900 dark:text-white break-all">{passport.pds}</div>
+            </div>
+            <div>
+              <div class="text-gray-500 dark:text-gray-400 mb-1">Account Age</div>
+              <div class="font-mono text-gray-900 dark:text-white">
+                {passport.createdAt ? new Date(passport.createdAt).toLocaleDateString() : "Unknown"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} class="space-y-6">
         {error && (
@@ -221,7 +292,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Contact Email
+              Email
               <span class="text-xs text-gray-500 ml-1">(Emergency Contact)</span>
             </label>
             <div class="relative">
