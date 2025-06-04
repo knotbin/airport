@@ -1,6 +1,11 @@
 import { useState } from "preact/hooks";
 import { JSX } from "preact";
 
+/**
+ * The credential login form.
+ * @returns The credential login form
+ * @component
+ */
 export default function CredLogin() {
   const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("");

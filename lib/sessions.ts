@@ -4,6 +4,13 @@ import { getCredentialSession, getCredentialSessionAgent } from "./cred/sessions
 import { getOauthSession, getOauthSessionAgent } from "./oauth/sessions.ts";
 import { IronSession } from "npm:iron-session";
 
+/**
+ * Get the session for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param isMigration - Whether to get the migration session
+ * @returns The session
+ */
 export async function getSession(
   req: Request,
   res: Response = new Response(),
@@ -26,6 +33,13 @@ export async function getSession(
   throw new Error("No session found");
 }
 
+/**
+ * Get the session agent for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param isMigration - Whether to get the migration session
+ * @returns The session agent
+ */
 export async function getSessionAgent(
   req: Request,
   res: Response = new Response(),
@@ -49,6 +63,10 @@ export async function getSessionAgent(
   return null;
 }
 
+/**
+ * Destroy all sessions for the given request.
+ * @param req - The request object
+ */
 export async function destroyAllSessions(req: Request) {
   const oauthSession = await getOauthSession(req);
   const credentialSession = await getCredentialSession(req);

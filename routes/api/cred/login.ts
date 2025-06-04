@@ -3,6 +3,13 @@ import { resolver } from "../../../lib/id-resolver.ts";
 import { define } from "../../../utils.ts";
 import { Agent } from "npm:@atproto/api";
 
+/**
+ * Handle credential login
+ * Save iron session to cookies
+ * Save credential session state to database
+ * @param ctx - The context object containing the request and response
+ * @returns A response object with the login result
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     try {

@@ -5,6 +5,11 @@ import { CredentialSession, createSessionOptions } from "../types.ts";
 let migrationSessionOptions: SessionOptions;
 let credentialSessionOptions: SessionOptions;
 
+/**
+ * Get the session options for the given request.
+ * @param isMigration - Whether to get the migration session options
+ * @returns The session options
+ */
 async function getOptions(isMigration: boolean) {
   if (isMigration) {
     if (!migrationSessionOptions) {
@@ -19,6 +24,13 @@ async function getOptions(isMigration: boolean) {
   return credentialSessionOptions;
 }
 
+/**
+ * Get the credential session for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param isMigration - Whether to get the migration session
+ * @returns The credential session
+ */
 export async function getCredentialSession(
   req: Request,
   res: Response = new Response(),
@@ -32,6 +44,13 @@ export async function getCredentialSession(
   );
 }
 
+/**
+ * Get the credential agent for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param isMigration - Whether to get the migration session
+ * @returns The credential agent
+ */
 export async function getCredentialAgent(
   req: Request,
   res: Response = new Response(),
@@ -76,6 +95,14 @@ export async function getCredentialAgent(
   }
 }
 
+/**
+ * Set the credential session for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param data - The credential session data
+ * @param isMigration - Whether to set the migration session
+ * @returns The credential session
+ */
 export async function setCredentialSession(
   req: Request,
   res: Response,
@@ -95,6 +122,13 @@ export async function setCredentialSession(
   return session;
 }
 
+/**
+ * Get the credential session agent for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @param isMigration - Whether to get the migration session
+ * @returns The credential session agent
+ */
 export async function getCredentialSessionAgent(
   req: Request,
   res: Response = new Response(),

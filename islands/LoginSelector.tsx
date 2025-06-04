@@ -2,6 +2,11 @@ import { useState } from "preact/hooks"
 import HandleInput from "./HandleInput.tsx"
 import CredLogin from "./CredLogin.tsx"
 
+/**
+ * The login method selector for OAuth or Credential.
+ * @returns The login method selector
+ * @component
+ */
 export default function LoginMethodSelector() {
   const [loginMethod, setLoginMethod] = useState<'oauth' | 'password'>('password')
 

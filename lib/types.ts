@@ -1,10 +1,20 @@
 import { SessionOptions as BaseSessionOptions } from "npm:iron-session";
 
+/**
+ * The session options.
+ * @type {SessionOptions}
+ * @implements {BaseSessionOptions}
+ */
 interface SessionOptions extends BaseSessionOptions {
   lockFn?: (key: string) => Promise<() => Promise<void>>;
 }
 
-// Helper function to create a lock using Deno KV
+/**
+ * Create a lock using Deno KV.
+ * @param key - The key to lock
+ * @param db - The Deno KV instance for the database
+ * @returns The unlock function
+ */
 async function createLock(key: string, db: Deno.Kv): Promise<() => Promise<void>> {
   const lockKey = ["session_lock", key];
   const lockValue = Date.now();
@@ -25,10 +35,18 @@ async function createLock(key: string, db: Deno.Kv): Promise<() => Promise<void>
   };
 }
 
+/**
+ * The OAuth session.
+ * @type {OauthSession}
+ */
 export interface OauthSession {
   did: string
 }
 
+/**
+ * The credential session.
+ * @type {CredentialSession}
+ */
 export interface CredentialSession {
   did: string;
   handle: string;
@@ -45,6 +63,11 @@ export interface CredentialSession {
 
 let db: Deno.Kv;
 
+/**
+ * Create the session options.
+ * @param cookieName - The name of the iron session cookie
+ * @returns The session options for iron session
+ */
 export const createSessionOptions = async (cookieName: string): Promise<SessionOptions> =>  {
     const cookieSecret = Deno.env.get("COOKIE_SECRET");
     if (!cookieSecret) {

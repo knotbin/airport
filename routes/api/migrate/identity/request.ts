@@ -3,6 +3,13 @@ import {
 } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
 
+/**
+ * Handle identity migration request
+ * Sends a PLC operation signature request to the old account's email
+ * Should be called after all data is migrated to the new account
+ * @param ctx - The context object containing the request and response
+ * @returns A response object with the migration result
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();

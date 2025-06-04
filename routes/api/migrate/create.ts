@@ -3,6 +3,18 @@ import { setCredentialSession } from "../../../lib/cred/sessions.ts";
 import { Agent } from "@atproto/api";
 import { define } from "../../../utils.ts";
 
+/**
+ * Handle account creation
+ * First step of the migration process
+ * Body must contain:
+ * - service: The service URL of the new account
+ * - handle: The handle of the new account
+ * - password: The password of the new account
+ * - email: The email of the new account
+ * - invite: The invite code of the new account (optional depending on the PDS)
+ * @param ctx - The context object containing the request and response
+ * @returns A response object with the creation result
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();

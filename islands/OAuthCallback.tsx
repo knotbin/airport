@@ -1,10 +1,20 @@
 import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
 
+/**
+ * The OAuth callback props.
+ * @type {OAuthCallbackProps}
+ */
 interface OAuthCallbackProps {
   error?: string;
 }
 
+/**
+ * The OAuth callback component.
+ * @param props - The OAuth callback props
+ * @returns The OAuth callback component
+ * @component
+ */
 export default function OAuthCallback(
   { error: initialError }: OAuthCallbackProps,
 ) {

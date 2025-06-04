@@ -5,6 +5,10 @@ import { OauthSession, createSessionOptions } from "../types.ts";
 
 let oauthSessionOptions: SessionOptions;
 
+/**
+ * Get the OAuth session options.
+ * @returns The OAuth session options
+ */
 async function getOptions() {
   if (!oauthSessionOptions) {
     oauthSessionOptions = await createSessionOptions("oauth_sid");
@@ -12,6 +16,11 @@ async function getOptions() {
   return oauthSessionOptions;
 }
 
+/**
+ * Get the OAuth session agent for the given request.
+ * @param req - The request object
+ * @returns The OAuth session agent
+ */
 export async function getOauthSessionAgent(
   req: Request
 ) {
@@ -47,6 +56,12 @@ export async function getOauthSessionAgent(
   }
 }
 
+/**
+ * Get the OAuth session for the given request.
+ * @param req - The request object
+ * @param res - The response object
+ * @returns The OAuth session
+ */
 export async function getOauthSession(
   req: Request,
   res: Response = new Response(),

@@ -5,6 +5,10 @@ import type {
   NodeSavedStateStore,
 } from "jsr:@bigmoves/atproto-oauth-client";
 
+/**
+ * The state store for sessions.
+ * @implements {NodeSavedStateStore}
+ */
 export class StateStore implements NodeSavedStateStore {
   constructor(private db: Deno.Kv) {}
   async get(key: string): Promise<NodeSavedState | undefined> {
@@ -19,6 +23,10 @@ export class StateStore implements NodeSavedStateStore {
   }
 }
 
+/**
+ * The session store for sessions.
+ * @implements {NodeSavedSessionStore}
+ */
 export class SessionStore implements NodeSavedSessionStore {
   constructor(private db: Deno.Kv) {}
   async get(key: string): Promise<NodeSavedSession | undefined> {

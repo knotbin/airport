@@ -8,19 +8,35 @@ interface AtprotoData {
   pds: string;
 }
 
+/**
+ * ID resolver instance.
+ */
 const idResolver = createIdResolver();
 export const resolver = createBidirectionalResolver(idResolver);
 
+/**
+ * Create the ID resolver.
+ * @returns The ID resolver
+ */
 export function createIdResolver() {
   return new IdResolver();
 }
 
+/**
+ * The bidirectional resolver.
+ * @interface
+ */
 export interface BidirectionalResolver {
   resolveDidToHandle(did: string): Promise<string>;
   resolveDidsToHandles(dids: string[]): Promise<Record<string, string>>;
   resolveDidToPdsUrl(did: string): Promise<string | undefined>;
 }
 
+/**
+ * Create the bidirectional resolver.
+ * @param resolver - The ID resolver
+ * @returns The bidirectional resolver
+ */
 export function createBidirectionalResolver(resolver: IdResolver) {
   return {
     async resolveDidToHandle(did: string): Promise<string> {

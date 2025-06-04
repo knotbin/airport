@@ -8,12 +8,24 @@ import { Agent, ComAtprotoSyncGetBlob } from "npm:@atproto/api";
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 
+/**
+ * Retry options
+ * @param maxRetries - The maximum number of retries
+ * @param initialDelay - The initial delay between retries
+ * @param onRetry - The function to call on retry
+ */
 interface RetryOptions {
   maxRetries?: number;
   initialDelay?: number;
   onRetry?: (attempt: number, error: Error) => void;
 }
 
+/**
+ * Retry function with exponential backoff
+ * @param operation - The operation to retry
+ * @param options - The retry options
+ * @returns The result of the operation
+ */
 async function withRetry<T>(
   operation: () => Promise<T>,
   options: RetryOptions = {},
@@ -49,6 +61,13 @@ async function withRetry<T>(
   throw lastError ?? new Error("Operation failed after retries");
 }
 
+/**
+ * Handle blob upload to new PDS
+ * Retries on errors
+ * @param newAgent - The new agent
+ * @param blobRes - The blob response
+ * @param cid - The CID of the blob
+ */
 async function handleBlobUpload(
   newAgent: Agent,
   blobRes: ComAtprotoSyncGetBlob.Response,
@@ -81,6 +100,11 @@ async function handleBlobUpload(
   }
 }
 
+/**
+ * Handle data migration
+ * @param ctx - The context object containing the request and response
+ * @returns A response object with the migration result
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();

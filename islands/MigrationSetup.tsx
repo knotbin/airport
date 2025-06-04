@@ -1,6 +1,10 @@
 import { useState, useEffect } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
 
+/**
+ * The migration setup props.
+ * @type {MigrationSetupProps}
+ */
 interface MigrationSetupProps {
   service?: string | null;
   handle?: string | null;
@@ -8,11 +12,19 @@ interface MigrationSetupProps {
   invite?: string | null;
 }
 
+/**
+ * The server description.
+ * @type {ServerDescription}
+ */
 interface ServerDescription {
   inviteCodeRequired: boolean;
   availableUserDomains: string[];
 }
 
+/**
+ * The user passport.
+ * @type {UserPassport}
+ */
 interface UserPassport {
   did: string;
   handle: string;
@@ -20,6 +32,12 @@ interface UserPassport {
   createdAt?: string;
 }
 
+/**
+ * The migration setup component.
+ * @param props - The migration setup props
+ * @returns The migration setup component
+ * @component
+ */
 export default function MigrationSetup(props: MigrationSetupProps) {
   const [service, setService] = useState(props.service || "");
   const [handlePrefix, setHandlePrefix] = useState(

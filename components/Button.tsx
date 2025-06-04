@@ -12,8 +12,18 @@ type ButtonBaseProps = {
 type ButtonProps = ButtonBaseProps & Omit<JSX.HTMLAttributes<HTMLButtonElement>, keyof ButtonBaseProps>;
 type AnchorProps = ButtonBaseProps & Omit<JSX.HTMLAttributes<HTMLAnchorElement>, keyof ButtonBaseProps> & { href: string };
 
+/**
+ * The button props or anchor props for a button or link.
+ * @type {Props}
+ */
 type Props = ButtonProps | AnchorProps;
 
+/**
+ * Styled button component.
+ * @param props - The button props
+ * @returns The button component
+ * @component
+ */
 export function Button(props: Props) {
   const { color = "blue", icon, iconAlt, label, className = "", condensed = false, ...rest } = props;
   const isAnchor = 'href' in props;

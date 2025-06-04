@@ -1,11 +1,20 @@
 import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
 
+/**
+ * The user interface for the ticket component.
+ * @type {User}
+ */
 interface User {
   did: string;
   handle?: string;
 }
 
+/**
+ * The ticket component for the landing page.
+ * @returns The ticket component
+ * @component
+ */
 export default function Ticket() {
   const [user, setUser] = useState<User | null>(null);
 

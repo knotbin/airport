@@ -1,10 +1,19 @@
 import { useEffect, useState } from "preact/hooks";
 import * as Icon from 'npm:preact-feather';
 
+/**
+ * The GitHub repository.
+ * @type {GitHubRepo}
+ */
 interface GitHubRepo {
   stargazers_count: number;
 }
 
+/**
+ * The social links component.
+ * @returns The social links component
+ * @component
+ */
 export default function SocialLinks() {
   const [starCount, setStarCount] = useState<number | null>(null);
 

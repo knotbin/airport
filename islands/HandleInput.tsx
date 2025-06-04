@@ -1,6 +1,11 @@
 import { useState } from "preact/hooks";
 import { JSX } from "preact";
 
+/**
+ * The OAuth handle input form.
+ * @returns The handle input form
+ * @component
+ */
 export default function HandleInput() {
   const [handle, setHandle] = useState("");
   const [error, setError] = useState<string | null>(null);

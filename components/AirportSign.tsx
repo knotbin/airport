@@ -1,3 +1,9 @@
+/**
+ * The airport sign component, used on the landing page.
+ * Looks like a physical airport sign with a screen.
+ * @returns The airport sign component
+ * @component
+ */
 export default function AirportSign() {
   return (
     <div class="relative inline-block mb-8 sm:mb-12">

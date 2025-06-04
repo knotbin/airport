@@ -5,6 +5,13 @@ import { Secp256k1Keypair } from "npm:@atproto/crypto";
 import * as ui8 from "npm:uint8arrays";
 import { define } from "../../../../utils.ts";
 
+/**
+ * Handle identity migration sign
+ * Should be called after user receives the migration token via email
+ * URL params must contain the token
+ * @param ctx - The context object containing the request with the token in the URL params
+ * @returns A response object with the migration result
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();

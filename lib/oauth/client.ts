@@ -1,6 +1,11 @@
 import { AtprotoOAuthClient } from "@bigmoves/atproto-oauth-client";
 import { SessionStore, StateStore } from "../storage.ts";
 
+/**
+ * Create the OAuth client.
+ * @param db - The Deno KV instance for the database
+ * @returns The OAuth client
+ */
 export const createClient = (db: Deno.Kv) => {
   if (Deno.env.get("NODE_ENV") == "production" && !Deno.env.get("PUBLIC_URL")) {
     throw new Error("PUBLIC_URL is not set");

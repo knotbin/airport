@@ -2,11 +2,21 @@ import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
 import { Button } from "../components/Button.tsx";
 
+/**
+ * The user interface.
+ * @type {User}
+ */
 interface User {
   did: string;
   handle?: string;
 }
 
+/**
+ * Truncate text to a maximum length.
+ * @param text - The text to truncate
+ * @param maxLength - The maximum length
+ * @returns The truncated text
+ */
 function truncateText(text: string, maxLength: number) {
   if (text.length <= maxLength) return text;
   let truncated = text.slice(0, maxLength);
@@ -17,6 +27,11 @@ function truncateText(text: string, maxLength: number) {
   return truncated + "...";
 }
 
+/**
+ * The header component.
+ * @returns The header component
+ * @component
+ */
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);

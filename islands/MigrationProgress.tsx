@@ -1,5 +1,9 @@
 import { useEffect, useState } from "preact/hooks";
 
+/**
+ * The migration progress props.
+ * @type {MigrationProgressProps}
+ */
 interface MigrationProgressProps {
   service: string;
   handle: string;
@@ -8,12 +12,22 @@ interface MigrationProgressProps {
   invite?: string;
 }
 
+/**
+ * The migration step.
+ * @type {MigrationStep}
+ */
 interface MigrationStep {
   name: string;
   status: "pending" | "in-progress" | "verifying" | "completed" | "error";
   error?: string;
 }
 
+/**
+ * The migration progress component.
+ * @param props - The migration progress props
+ * @returns The migration progress component
+ * @component
+ */
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
 
@@ -538,6 +552,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             Migration completed successfully! You can now close this page.
           </p>
           <button
+            type="button"
             onClick={async () => {
               try {
                 const response = await fetch("/api/logout", {
