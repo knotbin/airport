@@ -37,6 +37,18 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   const [confirmationText, setConfirmationText] = useState("");
   const [passport, setPassport] = useState<UserPassport | null>(null);
 
+  const ensureServiceUrl = (url: string): string => {
+    if (!url) return url;
+    try {
+      // If it already has a protocol, return as is
+      new URL(url);
+      return url;
+    } catch {
+      // If no protocol, add https://
+      return `https://${url}`;
+    }
+  };
+
   useEffect(() => {
     if (!IS_BROWSER) return;
 
@@ -100,10 +112,11 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   };
 
   const handleServiceChange = (value: string) => {
-    setService(value);
+    const urlWithProtocol = ensureServiceUrl(value);
+    setService(urlWithProtocol);
     setError("");
-    if (value) {
-      checkServerDescription(value);
+    if (urlWithProtocol) {
+      checkServerDescription(urlWithProtocol);
     } else {
       setAvailableDomains([]);
       setSelectedDomain("");
@@ -384,7 +397,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
             <div class="text-center mb-4 mt-6">
               <h3 class="text-2xl font-bold text-red-600 mb-2 tracking-wide">Final Boarding Call</h3>
               <p class="text-gray-700 dark:text-gray-300 mb-2 text-base">
-                <span class="font-semibold text-red-500">Warning:</span> This migration process can be <strong>irreversible</strong>.<br />Airport is in <strong>alpha</strong> currently, and we don't recommend it for main accounts.
+                <span class="font-semibold text-red-500">Warning:</span> This migration process can be <strong>irreversible</strong>.<br />Airport is in <strong>alpha</strong> currently, and we don't recommend it for main accounts. Migrate at your own risk. We reccomend backing up your data before proceeding.
               </p>
               <p class="text-gray-700 dark:text-gray-300 mb-4 text-base">
                 Please type <span class="font-mono font-bold text-blue-600">MIGRATE</span> below to confirm and proceed.

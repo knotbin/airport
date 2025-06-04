@@ -1,4 +1,4 @@
-import { getSession } from "../../lib/sessions.ts";
+import { getSession, destroyAllSessions } from "../../lib/sessions.ts";
 import { oauthClient } from "../../lib/oauth/client.ts";
 import { define } from "../../utils.ts";
 
@@ -18,6 +18,9 @@ export const handler = define.handlers({
         // Then destroy the iron session
         session.destroy();
       }
+
+      // Destroy all sessions including migration session
+      await destroyAllSessions(req);
 
       return response;
     } catch (error: unknown) {

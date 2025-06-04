@@ -532,13 +532,30 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         ))}
       </div>
 
-
-
       {steps[3].status === "completed" && (
         <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border-2 border-green-200 dark:border-green-800">
           <p class="text-sm text-green-800 dark:text-green-200">
             Migration completed successfully! You can now close this page.
           </p>
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch("/api/logout", {
+                  method: "POST",
+                  credentials: "include",
+                });
+                if (!response.ok) {
+                  throw new Error("Logout failed");
+                }
+                globalThis.location.href = "/";
+              } catch (error) {
+                console.error("Failed to logout:", error);
+              }
+            }}
+            class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
+          >
+            Sign Out
+          </button>
         </div>
       )}
     </div>
