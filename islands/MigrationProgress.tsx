@@ -567,10 +567,13 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                 console.error("Failed to logout:", error);
               }
             }}
-            class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
+            class="mt-4 mr-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
           >
             Sign Out
           </button>
+          <a href="https://www.buymeacoffee.com/atproto" target="_blank" class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200">
+            Donate
+          </a>
         </div>
       )}
     </div>
