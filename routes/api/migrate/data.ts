@@ -178,6 +178,7 @@ export const handler = define.handlers({
       let blobCursor: string | undefined = undefined;
       const migratedBlobs: string[] = [];
       const failedBlobs: Array<{ cid: string; error: string }> = [];
+      const migrationLogs: string[] = [];
 
       do {
         try {
@@ -189,7 +190,9 @@ export const handler = define.handlers({
             {
               maxRetries: 5,
               onRetry: (attempt, error) => {
-                console.log(`Retrying blob list fetch (attempt ${attempt}):`, error.message);
+                const log = `Retrying blob list fetch (attempt ${attempt}): ${error.message}`;
+                console.log(log);
+                migrationLogs.push(log);
               },
             }
           );
@@ -204,26 +207,33 @@ export const handler = define.handlers({
                 {
                   maxRetries: 5,
                   onRetry: (attempt, error) => {
-                    console.log(`Retrying blob download for ${cid} (attempt ${attempt}):`, error.message);
+                    const log = `Retrying blob download for ${cid} (attempt ${attempt}): ${error.message}`;
+                    console.log(log);
+                    migrationLogs.push(log);
                   },
                 }
               );
 
               await handleBlobUpload(newAgent, blobRes, cid);
               migratedBlobs.push(cid);
-              console.log(`Successfully migrated blob: ${cid}`);
+              const log = `Successfully migrated blob: ${cid}`;
+              console.log(log);
+              migrationLogs.push(log);
             } catch (error) {
+              const errorMsg = error instanceof Error ? error.message : String(error);
               console.error(`Failed to migrate blob ${cid}:`, error);
               failedBlobs.push({
                 cid,
-                error: error instanceof Error ? error.message : String(error),
+                error: errorMsg,
               });
+              migrationLogs.push(`Failed to migrate blob ${cid}: ${errorMsg}`);
             }
           }
           blobCursor = listedBlobs.data.cursor;
         } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
           console.error("Error during blob migration batch:", error);
-          // If we hit a critical error during blob listing, break the loop
+          migrationLogs.push(`Error during blob migration batch: ${errorMsg}`);
           if (error instanceof Error && 
              (error.message.includes("Unauthorized") || 
               error.message.includes("Invalid token"))) {
@@ -239,7 +249,9 @@ export const handler = define.handlers({
         {
           maxRetries: 3,
           onRetry: (attempt, error) => {
-            console.log(`Retrying preferences fetch (attempt ${attempt}):`, error.message);
+            const log = `Retrying preferences fetch (attempt ${attempt}): ${error.message}`;
+            console.log(log);
+            migrationLogs.push(log);
           },
         }
       );
@@ -249,10 +261,16 @@ export const handler = define.handlers({
         {
           maxRetries: 3,
           onRetry: (attempt, error) => {
-            console.log(`Retrying preferences update (attempt ${attempt}):`, error.message);
+            const log = `Retrying preferences update (attempt ${attempt}): ${error.message}`;
+            console.log(log);
+            migrationLogs.push(log);
           },
         }
       );
+
+      const completionMessage = `Data migration completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''}`;
+      console.log(completionMessage);
+      migrationLogs.push(completionMessage);
 
       return new Response(
         JSON.stringify({
@@ -264,12 +282,13 @@ export const handler = define.handlers({
           failedBlobs,
           totalMigrated: migratedBlobs.length,
           totalFailed: failedBlobs.length,
+          logs: migrationLogs,
         }),
         {
-          status: failedBlobs.length > 0 ? 207 : 200, // Use 207 Multi-Status if some blobs failed
+          status: failedBlobs.length > 0 ? 207 : 200,
           headers: {
             "Content-Type": "application/json",
-            ...Object.fromEntries(res.headers), // Include session cookie headers
+            ...Object.fromEntries(res.headers),
           },
         },
       );

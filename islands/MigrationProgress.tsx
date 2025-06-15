@@ -225,6 +225,20 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             throw new Error(jsonData.message || "Data migration failed");
           }
           console.log("Data migration: Success response:", jsonData);
+          
+          // Display migration logs
+          if (jsonData.logs && Array.isArray(jsonData.logs)) {
+            console.log("Data migration: Logs:", jsonData.logs);
+            jsonData.logs.forEach((log: string) => {
+              if (log.includes("Successfully migrated blob:")) {
+                console.log("Data migration: Blob success:", log);
+              } else if (log.includes("Failed to migrate blob")) {
+                console.error("Data migration: Blob failure:", log);
+              } else {
+                console.log("Data migration:", log);
+              }
+            });
+          }
         } catch (e) {
           console.error("Data migration: Failed to parse response:", e);
           throw new Error("Invalid response from server during data migration");
