@@ -196,52 +196,70 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log("Starting data migration...");
 
       try {
-        console.log("Data migration: Sending request to /api/migrate/data");
-        const dataRes = await fetch("/api/migrate/data", {
+        // Step 2.1: Migrate Repo
+        console.log("Data migration: Starting repo migration");
+        const repoRes = await fetch("/api/migrate/data/repo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
 
-        console.log("Data migration: Response status:", dataRes.status);
-        const dataText = await dataRes.text();
-        console.log("Data migration: Raw response:", dataText);
+        console.log("Repo migration: Response status:", repoRes.status);
+        const repoText = await repoRes.text();
+        console.log("Repo migration: Raw response:", repoText);
 
-        if (!dataRes.ok) {
+        if (!repoRes.ok) {
           try {
-            const json = JSON.parse(dataText);
-            console.error("Data migration: Error response:", json);
-            throw new Error(json.message || "Failed to migrate data");
+            const json = JSON.parse(repoText);
+            console.error("Repo migration: Error response:", json);
+            throw new Error(json.message || "Failed to migrate repo");
           } catch {
-            console.error("Data migration: Non-JSON error response:", dataText);
-            throw new Error(dataText || "Failed to migrate data");
+            console.error("Repo migration: Non-JSON error response:", repoText);
+            throw new Error(repoText || "Failed to migrate repo");
           }
         }
 
-        try {
-          const jsonData = JSON.parse(dataText);
-          console.log("Data migration: Parsed response:", jsonData);
-          if (!jsonData.success) {
-            console.error("Data migration: Unsuccessful response:", jsonData);
-            throw new Error(jsonData.message || "Data migration failed");
+        // Step 2.2: Migrate Blobs
+        console.log("Data migration: Starting blob migration");
+        const blobsRes = await fetch("/api/migrate/data/blobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        console.log("Blob migration: Response status:", blobsRes.status);
+        const blobsText = await blobsRes.text();
+        console.log("Blob migration: Raw response:", blobsText);
+
+        if (!blobsRes.ok) {
+          try {
+            const json = JSON.parse(blobsText);
+            console.error("Blob migration: Error response:", json);
+            throw new Error(json.message || "Failed to migrate blobs");
+          } catch {
+            console.error("Blob migration: Non-JSON error response:", blobsText);
+            throw new Error(blobsText || "Failed to migrate blobs");
           }
-          console.log("Data migration: Success response:", jsonData);
-          
-          // Display migration logs
-          if (jsonData.logs && Array.isArray(jsonData.logs)) {
-            console.log("Data migration: Logs:", jsonData.logs);
-            jsonData.logs.forEach((log: string) => {
-              if (log.includes("Successfully migrated blob:")) {
-                console.log("Data migration: Blob success:", log);
-              } else if (log.includes("Failed to migrate blob")) {
-                console.error("Data migration: Blob failure:", log);
-              } else {
-                console.log("Data migration:", log);
-              }
-            });
+        }
+
+        // Step 2.3: Migrate Preferences
+        console.log("Data migration: Starting preferences migration");
+        const prefsRes = await fetch("/api/migrate/data/prefs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        console.log("Preferences migration: Response status:", prefsRes.status);
+        const prefsText = await prefsRes.text();
+        console.log("Preferences migration: Raw response:", prefsText);
+
+        if (!prefsRes.ok) {
+          try {
+            const json = JSON.parse(prefsText);
+            console.error("Preferences migration: Error response:", json);
+            throw new Error(json.message || "Failed to migrate preferences");
+          } catch {
+            console.error("Preferences migration: Non-JSON error response:", prefsText);
+            throw new Error(prefsText || "Failed to migrate preferences");
           }
-        } catch (e) {
-          console.error("Data migration: Failed to parse response:", e);
-          throw new Error("Invalid response from server during data migration");
         }
 
         console.log("Data migration: Starting verification");
