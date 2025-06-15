@@ -49,7 +49,9 @@ export const handler = define.handlers({
 
       // Import repo data to new account
       const importStartTime = Date.now();
-      await newAgent.com.atproto.repo.importRepo(repoData.data);
+      await newAgent.com.atproto.repo.importRepo(repoData.data, {
+        encoding: "application/vnd.ipld.car"
+      });
       const importTime = Date.now() - importStartTime;
 
       console.log(`[${new Date().toISOString()}] Repo data imported in ${importTime/1000} seconds`);
