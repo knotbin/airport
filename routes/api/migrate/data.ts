@@ -179,6 +179,33 @@ export const handler = define.handlers({
       const migratedBlobs: string[] = [];
       const failedBlobs: Array<{ cid: string; error: string }> = [];
       const migrationLogs: string[] = [];
+      let totalBlobs = 0;
+      let pageCount = 0;
+
+      // First count total blobs
+      console.log("Starting blob count...");
+      do {
+        const listedBlobs = await oldAgent.com.atproto.sync.listBlobs({
+          did: accountDid,
+          cursor: blobCursor,
+        });
+        const newBlobs = listedBlobs.data.cids.length;
+        totalBlobs += newBlobs;
+        pageCount++;
+        console.log(`Blob count page ${pageCount}: found ${newBlobs} blobs, total so far: ${totalBlobs}`);
+        migrationLogs.push(`Blob count page ${pageCount}: found ${newBlobs} blobs, total so far: ${totalBlobs}`);
+        
+        if (!listedBlobs.data.cursor) {
+          console.log("No more cursor, finished counting blobs");
+          break;
+        }
+        blobCursor = listedBlobs.data.cursor;
+      } while (blobCursor);
+
+      // Reset cursor for actual migration
+      blobCursor = undefined;
+      let processedBlobs = 0;
+      pageCount = 0;
 
       do {
         try {
@@ -196,6 +223,10 @@ export const handler = define.handlers({
               },
             }
           );
+
+          pageCount++;
+          console.log(`Processing blob page ${pageCount}: ${listedBlobs.data.cids.length} blobs`);
+          migrationLogs.push(`Processing blob page ${pageCount}: ${listedBlobs.data.cids.length} blobs`);
 
           for (const cid of listedBlobs.data.cids) {
             try {
@@ -216,9 +247,10 @@ export const handler = define.handlers({
 
               await handleBlobUpload(newAgent, blobRes, cid);
               migratedBlobs.push(cid);
-              const log = `Successfully migrated blob: ${cid}`;
-              console.log(log);
-              migrationLogs.push(log);
+              processedBlobs++;
+              const progressLog = `Migrating blob ${processedBlobs} of ${totalBlobs}: ${cid}`;
+              console.log(progressLog);
+              migrationLogs.push(progressLog);
             } catch (error) {
               const errorMsg = error instanceof Error ? error.message : String(error);
               console.error(`Failed to migrate blob ${cid}:`, error);
@@ -228,6 +260,12 @@ export const handler = define.handlers({
               });
               migrationLogs.push(`Failed to migrate blob ${cid}: ${errorMsg}`);
             }
+          }
+
+          if (!listedBlobs.data.cursor) {
+            console.log("No more cursor, finished processing blobs");
+            migrationLogs.push("No more cursor, finished processing blobs");
+            break;
           }
           blobCursor = listedBlobs.data.cursor;
         } catch (error) {
@@ -268,7 +306,7 @@ export const handler = define.handlers({
         }
       );
 
-      const completionMessage = `Data migration completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''}`;
+      const completionMessage = `Data migration completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''} (${pageCount} pages processed)`;
       console.log(completionMessage);
       migrationLogs.push(completionMessage);
 
