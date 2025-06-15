@@ -1,18 +1,15 @@
 import { getSessionAgent } from "../../../../lib/sessions.ts";
+import { define } from "../../../../utils.ts";
 
-export const handler = {
-  async POST(req: Request) {
+export const handler = define.handlers({
+  async POST(ctx) {
+    const res = new Response();
     try {
       console.log("Preferences migration: Starting session retrieval");
-      const oldAgent = await getSessionAgent(req);
+      const oldAgent = await getSessionAgent(ctx.req);
       console.log("Preferences migration: Got old agent:", !!oldAgent);
 
-      // Log cookie information
-      const cookies = req.headers.get("cookie");
-      console.log("Preferences migration: Cookies present:", !!cookies);
-      console.log("Preferences migration: Cookie header:", cookies);
-
-      const newAgent = await getSessionAgent(req, new Response(), true);
+      const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Preferences migration: Got new agent:", !!newAgent);
 
       if (!oldAgent || !newAgent) {
@@ -95,4 +92,4 @@ export const handler = {
       );
     }
   }
-}; 
+}); 
