@@ -137,12 +137,16 @@ export const handler = define.handlers({
             console.log(`[${new Date().toISOString()}] Uploading blob ${cid} to new account...`);
             migrationLogs.push(`[${new Date().toISOString()}] Uploading blob ${cid} to new account...`);
 
-            await newAgent.com.atproto.repo.uploadBlob(blobRes.data);
-
-            const blobTime = Date.now() - blobStartTime;
-            console.log(`[${new Date().toISOString()}] Successfully migrated blob ${cid} in ${blobTime/1000} seconds`);
-            migrationLogs.push(`[${new Date().toISOString()}] Successfully migrated blob ${cid} in ${blobTime/1000} seconds`);
-            migratedBlobs.push(cid);
+            try {
+              await newAgent.com.atproto.repo.uploadBlob(blobRes.data);
+              const blobTime = Date.now() - blobStartTime;
+              console.log(`[${new Date().toISOString()}] Successfully migrated blob ${cid} in ${blobTime/1000} seconds`);
+              migrationLogs.push(`[${new Date().toISOString()}] Successfully migrated blob ${cid} in ${blobTime/1000} seconds`);
+              migratedBlobs.push(cid);
+            } catch (uploadError) {
+              console.error(`[${new Date().toISOString()}] Failed to upload blob ${cid}:`, uploadError);
+              throw new Error(`Upload failed: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
+            }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const detailedError = `[${new Date().toISOString()}] Failed to migrate blob ${cid}: ${errorMessage}`;
