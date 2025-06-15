@@ -196,41 +196,49 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log("Starting data migration...");
 
       try {
+        console.log("Data migration: Sending request to /api/migrate/data");
         const dataRes = await fetch("/api/migrate/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
 
-        console.log("Data migration response status:", dataRes.status);
+        console.log("Data migration: Response status:", dataRes.status);
         const dataText = await dataRes.text();
-        console.log("Data migration response:", dataText);
+        console.log("Data migration: Raw response:", dataText);
 
         if (!dataRes.ok) {
           try {
             const json = JSON.parse(dataText);
+            console.error("Data migration: Error response:", json);
             throw new Error(json.message || "Failed to migrate data");
           } catch {
+            console.error("Data migration: Non-JSON error response:", dataText);
             throw new Error(dataText || "Failed to migrate data");
           }
         }
 
         try {
           const jsonData = JSON.parse(dataText);
+          console.log("Data migration: Parsed response:", jsonData);
           if (!jsonData.success) {
+            console.error("Data migration: Unsuccessful response:", jsonData);
             throw new Error(jsonData.message || "Data migration failed");
           }
-          console.log("Data migration successful:", jsonData);
+          console.log("Data migration: Success response:", jsonData);
         } catch (e) {
-          console.error("Failed to parse data migration response:", e);
+          console.error("Data migration: Failed to parse response:", e);
           throw new Error("Invalid response from server during data migration");
         }
 
+        console.log("Data migration: Starting verification");
         updateStepStatus(1, "verifying");
         const verified = await verifyStep(1);
+        console.log("Data migration: Verification result:", verified);
         if (!verified) {
           throw new Error("Data migration verification failed");
         }
       } catch (error) {
+        console.error("Data migration: Error caught:", error);
         updateStepStatus(
           1,
           "error",
@@ -467,18 +475,40 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   // Helper to verify a step after completion
   const verifyStep = async (stepNum: number) => {
+    console.log(`Verification: Starting step ${stepNum + 1}`);
     updateStepStatus(stepNum, "verifying");
     try {
+      console.log(`Verification: Fetching status for step ${stepNum + 1}`);
       const res = await fetch(`/api/migrate/status?step=${stepNum + 1}`);
+      console.log(`Verification: Status response status:`, res.status);
       const data = await res.json();
+      console.log(`Verification: Status data for step ${stepNum + 1}:`, data);
+      
       if (data.ready) {
+        console.log(`Verification: Step ${stepNum + 1} is ready`);
         updateStepStatus(stepNum, "completed");
         return true;
       } else {
-        updateStepStatus(stepNum, "error", data.reason || "Verification failed");
+        console.log(`Verification: Step ${stepNum + 1} is not ready:`, data.reason);
+        const statusDetails = {
+          activated: data.activated,
+          validDid: data.validDid,
+          repoCommit: data.repoCommit,
+          repoRev: data.repoRev,
+          repoBlocks: data.repoBlocks,
+          expectedRecords: data.expectedRecords,
+          indexedRecords: data.indexedRecords,
+          privateStateValues: data.privateStateValues,
+          expectedBlobs: data.expectedBlobs,
+          importedBlobs: data.importedBlobs
+        };
+        console.log(`Verification: Step ${stepNum + 1} status details:`, statusDetails);
+        const errorMessage = `${data.reason || "Verification failed"}\nStatus details: ${JSON.stringify(statusDetails, null, 2)}`;
+        updateStepStatus(stepNum, "error", errorMessage);
         return false;
       }
     } catch (e) {
+      console.error(`Verification: Error in step ${stepNum + 1}:`, e);
       updateStepStatus(stepNum, "error", e instanceof Error ? e.message : String(e));
       return false;
     }
