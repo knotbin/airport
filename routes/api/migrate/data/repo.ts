@@ -13,7 +13,7 @@ export const handler = define.handlers({
       const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Repo migration: Got new agent:", !!newAgent);
 
-      if (!oldAgent || !newAgent || !oldAgent.did) {
+      if (!oldAgent || !newAgent) {
         return new Response(JSON.stringify({
           success: false,
           message: "Not authenticated"
@@ -23,6 +23,8 @@ export const handler = define.handlers({
         });
       }
 
+      const session = await oldAgent.com.atproto.server.getSession();
+      const accountDid = session.data.did;
       // Migrate repo data
       const migrationLogs: string[] = [];
       const startTime = Date.now();
@@ -35,7 +37,7 @@ export const handler = define.handlers({
       
       const fetchStartTime = Date.now();
       const repoData = await oldAgent.com.atproto.sync.getRepo({
-        did: oldAgent.did,
+        did: accountDid,
       });
       const fetchTime = Date.now() - fetchStartTime;
       

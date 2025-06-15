@@ -12,14 +12,29 @@ export const handler = define.handlers({
       const newAgent = await getSessionAgent(ctx.req, res, true);
       console.log("Blob migration: Got new agent:", !!newAgent);
 
-      if (!oldAgent || !newAgent || !oldAgent.did) {
-        return new Response(JSON.stringify({
-          success: false,
-          message: "Not authenticated"
-        }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" }
-        });
+      if (!oldAgent) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Unauthorized",
+          }),
+          {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+      if (!newAgent) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Migration session not found or invalid",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
 
       // Migrate blobs
@@ -38,14 +53,16 @@ export const handler = define.handlers({
       // First count total blobs
       console.log(`[${new Date().toISOString()}] Starting blob count...`);
       migrationLogs.push(`[${new Date().toISOString()}] Starting blob count...`);
+
+      const session = await oldAgent.com.atproto.server.getSession();
+      const accountDid = session.data.did;
       
       do {
         const pageStartTime = Date.now();
         console.log(`[${new Date().toISOString()}] Counting blobs on page ${pageCount + 1}...`);
         migrationLogs.push(`[${new Date().toISOString()}] Counting blobs on page ${pageCount + 1}...`);
-
         const listedBlobs = await oldAgent.com.atproto.sync.listBlobs({
-          did: oldAgent.did,
+          did: accountDid,
           cursor: blobCursor,
         });
 
@@ -74,7 +91,7 @@ export const handler = define.handlers({
         migrationLogs.push(`[${new Date().toISOString()}] Fetching blob list page ${pageCount + 1}...`);
 
         const listedBlobs = await oldAgent.com.atproto.sync.listBlobs({
-          did: oldAgent.did,
+          did: accountDid,
           cursor: blobCursor,
         });
 
@@ -91,7 +108,7 @@ export const handler = define.handlers({
             migrationLogs.push(`[${new Date().toISOString()}] Starting migration for blob ${cid} (${processedBlobs + 1} of ${totalBlobs})...`);
 
             const blobRes = await oldAgent.com.atproto.sync.getBlob({
-              did: oldAgent.did,
+              did: accountDid,
               cid,
             });
 
