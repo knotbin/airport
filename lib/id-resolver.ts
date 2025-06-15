@@ -64,21 +64,17 @@ export function createBidirectionalResolver(resolver: IdResolver) {
         const didDoc = await resolver.did.resolveAtprotoData(
           did,
         ) as AtprotoData;
-        if (didDoc?.pds) {
+        if (didDoc.pds) {
           return didDoc.pds;
+        } else {
+          const forcedDidDoc = await resolver.did.resolveAtprotoData(
+            did, 
+            true,
+          )
+          if (forcedDidDoc.pds) {
+            return forcedDidDoc.pds;
+          }
         }
-
-        // If that fails, try to get the PDS from the DID document directly
-        const response = await fetch(`https://plc.directory/${did}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch DID document: ${response.statusText}`);
-        }
-        const doc = await response.json();
-        const pdsService = doc.service?.find((s: DidService) => s.type === "AtprotoPersonalDataServer");
-        if (pdsService?.serviceEndpoint) {
-          return pdsService.serviceEndpoint;
-        }
-        return undefined;
       } catch (err) {
         console.error("Error resolving PDS URL:", err);
         return undefined;
