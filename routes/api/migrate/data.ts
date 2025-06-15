@@ -281,7 +281,14 @@ export const handler = define.handlers({
         }
       } while (blobCursor);
 
+      const completionMessage = `Data migration completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''} (${pageCount} pages processed)`;
+      console.log(completionMessage);
+      migrationLogs.push(completionMessage);
+
       // Migrate preferences with retry
+      console.log("Starting preferences migration...");
+      migrationLogs.push("Starting preferences migration...");
+
       const prefs = await withRetry(
         () => oldAgent.app.bsky.actor.getPreferences(),
         {
@@ -293,6 +300,9 @@ export const handler = define.handlers({
           },
         }
       );
+
+      console.log("Preferences fetched, updating on new account...");
+      migrationLogs.push("Preferences fetched, updating on new account...");
 
       await withRetry(
         () => newAgent.app.bsky.actor.putPreferences(prefs.data),
@@ -306,9 +316,12 @@ export const handler = define.handlers({
         }
       );
 
-      const completionMessage = `Data migration completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''} (${pageCount} pages processed)`;
-      console.log(completionMessage);
-      migrationLogs.push(completionMessage);
+      console.log("Preferences migration completed");
+      migrationLogs.push("Preferences migration completed");
+
+      const finalMessage = `Data migration fully completed: ${migratedBlobs.length} blobs migrated${failedBlobs.length > 0 ? `, ${failedBlobs.length} failed` : ''} (${pageCount} pages processed), preferences migrated`;
+      console.log(finalMessage);
+      migrationLogs.push(finalMessage);
 
       return new Response(
         JSON.stringify({
