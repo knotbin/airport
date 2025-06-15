@@ -8,6 +8,12 @@ interface AtprotoData {
   pds: string;
 }
 
+interface DidService {
+  id: string;
+  type: string;
+  serviceEndpoint: string;
+}
+
 /**
  * ID resolver instance.
  */
@@ -54,10 +60,25 @@ export function createBidirectionalResolver(resolver: IdResolver) {
 
     async resolveDidToPdsUrl(did: string): Promise<string | undefined> {
       try {
+        // First try the standard resolution
         const didDoc = await resolver.did.resolveAtprotoData(
           did,
         ) as AtprotoData;
-        return didDoc.pds;
+        if (didDoc?.pds) {
+          return didDoc.pds;
+        }
+
+        // If that fails, try to get the PDS from the DID document directly
+        const response = await fetch(`https://plc.directory/${did}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch DID document: ${response.statusText}`);
+        }
+        const doc = await response.json();
+        const pdsService = doc.service?.find((s: DidService) => s.type === "AtprotoPersonalDataServer");
+        if (pdsService?.serviceEndpoint) {
+          return pdsService.serviceEndpoint;
+        }
+        return undefined;
       } catch (err) {
         console.error("Error resolving PDS URL:", err);
         return undefined;
