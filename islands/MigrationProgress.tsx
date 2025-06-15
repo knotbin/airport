@@ -571,7 +571,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           >
             Sign Out
           </button>
-          <a href="https://www.buymeacoffee.com/atproto" target="_blank" class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200">
+          <a href="https://ko-fi.com/knotbin" target="_blank" class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200">
             Donate
           </a>
         </div>
