@@ -8,10 +8,15 @@
   },
   "lint": {
     "rules": {
-      "tags": ["fresh", "recommended"]
+      "tags": [
+        "fresh",
+        "recommended"
+      ]
     }
   },
-  "exclude": ["**/_fresh/*"],
+  "exclude": [
+    "**/_fresh/*"
+  ],
   "imports": {
     "@atproto/api": "npm:@atproto/api@^0.15.6",
     "@bigmoves/atproto-oauth-client": "jsr:@bigmoves/atproto-oauth-client@^0.2.0",
@@ -21,14 +26,33 @@
     "posthog-js": "npm:posthog-js@1.120.0",
     "preact": "npm:preact@^10.26.6",
     "@preact/signals": "npm:@preact/signals@^2.0.4",
-    "tailwindcss": "npm:tailwindcss@^3.4.3"
+    "tailwindcss": "npm:tailwindcss@^3.4.3",
+    "@atproto/crypto": "npm:@atproto/crypto@^0.4.4",
+    "@did-plc/lib": "npm:@did-plc/lib@^0.0.4"
   },
   "compilerOptions": {
-    "lib": ["dom", "dom.asynciterable", "dom.iterable", "deno.ns"],
+    "lib": [
+      "dom",
+      "dom.asynciterable",
+      "dom.iterable",
+      "deno.ns"
+    ],
     "jsx": "precompile",
     "jsxImportSource": "preact",
-    "jsxPrecompileSkipElements": ["a", "img", "source", "body", "html", "head"],
-    "types": ["node"]
+    "jsxPrecompileSkipElements": [
+      "a",
+      "img",
+      "source",
+      "body",
+      "html",
+      "head"
+    ],
+    "types": [
+      "node"
+    ]
   },
-  "unstable": ["kv", "otel"]
+  "unstable": [
+    "kv",
+    "otel"
+  ]
 }
