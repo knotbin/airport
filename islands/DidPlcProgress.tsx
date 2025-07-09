@@ -9,7 +9,7 @@ interface PlcUpdateStep {
 export default function PlcUpdateProgress() {
   const [hasStarted, setHasStarted] = useState(false);
   const [steps, setSteps] = useState<PlcUpdateStep[]>([
-    { name: "Generate PLC key", status: "pending" },
+    { name: "Generate Rotation Key", status: "pending" },
     { name: "Start PLC update", status: "pending" },
     { name: "Complete PLC update", status: "pending" },
   ]);
@@ -19,6 +19,8 @@ export default function PlcUpdateProgress() {
   const [updateResult, setUpdateResult] = useState<string>("");
   const [showDownload, setShowDownload] = useState(false);
   const [showKeyInfo, setShowKeyInfo] = useState(false);
+  const [hasDownloadedKey, setHasDownloadedKey] = useState(false);
+  const [downloadedKeyId, setDownloadedKeyId] = useState<string | null>(null);
 
   const updateStepStatus = (
     index: number,
@@ -53,9 +55,9 @@ export default function PlcUpdateProgress() {
     if (step.status === "completed") {
       switch (index) {
         case 0:
-          return "PLC Key Generated";
+          return "Rotation Key Generated";
         case 1:
-          return "PLC Update Started";
+          return "PLC Operation Requested";
         case 2:
           return "PLC Update Completed";
       }
@@ -64,118 +66,111 @@ export default function PlcUpdateProgress() {
     if (step.status === "in-progress") {
       switch (index) {
         case 0:
-          return "Generating PLC key...";
+          return "Generating Rotation Key...";
         case 1:
-          return "Starting PLC update...";
+          return "Requesting PLC Operation Token...";
         case 2:
           return step.name ===
-            "Enter the token sent to your email to complete PLC update"
+            "Enter the code sent to your email to complete PLC update"
             ? step.name
-            : "Completing PLC update...";
+            : "Completing PLC Update...";
       }
     }
 
     if (step.status === "verifying") {
       switch (index) {
         case 0:
-          return "Verifying key generation...";
+          return "Verifying Rotation Key Generation...";
         case 1:
-          return "Verifying PLC update start...";
+          return "Verifying PLC Operation Token Request...";
         case 2:
-          return "Verifying PLC update completion...";
+          return "Verifying PLC Update Completion...";
       }
     }
 
     return step.name;
   };
 
-  const handleGenerateKey = async () => {
-    updateStepStatus(0, "in-progress");
-    setShowDownload(false);
-    setKeyJson(null);
-    setGeneratedKey("");
-    try {
-      const res = await fetch("/api/plc/keys");
-      const text = await res.text();
-      if (!res.ok) {
-        try {
-          const json = JSON.parse(text);
-          throw new Error(json.message || "Failed to generate key");
-        } catch {
-          throw new Error(text || "Failed to generate key");
-        }
-      }
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error("Invalid response from /api/plc/keys");
-      }
-      if (!data.publicKeyDid || !data.privateKeyHex) {
-        throw new Error("Key generation failed: missing key data");
-      }
-      setGeneratedKey(data.publicKeyDid);
-      setKeyJson(data);
-      setShowDownload(true);
-      updateStepStatus(0, "completed");
-
-      // Auto-download the key
-      setTimeout(() => {
-        console.log("Attempting auto-download with keyJson:", keyJson);
-        handleDownload();
-      }, 500);
-
-      // Auto-continue to next step with the generated key
-      setTimeout(() => {
-        handleStartPlcUpdate(data.publicKeyDid);
-      }, 1000);
-    } catch (error) {
-      updateStepStatus(
-        0,
-        "error",
-        error instanceof Error ? error.message : String(error)
-      );
-    }
-  };
-
   const handleStartPlcUpdate = async (keyToUse?: string) => {
     const key = keyToUse || generatedKey;
+
+    // Debug logging
+    console.log("=== PLC Update Debug ===");
+    console.log("Current state:", {
+      keyToUse,
+      generatedKey,
+      key,
+      hasKeyJson: !!keyJson,
+      keyJsonId: keyJson?.publicKeyDid,
+      hasDownloadedKey,
+      downloadedKeyId,
+      steps: steps.map((s) => ({ name: s.name, status: s.status })),
+    });
+
     if (!key) {
-      console.log("No key generated yet", { key, generatedKey });
+      console.log("No key generated yet");
       updateStepStatus(1, "error", "No key generated yet");
+      return;
+    }
+
+    if (!keyJson || keyJson.publicKeyDid !== key) {
+      console.log("Key mismatch or missing:", {
+        hasKeyJson: !!keyJson,
+        keyJsonId: keyJson?.publicKeyDid,
+        expectedKey: key,
+      });
+      updateStepStatus(
+        1,
+        "error",
+        "Please ensure you have the correct key loaded"
+      );
       return;
     }
 
     updateStepStatus(1, "in-progress");
     try {
-      const res = await fetch("/api/plc/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: key }),
+      // First request the token
+      console.log("Requesting PLC token...");
+      const tokenRes = await fetch("/api/plc/token", {
+        method: "GET",
       });
-      const text = await res.text();
-      if (!res.ok) {
+      const tokenText = await tokenRes.text();
+      console.log("Token response:", tokenText);
+
+      if (!tokenRes.ok) {
         try {
-          const json = JSON.parse(text);
-          throw new Error(json.message || "Failed to start PLC update");
+          const json = JSON.parse(tokenText);
+          throw new Error(json.message || "Failed to request PLC token");
         } catch {
-          throw new Error(text || "Failed to start PLC update");
+          throw new Error(tokenText || "Failed to request PLC token");
         }
       }
 
+      let data;
+      try {
+        data = JSON.parse(tokenText);
+        if (!data.success) {
+          throw new Error(data.message || "Failed to request token");
+        }
+      } catch (error) {
+        throw new Error("Invalid response from server");
+      }
+
+      console.log("Token request successful, updating UI...");
       // Update step name to prompt for token
       setSteps((prevSteps) =>
         prevSteps.map((step, i) =>
           i === 1
             ? {
                 ...step,
-                name: "Enter the token sent to your email to complete PLC update",
+                name: "Enter the code sent to your email to complete PLC update",
+                status: "in-progress",
               }
             : step
         )
       );
-      updateStepStatus(1, "completed");
     } catch (error) {
+      console.error("Token request failed:", error);
       updateStepStatus(
         1,
         "error",
@@ -184,62 +179,115 @@ export default function PlcUpdateProgress() {
     }
   };
 
-  const handleCompletePlcUpdate = async () => {
+  const handleTokenSubmit = async () => {
+    console.log("=== Token Submit Debug ===");
+    console.log("Current state:", {
+      emailToken,
+      generatedKey,
+      keyJsonId: keyJson?.publicKeyDid,
+      steps: steps.map((s) => ({ name: s.name, status: s.status })),
+    });
+
     if (!emailToken) {
-      updateStepStatus(2, "error", "Please enter the email token");
+      console.log("No token provided");
+      updateStepStatus(1, "error", "Please enter the email token");
       return;
     }
 
-    updateStepStatus(2, "in-progress");
+    if (!keyJson || !keyJson.publicKeyDid) {
+      console.log("Missing key data");
+      updateStepStatus(1, "error", "Key data is missing, please try again");
+      return;
+    }
+
+    // Prevent duplicate submissions
+    if (steps[1].status === "completed" || steps[2].status === "completed") {
+      console.log("Update already completed, preventing duplicate submission");
+      return;
+    }
+
+    updateStepStatus(1, "in-progress");
     try {
-      const res = await fetch(
-        `/api/plc/update/complete?token=${encodeURIComponent(emailToken)}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      console.log("Submitting update request with token...");
+      // Send the update request with both key and token
+      const res = await fetch("/api/plc/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: keyJson.publicKeyDid,
+          token: emailToken,
+        }),
+      });
       const text = await res.text();
-      if (!res.ok) {
-        try {
-          const json = JSON.parse(text);
-          throw new Error(json.message || "Failed to complete PLC update");
-        } catch {
-          throw new Error(text || "Failed to complete PLC update");
-        }
-      }
+      console.log("Update response:", text);
 
       let data;
       try {
         data = JSON.parse(text);
-        if (!data.success) {
-          throw new Error(data.message || "PLC update failed");
-        }
       } catch {
         throw new Error("Invalid response from server");
       }
 
+      // Check for error responses
+      if (!res.ok || !data.success) {
+        const errorMessage = data.message || "Failed to complete PLC update";
+        console.error("Update failed:", errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Only proceed if we have a successful response
+      console.log("Update completed successfully!");
       setUpdateResult("PLC update completed successfully!");
+
+      // Add a delay before marking steps as completed for better UX
+      updateStepStatus(1, "verifying");
+      updateStepStatus(2, "in-progress");
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      updateStepStatus(1, "completed");
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       updateStepStatus(2, "completed");
     } catch (error) {
+      console.error("Update failed:", error);
+      // Reset the steps to error state
       updateStepStatus(
-        2,
+        1,
         "error",
         error instanceof Error ? error.message : String(error)
       );
+      updateStepStatus(2, "pending"); // Reset the final step
       setUpdateResult(error instanceof Error ? error.message : String(error));
+
+      // If token is invalid, we should clear it so user can try again
+      if (
+        error instanceof Error &&
+        error.message.toLowerCase().includes("token is invalid")
+      ) {
+        setEmailToken("");
+      }
     }
   };
 
+  const handleCompletePlcUpdate = async () => {
+    // This function is no longer needed as we handle everything in handleTokenSubmit
+    return;
+  };
+
   const handleDownload = () => {
-    console.log("handleDownload called with keyJson:", keyJson);
+    console.log("=== Download Debug ===");
+    console.log("Download started with:", {
+      hasKeyJson: !!keyJson,
+      keyJsonId: keyJson?.publicKeyDid,
+    });
+
     if (!keyJson) {
       console.error("No key JSON to download");
       return;
     }
+
     try {
       const jsonString = JSON.stringify(keyJson, null, 2);
-      console.log("JSON string to download:", jsonString);
       const blob = new Blob([jsonString], {
         type: "application/json",
       });
@@ -249,13 +297,74 @@ export default function PlcUpdateProgress() {
       a.download = `plc-key-${keyJson.publicKeyDid || "unknown"}.json`;
       a.style.display = "none";
       document.body.appendChild(a);
-      console.log("Download link created, clicking...");
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      console.log("Key downloaded successfully:", keyJson.publicKeyDid);
+
+      console.log("Download completed, proceeding to next step...");
+      setHasDownloadedKey(true);
+      setDownloadedKeyId(keyJson.publicKeyDid);
+
+      // Automatically proceed to the next step after successful download
+      setTimeout(() => {
+        console.log("Auto-proceeding with key:", keyJson.publicKeyDid);
+        handleStartPlcUpdate(keyJson.publicKeyDid);
+      }, 1000);
     } catch (error) {
       console.error("Download failed:", error);
+    }
+  };
+
+  const handleGenerateKey = async () => {
+    console.log("=== Generate Key Debug ===");
+    updateStepStatus(0, "in-progress");
+    setShowDownload(false);
+    setKeyJson(null);
+    setGeneratedKey("");
+    setHasDownloadedKey(false);
+    setDownloadedKeyId(null);
+
+    try {
+      console.log("Requesting new key...");
+      const res = await fetch("/api/plc/keys");
+      const text = await res.text();
+      console.log("Key generation response:", text);
+
+      if (!res.ok) {
+        try {
+          const json = JSON.parse(text);
+          throw new Error(json.message || "Failed to generate key");
+        } catch {
+          throw new Error(text || "Failed to generate key");
+        }
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Invalid response from /api/plc/keys");
+      }
+
+      if (!data.publicKeyDid || !data.privateKeyHex) {
+        throw new Error("Key generation failed: missing key data");
+      }
+
+      console.log("Key generated successfully:", {
+        keyId: data.publicKeyDid,
+      });
+
+      setGeneratedKey(data.publicKeyDid);
+      setKeyJson(data);
+      setShowDownload(true);
+      updateStepStatus(0, "completed");
+    } catch (error) {
+      console.error("Key generation failed:", error);
+      updateStepStatus(
+        0,
+        "error",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   };
 
@@ -335,129 +444,113 @@ export default function PlcUpdateProgress() {
     }
   };
 
+  const requestNewToken = async () => {
+    try {
+      console.log("Requesting new token...");
+      const res = await fetch("/api/plc/token", {
+        method: "GET",
+      });
+      const text = await res.text();
+      console.log("Token request response:", text);
+
+      if (!res.ok) {
+        throw new Error(text || "Failed to request new token");
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+        if (!data.success) {
+          throw new Error(data.message || "Failed to request token");
+        }
+      } catch {
+        throw new Error("Invalid response from server");
+      }
+
+      // Clear any existing error and token
+      setEmailToken("");
+      updateStepStatus(1, "in-progress");
+      updateStepStatus(2, "pending");
+    } catch (error) {
+      console.error("Failed to request new token:", error);
+      updateStepStatus(
+        1,
+        "error",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  };
+
   if (!hasStarted) {
     return (
       <div class="space-y-6">
         <div class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h3 class="text-lg font-medium text-blue-900 dark:text-blue-100 mb-4">
-            PLC Key Management
+          <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">
+            DID Rotation Key Management
           </h3>
-          <p class="text-blue-800 dark:text-blue-200 mb-4">
-            This tool will help you generate and update PLC (Personal Linked
-            Data) keys for your DID (Decentralized Identifier).
-          </p>
-          <div class="space-y-2 text-sm text-blue-700 dark:text-blue-300">
-            <p>
-              • Generate a new PLC key with cryptographic signature verification
+
+          {/* Main Description */}
+          <div class="prose dark:prose-invert max-w-none mb-6">
+            <p class="text-blue-800 dark:text-blue-200 mb-4">
+              This tool helps you add a new rotation key to your PLC (Public
+              Ledger of Credentials). Having control of a rotation key gives you
+              sovereignty over your DID (Decentralized Identifier).
             </p>
-            <p>• Start PLC update process (sends email with token)</p>
-            <p>• Complete PLC update using email token</p>
-            <p>• All operations require authentication</p>
+
+            <h4 class="text-blue-900 dark:text-blue-100 font-medium mt-4 mb-2">
+              What you can do with a rotation key:
+            </h4>
+            <ul class="space-y-2 text-sm text-blue-700 dark:text-blue-300 list-disc pl-5">
+              <li>
+                <span class="font-medium">Move to a different provider:</span>
+                <br />
+                Change your PDS without losing your identity, protecting you if
+                your provider becomes hostile.
+              </li>
+              <li>
+                <span class="font-medium">Direct DID control:</span>
+                <br />
+                Modify your DID document independently of your provider.
+              </li>
+            </ul>
+
+            <h4 class="text-blue-900 dark:text-blue-100 font-medium mt-6 mb-2">
+              Process Overview:
+            </h4>
+            <ol class="space-y-2 text-sm text-blue-700 dark:text-blue-300 list-decimal pl-5">
+              <li>Generate a secure rotation key</li>
+              <li>Download and safely store the key</li>
+              <li>Verify your identity via email</li>
+              <li>Add the key to your PLC record</li>
+            </ol>
           </div>
+
+          {/* Technical Note for Developers */}
+          <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+              📝 Technical Note
+            </h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              The rotation key is a did:key that will be added to your PLC
+              record's rotationKeys array. This process uses the ATP PLC
+              operations to update your DID document.
+              <a
+                href="https://atproto.com/specs/did-plc"
+                target="_blank"
+                class="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+              >
+                Learn more about PLC DIDs →
+              </a>
+            </p>
+          </div>
+
           <button
             onClick={handleStart}
-            class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
+            class="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
           >
-            Start PLC Key Management
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div class="space-y-8">
-      {/* Steps Section */}
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-          PLC Update Process
-        </h3>
-        {steps.map((step, index) => (
-          <div key={step.name} class={getStepClasses(step.status)}>
-            {getStepIcon(step.status)}
-            <div class="flex-1">
-              <p
-                class={`font-medium ${
-                  step.status === "error"
-                    ? "text-red-900 dark:text-red-200"
-                    : step.status === "completed"
-                    ? "text-green-900 dark:text-green-200"
-                    : step.status === "in-progress"
-                    ? "text-blue-900 dark:text-blue-200"
-                    : "text-gray-900 dark:text-gray-200"
-                }`}
-              >
-                {getStepDisplayName(step, index)}
-              </p>
-              {step.error && (
-                <p class="text-sm text-red-600 dark:text-red-400 mt-1">
-                  {(() => {
-                    try {
-                      const err = JSON.parse(step.error);
-                      return err.message || step.error;
-                    } catch {
-                      return step.error;
-                    }
-                  })()}
-                </p>
-              )}
-              {index === 1 && step.status === "completed" && (
-                <div class="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => handleStartPlcUpdate()}
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200"
-                  >
-                    Retry PLC Update
-                  </button>
-                </div>
-              )}
-              {index === 1 &&
-                step.status === "in-progress" &&
-                step.name ===
-                  "Enter the token sent to your email to complete PLC update" && (
-                  <div class="mt-4 space-y-4">
-                    <p class="text-sm text-blue-800 dark:text-blue-200">
-                      Please check your email for the PLC update token and enter
-                      it below:
-                    </p>
-                    <div class="flex space-x-2">
-                      <input
-                        type="text"
-                        value={emailToken}
-                        onChange={(e) => setEmailToken(e.currentTarget.value)}
-                        placeholder="Enter token"
-                        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleCompletePlcUpdate}
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
-                      >
-                        Submit Token
-                      </button>
-                    </div>
-                  </div>
-                )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Key Information Section - Collapsible at bottom */}
-      {keyJson && (
-        <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
-          <button
-            onClick={() => setShowKeyInfo(!showKeyInfo)}
-            class="w-full p-4 text-left bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg flex items-center justify-between"
-          >
-            <span class="font-medium text-gray-900 dark:text-gray-100">
-              Generated Key Information
-            </span>
+            <span>Start Key Generation</span>
             <svg
-              class={`w-5 h-5 text-gray-500 transition-transform ${
-                showKeyInfo ? "rotate-180" : ""
-              }`}
+              class="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -466,80 +559,389 @@ export default function PlcUpdateProgress() {
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M19 9l-7 7-7-7"
+                d="M9 5l7 7-7 7"
               />
             </svg>
           </button>
-          {showKeyInfo && (
-            <div class="p-4 bg-white dark:bg-gray-900 rounded-b-lg">
-              <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                <div>
-                  <b>Key type:</b> {keyJson.keyType}
-                </div>
-                <div>
-                  <b>Public key (did:key):</b>{" "}
-                  <span class="break-all font-mono">
-                    {keyJson.publicKeyDid}
-                  </span>
-                </div>
-                <div>
-                  <b>Private key (hex):</b>{" "}
-                  <span class="break-all font-mono">
-                    {keyJson.privateKeyHex}
-                  </span>
-                </div>
-                <div>
-                  <b>Private key (multikey):</b>{" "}
-                  <span class="break-all font-mono">
-                    {keyJson.privateKeyMultikey}
-                  </span>
-                </div>
-              </div>
-              <div class="mt-4">
-                <button
-                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
-                  onClick={handleDownload}
-                >
-                  Download Key JSON
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-      )}
+      </div>
+    );
+  }
 
+  return (
+    <div class="space-y-8">
+      {/* Progress Steps */}
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            Key Generation Progress
+          </h3>
+          {/* Add a help tooltip */}
+          <div class="relative group">
+            <button class="text-gray-400 hover:text-gray-500">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+            <div class="absolute right-0 w-64 p-2 mt-2 space-y-1 text-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 hidden group-hover:block z-10">
+              <p class="text-gray-600 dark:text-gray-400">
+                Follow these steps to securely add a new rotation key to your
+                PLC record. Each step requires completion before proceeding.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Steps with enhanced visual hierarchy */}
+        {steps.map((step, index) => (
+          <div
+            key={step.name}
+            class={`${getStepClasses(step.status)} ${
+              step.status === "in-progress"
+                ? "ring-2 ring-blue-500 ring-opacity-50"
+                : ""
+            }`}
+          >
+            <div class="flex-shrink-0">{getStepIcon(step.status)}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <p
+                  class={`font-medium ${
+                    step.status === "error"
+                      ? "text-red-900 dark:text-red-200"
+                      : step.status === "completed"
+                      ? "text-green-900 dark:text-green-200"
+                      : step.status === "in-progress"
+                      ? "text-blue-900 dark:text-blue-200"
+                      : "text-gray-900 dark:text-gray-200"
+                  }`}
+                >
+                  {getStepDisplayName(step, index)}
+                </p>
+                {/* Add step number */}
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  Step {index + 1} of {steps.length}
+                </span>
+              </div>
+
+              {step.error && (
+                <div class="mt-2 p-2 bg-red-50 dark:bg-red-900/50 rounded-md">
+                  <p class="text-sm text-red-600 dark:text-red-400 flex items-center">
+                    <svg
+                      class="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {(() => {
+                      try {
+                        const err = JSON.parse(step.error);
+                        return err.message || step.error;
+                      } catch {
+                        return step.error;
+                      }
+                    })()}
+                  </p>
+                </div>
+              )}
+
+              {/* Key Download Warning */}
+              {index === 0 &&
+                step.status === "completed" &&
+                !hasDownloadedKey && (
+                  <div class="mt-4 space-y-4">
+                    <div class="bg-yellow-50 dark:bg-yellow-900/50 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                          <svg
+                            class="h-5 w-5 text-yellow-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <div class="ml-3">
+                          <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                            Critical Security Step
+                          </h3>
+                          <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                            <p class="mb-2">
+                              Your rotation key grants control over your
+                              identity:
+                            </p>
+                            <ul class="list-disc pl-5 space-y-2">
+                              <li>
+                                <strong>Store Securely:</strong> Use a password
+                                manager
+                              </li>
+                              <li>
+                                <strong>Keep Private:</strong> Never share with
+                                anyone
+                              </li>
+                              <li>
+                                <strong>Backup:</strong> Keep a secure backup
+                                copy
+                              </li>
+                              <li>
+                                <strong>Required:</strong> Needed for future DID
+                                modifications
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                      <button
+                        onClick={handleDownload}
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+                      >
+                        <svg
+                          class="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                        <span>Download Key</span>
+                      </button>
+
+                      <div class="flex items-center text-sm text-red-600 dark:text-red-400">
+                        <svg
+                          class="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        Download required to proceed
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              {/* Email Code Input */}
+              {index === 1 &&
+                (step.status === "in-progress" ||
+                  step.status === "verifying") &&
+                step.name ===
+                  "Enter the code sent to your email to complete PLC update" && (
+                  <div class="mt-4 space-y-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg">
+                      <p class="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                        Check your email for the verification code to complete
+                        the PLC update:
+                      </p>
+                      <div class="flex space-x-2">
+                        <div class="flex-1 relative">
+                          <input
+                            type="text"
+                            value={emailToken}
+                            onChange={(e) =>
+                              setEmailToken(e.currentTarget.value)
+                            }
+                            placeholder="Enter verification code"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleTokenSubmit}
+                          disabled={!emailToken || step.status === "verifying"}
+                          class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                        >
+                          <span>
+                            {step.status === "verifying"
+                              ? "Verifying..."
+                              : "Verify"}
+                          </span>
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      {step.error && (
+                        <div class="mt-2 p-2 bg-red-50 dark:bg-red-900/50 rounded-md">
+                          <p class="text-sm text-red-600 dark:text-red-400 flex items-center">
+                            <svg
+                              class="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            {step.error}
+                          </p>
+                          {step.error
+                            .toLowerCase()
+                            .includes("token is invalid") && (
+                            <div class="mt-2">
+                              <p class="text-sm text-red-500 dark:text-red-300 mb-2">
+                                The verification code may have expired. Request
+                                a new code to try again.
+                              </p>
+                              <button
+                                onClick={requestNewToken}
+                                class="text-sm px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-700 dark:text-red-200 rounded-md transition-colors duration-200 flex items-center space-x-1"
+                              >
+                                <svg
+                                  class="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                  />
+                                </svg>
+                                <span>Request New Code</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Success Message */}
       {steps[2].status === "completed" && (
-        <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border-2 border-green-200 dark:border-green-800">
-          <p class="text-sm text-green-800 dark:text-green-200">
-            PLC update completed successfully! You can now close this page.
+        <div class="p-4 bg-green-50 dark:bg-green-900/50 rounded-lg border-2 border-green-200 dark:border-green-800">
+          <div class="flex items-center space-x-3 mb-4">
+            <svg
+              class="w-6 h-6 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h4 class="text-lg font-medium text-green-800 dark:text-green-200">
+              PLC Update Successful!
+            </h4>
+          </div>
+          <p class="text-sm text-green-700 dark:text-green-300 mb-4">
+            Your rotation key has been successfully added to your PLC record.
+            You can now use this key for future DID modifications.
           </p>
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                const response = await fetch("/api/logout", {
-                  method: "POST",
-                  credentials: "include",
-                });
-                if (!response.ok) {
-                  throw new Error("Logout failed");
+          <div class="flex space-x-4">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const response = await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "include",
+                  });
+                  if (!response.ok) {
+                    throw new Error("Logout failed");
+                  }
+                  globalThis.location.href = "/";
+                } catch (error) {
+                  console.error("Failed to logout:", error);
                 }
-                globalThis.location.href = "/";
-              } catch (error) {
-                console.error("Failed to logout:", error);
-              }
-            }}
-            class="mt-4 mr-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
-          >
-            Sign Out
-          </button>
-          <a
-            href="https://ko-fi.com/knotbin"
-            target="_blank"
-            class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
-          >
-            Donate
-          </a>
+              }}
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span>Sign Out</span>
+            </button>
+            <a
+              href="https://ko-fi.com/knotbin"
+              target="_blank"
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <span>Support Us</span>
+            </a>
+          </div>
         </div>
       )}
     </div>
