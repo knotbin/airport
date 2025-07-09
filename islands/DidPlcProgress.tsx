@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { Link } from "../components/Link.tsx";
 
 interface PlcUpdateStep {
   name: string;
@@ -514,9 +515,16 @@ export default function PlcUpdateProgress() {
           {/* Main Description */}
           <div class="prose dark:prose-invert max-w-none mb-6">
             <p class="text-blue-800 dark:text-blue-200 mb-4">
-              This tool helps you add a new rotation key to your PLC (Public
-              Ledger of Credentials). Having control of a rotation key gives you
-              sovereignty over your DID (Decentralized Identifier).
+              This tool helps you add a new rotation key to your{" "}
+              <Link
+                href="https://web.plc.directory/"
+                isExternal
+                class="text-blue-600 dark:text-blue-400"
+              >
+                PLC (Public Ledger of Credentials)
+              </Link>
+              . Having control of a rotation key gives you sovereignty over your
+              DID (Decentralized Identifier).
             </p>
 
             <h4 class="text-blue-900 dark:text-blue-100 font-medium mt-4 mb-2">
@@ -540,10 +548,10 @@ export default function PlcUpdateProgress() {
               Process Overview:
             </h4>
             <ol class="space-y-2 text-sm text-blue-700 dark:text-blue-300 list-decimal pl-5">
-              <li>Generate a secure rotation key</li>
-              <li>Download and safely store the key</li>
+              <li>Generate a new rotation key</li>
+              <li>Download the key</li>
               <li>Verify your identity via email</li>
-              <li>Add the key to your PLC record</li>
+              <li>Add the key to your PLC document</li>
             </ol>
           </div>
 
@@ -554,15 +562,15 @@ export default function PlcUpdateProgress() {
             </h4>
             <p class="text-sm text-gray-600 dark:text-gray-400">
               The rotation key is a did:key that will be added to your PLC
-              record's rotationKeys array. This process uses the ATP PLC
-              operations to update your DID document.
-              <a
-                href="https://atproto.com/specs/did-plc"
-                target="_blank"
-                class="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+              document's rotationKeys array. This process uses the AT Protocol's
+              PLC operations to update your DID document.
+              <Link
+                href="https://web.plc.directory/"
+                class="text-blue-600 dark:text-blue-400 ml-1"
+                isExternal
               >
-                Learn more about PLC DIDs →
-              </a>
+                Learn more about did:plc
+              </Link>
             </p>
           </div>
 
