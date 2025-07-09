@@ -1,21 +1,22 @@
 import { Agent } from "@atproto/api";
-import { getSessionAgent } from "../../../lib/sessions.ts";
-import { define } from "../../../utils.ts";
+import { getSessionAgent } from "../../../../lib/sessions.ts";
+import { define } from "../../../../utils.ts";
 
 /**
- * Start PLC update process - sends email with token
+ * Complete PLC update using email token
  */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
-      const { key: newKey } = await ctx.req.json();
+      const url = new URL(ctx.req.url);
+      const token = url.searchParams.get("token");
 
-      if (!newKey) {
+      if (!token) {
         return new Response(
           JSON.stringify({
             success: false,
-            message: "Missing key in request body",
+            message: "Missing token parameter",
           }),
           {
             status: 400,
@@ -38,31 +39,30 @@ export const handler = define.handlers({
         );
       }
 
-      // Get recommended credentials first
-      console.log("Getting recommended credentials...");
-      const getDidCredentials =
-        await agent.com.atproto.identity.getRecommendedDidCredentials();
-      console.log("Got recommended credentials:", getDidCredentials.data);
-
-      const rotationKeys = getDidCredentials.data.rotationKeys ?? [];
-      if (!rotationKeys.length) {
-        throw new Error("No rotation keys provided in recommended credentials");
+      const did = agent.did;
+      if (!did) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "No DID found in session",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
       }
 
-      // Request PLC operation token (this will send email)
-      const plcOp = await agent.com.atproto.identity.signPlcOperation({
-        token: "request", // This will trigger email token generation
-        rotationKeys: [newKey, ...rotationKeys],
-        ...getDidCredentials.data,
+      // Submit the PLC operation with the token
+      await agent!.com.atproto.identity.submitPlcOperation({
+        operation: { token: token },
       });
 
       return new Response(
         JSON.stringify({
           success: true,
-          message:
-            "Email sent with PLC update token. Please check your email and enter the token to complete the update.",
-          did: plcOp.data,
-          newKey,
+          message: "PLC update completed successfully",
+          did,
         }),
         {
           status: 200,
@@ -73,14 +73,14 @@ export const handler = define.handlers({
         }
       );
     } catch (error) {
-      console.error("PLC update error:", error);
+      console.error("PLC update completion error:", error);
       const message =
         error instanceof Error ? error.message : "Unknown error occurred";
 
       return new Response(
         JSON.stringify({
           success: false,
-          message: `Failed to start PLC update: ${message}`,
+          message: `Failed to complete PLC update: ${message}`,
         }),
         {
           status: 500,

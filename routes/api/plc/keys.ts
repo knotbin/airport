@@ -1,6 +1,7 @@
 import { Secp256k1Keypair } from "@atproto/crypto";
 import { getSessionAgent } from "../../../lib/sessions.ts";
 import { define } from "../../../utils.ts";
+import * as ui8 from "npm:uint8arrays";
 
 /**
  * Generate and return PLC keys for the authenticated user
@@ -15,24 +16,23 @@ export const handler = define.handlers({
     // Create a new keypair
     const keypair = await Secp256k1Keypair.create({ exportable: true });
 
-    // sign binary data, resulting signature bytes.
-    // SHA-256 hash of data is what actually gets signed.
-    // signature output is often base64-encoded.
-    const data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
-    const sig = await keypair.sign(data);
+    // Export private key bytes
+    const privateKeyBytes = await keypair.export();
+    const privateKeyHex = ui8.toString(privateKeyBytes, "hex");
 
-    // serialize the public key as a did:key string, which includes key type metadata
-    const pubDidKey = keypair.did();
-    console.log(pubDidKey);
+    // Get public key as DID
+    const publicKeyDid = keypair.did();
 
-    // output would look something like: 'did:key:zQ3shVRtgqTRHC7Lj4DYScoDgReNpsDp3HBnuKBKt1FSXKQ38'
+    // Convert private key to multikey format (base58btc)
+    const privateKeyMultikey = ui8.toString(privateKeyBytes, "base58btc");
 
     // Return the key information
     return new Response(
       JSON.stringify({
-        did: pubDidKey,
-        signature: btoa(String.fromCharCode(...sig)),
-        data: Array.from(data),
+        keyType: "secp256k1",
+        publicKeyDid: publicKeyDid,
+        privateKeyHex: privateKeyHex,
+        privateKeyMultikey: privateKeyMultikey,
       }),
       {
         headers: { "Content-Type": "application/json" },
