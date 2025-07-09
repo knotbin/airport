@@ -206,8 +206,9 @@ export default function PlcUpdateProgress() {
       return;
     }
 
-    updateStepStatus(1, "in-progress");
+    updateStepStatus(1, "completed");
     try {
+      updateStepStatus(2, "in-progress");
       console.log("Submitting update request with token...");
       // Send the update request with both key and token
       const res = await fetch("/api/plc/update", {
@@ -240,13 +241,34 @@ export default function PlcUpdateProgress() {
       setUpdateResult("PLC update completed successfully!");
 
       // Add a delay before marking steps as completed for better UX
-      updateStepStatus(1, "verifying");
-      updateStepStatus(2, "in-progress");
+      updateStepStatus(2, "verifying");
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      updateStepStatus(1, "completed");
+      const verifyRes = await fetch("/api/plc/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: keyJson.publicKeyDid,
+        }),
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const verifyText = await verifyRes.text();
+      console.log("Verification response:", verifyText);
+
+      let verifyData;
+      try {
+        verifyData = JSON.parse(verifyText);
+      } catch {
+        throw new Error("Invalid verification response from server");
+      }
+
+      if (!verifyRes.ok || !verifyData.success) {
+        const errorMessage =
+          verifyData.message || "Failed to verify PLC update";
+        console.error("Verification failed:", errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      console.log("Verification successful, marking steps as completed");
       updateStepStatus(2, "completed");
     } catch (error) {
       console.error("Update failed:", error);

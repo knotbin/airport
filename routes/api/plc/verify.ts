@@ -3,32 +3,23 @@ import { define } from "../../../utils.ts";
 import * as plc from "@did-plc/lib";
 
 /**
- * Handle PLC update operation
+ * Verify if a rotation key exists in the PLC document
  * Body must contain:
- * - key: The new rotation key to add
- * - token: The email token received from requestPlcOperationSignature
+ * - key: The rotation key to verify
  * @param ctx - The context object containing the request and response
- * @returns A response object with the update result
+ * @returns A response object with the verification result
  */
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
-      console.log("=== PLC Update Debug ===");
       const body = await ctx.req.json();
-      const { key: newKey, token } = body;
-      console.log("Request body:", { newKey, hasToken: !!token });
+      const { key: newKey } = body;
+      console.log("Request body:", { newKey });
 
       if (!newKey) {
         console.log("Missing key in request");
         return new Response("Missing param key in request body", {
-          status: 400,
-        });
-      }
-
-      if (!token) {
-        console.log("Missing token in request");
-        return new Response("Missing param token in request body", {
           status: 400,
         });
       }
@@ -56,7 +47,7 @@ export const handler = define.handlers({
       }
       console.log("Using agent DID:", did);
 
-      // Get recommended credentials first
+      // Fetch the PLC document to check rotation keys
       console.log("Getting did:plc document...");
       const plcClient = new plc.Client("https://plc.directory");
       const didDoc = await plcClient.getDocumentData(did);
@@ -78,58 +69,43 @@ export const handler = define.handlers({
       const rotationKeys = didDoc.rotationKeys ?? [];
       if (!rotationKeys.length) {
         console.log("No existing rotation keys found");
-        throw new Error("No rotation keys provided in recommended credentials");
+        throw new Error("No rotation keys found in did:plc document");
       }
 
-      // Check if the key is already in rotation keys
+      // Check if the key exists in rotation keys
       if (rotationKeys.includes(newKey)) {
-        console.log("Key already exists in rotation keys");
         return new Response(
           JSON.stringify({
-            success: false,
-            message: "This key is already in your rotation keys",
+            success: true,
+            message: "Rotation key exists in PLC document",
           }),
           {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              ...Object.fromEntries(res.headers), // Include session cookie headers
+            },
           }
         );
       }
 
-      // Perform the actual PLC update with the provided token
-      console.log("Signing PLC operation...");
-      const plcOp = await agent.com.atproto.identity.signPlcOperation({
-        token,
-        rotationKeys: [newKey, ...rotationKeys],
-      });
-      console.log("PLC operation signed successfully:", plcOp.data);
-
-      console.log("Submitting PLC operation...");
-      const plcSubmit = await agent.com.atproto.identity.submitPlcOperation({
-        operation: plcOp.data.operation,
-      });
-      console.log("PLC operation submitted successfully:", plcSubmit);
-
+      // If we get here, the key was not found
       return new Response(
         JSON.stringify({
-          success: true,
-          message: "PLC update completed successfully",
-          did: plcOp.data,
-          newKey,
-          rotationKeys: [newKey, ...rotationKeys],
+          success: false,
+          message: "Rotation key not found in PLC document",
         }),
         {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            ...Object.fromEntries(res.headers), // Include session cookie headers
-          },
+          status: 404,
+          headers: { "Content-Type": "application/json" },
         }
       );
     } catch (error) {
-      console.error("PLC update error:", error);
+      console.error("PLC verification error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update your PLC";
+        error instanceof Error
+          ? error.message
+          : "Failed to verify rotation key";
       console.log("Sending error response:", errorMessage);
 
       return new Response(
