@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { IS_BROWSER } from "fresh/runtime";
+import { Link } from "../components/Link.tsx";
 
 /**
  * The user interface for the ticket component.
@@ -33,10 +34,10 @@ export default function Ticket() {
         setUser(
           userData
             ? {
-              did: userData.did,
-              handle: userData.handle,
-            }
-            : null,
+                did: userData.did,
+                handle: userData.handle,
+              }
+            : null
         );
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -72,9 +73,16 @@ export default function Ticket() {
         </p>
         <p>
           Think you might need to migrate in the future but your PDS might be
-          hostile or offline? No worries! Soon you'll be able to go to the
-          ticket booth and get a PLC key to use for account recovery in the
-          future. You can also go to baggage claim (take the air shuttle to
+          hostile or offline? No worries! You can go to the{" "}
+          <Link
+            href="/ticket-booth"
+            isExternal
+            class="text-blue-600 dark:text-blue-400"
+          >
+            ticket booth
+          </Link>{" "}
+          and get a PLC key to use for account recovery in the future. Soon
+          you'll also be able to go to baggage claim (take the air shuttle to
           terminal four) and get a downloadable backup of all your current PDS
           data in case that were to happen.
         </p>
