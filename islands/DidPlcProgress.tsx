@@ -543,16 +543,6 @@ export default function PlcUpdateProgress() {
                 Modify your DID document independently of your provider.
               </li>
             </ul>
-
-            <h4 class="text-blue-900 dark:text-blue-100 font-medium mt-6 mb-2">
-              Process Overview:
-            </h4>
-            <ol class="space-y-2 text-sm text-blue-700 dark:text-blue-300 list-decimal pl-5">
-              <li>Generate a new rotation key</li>
-              <li>Download the key</li>
-              <li>Verify your identity via email</li>
-              <li>Add the key to your PLC document</li>
-            </ol>
           </div>
 
           {/* Technical Note for Developers */}
