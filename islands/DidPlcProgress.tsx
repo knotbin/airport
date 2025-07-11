@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { Link } from "../components/Link.tsx";
 
 interface PlcUpdateStep {
@@ -7,8 +7,97 @@ interface PlcUpdateStep {
   error?: string;
 }
 
+// Content chunks for the description
+const contentChunks = [
+  {
+    title: "Welcome to Key Management",
+    subtitle: "BOARDING PASS - SECTION A",
+    content: (
+      <>
+        <div class="passenger-info text-slate-600 dark:text-slate-300 font-mono text-sm mb-4">
+          GATE: KEY-01 • SEAT: DID-1A
+        </div>
+        <p class="text-slate-700 dark:text-slate-300 mb-4">
+          This tool helps you add a new rotation key to your{" "}
+          <Link
+            href="https://web.plc.directory/"
+            isExternal
+            class="text-blue-600 dark:text-blue-400"
+          >
+            PLC (Public Ledger of Credentials)
+          </Link>
+          . Having control of a rotation key gives you sovereignty over your DID
+          (Decentralized Identifier).
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "Key Benefits",
+    subtitle: "BOARDING PASS - SECTION B",
+    content: (
+      <>
+        <div class="passenger-info text-slate-600 dark:text-slate-300 font-mono text-sm mb-4">
+          GATE: KEY-02 • SEAT: DID-1B
+        </div>
+        <div class="space-y-4">
+          <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <h4 class="font-mono font-bold text-amber-500 dark:text-amber-400 mb-2">
+              PROVIDER MOBILITY
+            </h4>
+            <p class="text-slate-700 dark:text-slate-300">
+              Change your PDS without losing your identity, protecting you if
+              your provider becomes hostile.
+            </p>
+          </div>
+          <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <h4 class="font-mono font-bold text-amber-500 dark:text-amber-400 mb-2">
+              IDENTITY CONTROL
+            </h4>
+            <p class="text-slate-700 dark:text-slate-300">
+              Modify your DID document independently of your provider.
+            </p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    title: "Technical Overview",
+    subtitle: "BOARDING PASS - SECTION C",
+    content: (
+      <>
+        <div class="passenger-info text-slate-600 dark:text-slate-300 font-mono text-sm mb-4">
+          GATE: KEY-03 • SEAT: DID-1C
+        </div>
+        <div class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center mb-3">
+            <span class="text-lg mr-2">📝</span>
+            <h4 class="font-mono font-bold text-amber-500 dark:text-amber-400">
+              TECHNICAL DETAILS
+            </h4>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300">
+            The rotation key is a did:key that will be added to your PLC
+            document's rotationKeys array. This process uses the AT Protocol's
+            PLC operations to update your DID document.
+            <Link
+              href="https://web.plc.directory/"
+              class="block ml-1 text-blue-600 dark:text-blue-400"
+              isExternal
+            >
+              Learn more about did:plc
+            </Link>
+          </p>
+        </div>
+      </>
+    ),
+  },
+];
+
 export default function PlcUpdateProgress() {
   const [hasStarted, setHasStarted] = useState(false);
+  const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
   const [steps, setSteps] = useState<PlcUpdateStep[]>([
     { name: "Generate Rotation Key", status: "pending" },
     { name: "Start PLC update", status: "pending" },
@@ -507,82 +596,108 @@ export default function PlcUpdateProgress() {
   if (!hasStarted) {
     return (
       <div class="space-y-6">
-        <div class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">
-            DID Rotation Key Management
-          </h3>
+        <div class="ticket bg-white dark:bg-slate-800 p-6 relative">
+          <div class="boarding-label text-amber-500 dark:text-amber-400 font-mono font-bold tracking-wider text-sm mb-2">
+            {contentChunks[currentChunkIndex].subtitle}
+          </div>
+
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-2xl font-mono text-slate-800 dark:text-slate-200">
+              {contentChunks[currentChunkIndex].title}
+            </h3>
+          </div>
 
           {/* Main Description */}
-          <div class="prose dark:prose-invert max-w-none mb-6">
-            <p class="text-blue-800 dark:text-blue-200 mb-4">
-              This tool helps you add a new rotation key to your{" "}
-              <Link
-                href="https://web.plc.directory/"
-                isExternal
-                class="text-blue-600 dark:text-blue-400"
+          <div class="mb-6">{contentChunks[currentChunkIndex].content}</div>
+
+          {/* Navigation */}
+          <div class="mt-8 border-t border-dashed border-slate-200 dark:border-slate-700 pt-4">
+            <div class="flex justify-between items-center">
+              <button
+                onClick={() =>
+                  setCurrentChunkIndex((prev) => Math.max(0, prev - 1))
+                }
+                class={`px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2 ${
+                  currentChunkIndex === 0 ? "invisible" : ""
+                }`}
               >
-                PLC (Public Ledger of Credentials)
-              </Link>
-              . Having control of a rotation key gives you sovereignty over your
-              DID (Decentralized Identifier).
-            </p>
+                <svg
+                  class="w-5 h-5 rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+                <span>Previous Gate</span>
+              </button>
 
-            <h4 class="text-blue-900 dark:text-blue-100 font-medium mt-4 mb-2">
-              What you can do with a rotation key:
-            </h4>
-            <ul class="space-y-2 text-sm text-blue-700 dark:text-blue-300 list-disc pl-5">
-              <li>
-                <span class="font-medium">Move to a different provider:</span>
-                <br />
-                Change your PDS without losing your identity, protecting you if
-                your provider becomes hostile.
-              </li>
-              <li>
-                <span class="font-medium">Direct DID control:</span>
-                <br />
-                Modify your DID document independently of your provider.
-              </li>
-            </ul>
+              {currentChunkIndex === contentChunks.length - 1 ? (
+                <button
+                  onClick={handleStart}
+                  class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-mono rounded-md transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <span>Begin Key Generation</span>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    setCurrentChunkIndex((prev) =>
+                      Math.min(contentChunks.length - 1, prev + 1)
+                    )
+                  }
+                  class="px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <span>Next Gate</span>
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Progress Dots */}
+            <div class="flex justify-center space-x-3 mt-4">
+              {contentChunks.map((_, index) => (
+                <div
+                  key={index}
+                  class={`h-1.5 w-8 rounded-full transition-colors duration-200 ${
+                    index === currentChunkIndex
+                      ? "bg-amber-500"
+                      : "bg-slate-200 dark:bg-slate-700"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-
-          {/* Technical Note for Developers */}
-          <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              📝 Technical Note
-            </h4>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              The rotation key is a did:key that will be added to your PLC
-              document's rotationKeys array. This process uses the AT Protocol's
-              PLC operations to update your DID document.
-              <Link
-                href="https://web.plc.directory/"
-                class="text-blue-600 dark:text-blue-400 ml-1"
-                isExternal
-              >
-                Learn more about did:plc
-              </Link>
-            </p>
-          </div>
-
-          <button
-            onClick={handleStart}
-            class="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
-          >
-            <span>Start Key Generation</span>
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
         </div>
       </div>
     );
