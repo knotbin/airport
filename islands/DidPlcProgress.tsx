@@ -43,7 +43,7 @@ const contentChunks = [
         <div class="space-y-4">
           <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
             <h4 class="font-mono font-bold text-amber-500 dark:text-amber-400 mb-2">
-              PROVIDER MOBILITY
+              PROVIDER MOBILITY ✈️
             </h4>
             <p class="text-slate-700 dark:text-slate-300">
               Change your PDS without losing your identity, protecting you if
@@ -52,12 +52,64 @@ const contentChunks = [
           </div>
           <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
             <h4 class="font-mono font-bold text-amber-500 dark:text-amber-400 mb-2">
-              IDENTITY CONTROL
+              IDENTITY CONTROL ✨
             </h4>
             <p class="text-slate-700 dark:text-slate-300">
               Modify your DID document independently of your provider.
             </p>
           </div>
+          <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <p class="text-slate-700 dark:text-slate-300">
+              💡 It's good practice to have a rotation key so you can move to a
+              different provider if you need to.
+            </p>
+          </div>
+        </div>
+      </>
+    ),
+  },
+  {
+    title: "⚠️ CRITICAL SECURITY WARNING",
+    subtitle: "BOARDING PASS - SECTION C",
+    content: (
+      <>
+        <div class="passenger-info text-slate-600 dark:text-slate-300 font-mono text-sm mb-4">
+          GATE: KEY-03 • SEAT: DID-1C
+        </div>
+        <div class="p-4 bg-red-50 dark:bg-red-900 rounded-lg border-2 border-red-500 dark:border-red-700 mb-4">
+          <div class="flex items-center mb-3">
+            <span class="text-2xl mr-2">⚠️</span>
+            <h4 class="font-mono font-bold text-red-700 dark:text-red-400 text-lg">
+              NON-REVOCABLE KEY WARNING
+            </h4>
+          </div>
+          <div class="space-y-3 text-red-700 dark:text-red-300">
+            <p class="font-bold">
+              This rotation key CANNOT BE DISABLED OR DELETED once added:
+            </p>
+            <ul class="list-disc pl-5 space-y-2">
+              <li>
+                If compromised, the attacker can take complete control of your
+                account and identity
+              </li>
+              <li>
+                Malicious actors with this key have COMPLETE CONTROL of your
+                account and identity
+              </li>
+              <li>
+                Store securely, like a password (e.g. <strong>DO NOT</strong>{" "}
+                keep it in Notes or any easily accessible app on an unlocked
+                device).
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+          <p class="text-slate-700 dark:text-slate-300">
+            💡 We recommend adding a custom rotation key but recommend{" "}
+            <strong class="italic">against</strong> having more than one custom
+            rotation key, as more than one increases risk.
+          </p>
         </div>
       </>
     ),
