@@ -4,8 +4,6 @@ Your terminal for seamless AT Protocol PDS (Personal Data Server) migration and 
 
 Airport is a web application built with Fresh and Deno that helps users safely migrate and backup their Bluesky PDS data. It provides a user-friendly interface for managing your AT Protocol data.
 
-⚠️ **Alpha Status**: Airport is currently in alpha. Please use migration tools at your own risk and avoid using with main accounts during this phase.
-
 ## Features
 
 - PDS migration between servers
@@ -13,29 +11,22 @@ Airport is a web application built with Fresh and Deno that helps users safely m
 - User-friendly interface
 - Coming soon: PLC Key retrieval, data backup
 
-## Technology Stack
+## Tech Stack
 
-- [Fresh](https://fresh.deno.dev/) - The next-gen web framework
-- [Deno](https://deno.com/) - A modern runtime for JavaScript and TypeScript
-- [Tailwind CSS](https://tailwindcss.com/) - For styling
-- AT Protocol Integration
+- [Fresh](https://fresh.deno.dev/) - Web Framework
+- [Deno](https://deno.com/) - Runtime
+- [Tailwind](https://tailwindcss.com/) - Styling
 
-## Getting Started
+## Development
 
-### Prerequisites
-
-Make sure to install Deno:
+Make sure you have Deno installed:
 https://docs.deno.com/runtime/getting_started/installation
-
-### Development
 
 Start the project in development mode:
 
 ```
 deno task dev
 ```
-
-This will watch the project directory and restart as necessary.
 
 ## About
 
