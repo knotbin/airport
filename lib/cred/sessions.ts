@@ -17,7 +17,7 @@ async function getOptions(isMigration: boolean) {
     }
     return migrationSessionOptions;
   }
-  
+
   if (!credentialSessionOptions) {
     credentialSessionOptions = await createSessionOptions("cred_sid");
   }
@@ -37,11 +37,7 @@ export async function getCredentialSession(
   isMigration: boolean = false
 ) {
   const options = await getOptions(isMigration);
-  return getIronSession<CredentialSession>(
-    req,
-    res,
-    options,
-  );
+  return getIronSession<CredentialSession>(req, res, options);
 }
 
 /**
@@ -54,14 +50,15 @@ export async function getCredentialSession(
 export async function getCredentialAgent(
   req: Request,
   res: Response = new Response(),
-  isMigration: boolean = false,
+  isMigration: boolean = false
 ) {
-  const session = await getCredentialSession(
-    req,
-    res,
-    isMigration
-  );
-  if (!session.did || !session.service || !session.handle || !session.password) {
+  const session = await getCredentialSession(req, res, isMigration);
+  if (
+    !session.did ||
+    !session.service ||
+    !session.handle ||
+    !session.password
+  ) {
     return null;
   }
 
@@ -107,13 +104,9 @@ export async function setCredentialSession(
   req: Request,
   res: Response,
   data: CredentialSession,
-  isMigration: boolean = false,
+  isMigration: boolean = false
 ) {
-  const session = await getCredentialSession(
-    req,
-    res,
-    isMigration
-  );
+  const session = await getCredentialSession(req, res, isMigration);
   session.did = data.did;
   session.handle = data.handle;
   session.service = data.service;
@@ -132,13 +125,9 @@ export async function setCredentialSession(
 export async function getCredentialSessionAgent(
   req: Request,
   res: Response = new Response(),
-  isMigration: boolean = false,
+  isMigration: boolean = false
 ) {
-  const session = await getCredentialSession(
-    req,
-    res,
-    isMigration
-  );
+  const session = await getCredentialSession(req, res, isMigration);
 
   console.log("Session state:", {
     hasDid: !!session.did,
@@ -147,11 +136,14 @@ export async function getCredentialSessionAgent(
     hasPassword: !!session.password,
     hasAccessJwt: !!session.accessJwt,
     service: session.service,
-    handle: session.handle
+    handle: session.handle,
   });
 
   if (
-    !session.did || !session.service || !session.handle || !session.password
+    !session.did ||
+    !session.service ||
+    !session.handle ||
+    !session.password
   ) {
     console.log("Missing required session fields");
     return null;
@@ -170,7 +162,7 @@ export async function getCredentialSessionAgent(
         const sessionInfo = await agent.com.atproto.server.getSession();
         console.log("Stored JWT is valid, session info:", {
           did: sessionInfo.data.did,
-          handle: sessionInfo.data.handle
+          handle: sessionInfo.data.handle,
         });
         return agent;
       } catch (err) {
@@ -190,7 +182,7 @@ export async function getCredentialSessionAgent(
       console.log("Session created successfully:", {
         did: sessionRes.data.did,
         handle: sessionRes.data.handle,
-        hasAccessJwt: !!sessionRes.data.accessJwt
+        hasAccessJwt: !!sessionRes.data.accessJwt,
       });
 
       // Store the new token

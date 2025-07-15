@@ -51,10 +51,10 @@ export default function Header() {
         setUser(
           userData
             ? {
-              did: userData.did,
-              handle: userData.handle,
-            }
-            : null,
+                did: userData.did,
+                handle: userData.handle,
+              }
+            : null
         );
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -97,6 +97,15 @@ export default function Header() {
           />
 
           <div className="flex items-center gap-3">
+            {/* Ticket booth (did:plc update) */}
+            <Button
+              href="/ticket-booth"
+              color="amber"
+              icon="/icons/ticket_bold.svg"
+              iconAlt="Ticket"
+              label="TICKET BOOTH"
+            />
+
             {/* Departures (Migration) */}
             <Button
               href="/migrate"
@@ -112,7 +121,7 @@ export default function Header() {
                 <div className="relative">
                   <Button
                     color="amber"
-                    icon="/icons/ticket_bold.svg"
+                    icon="/icons/account.svg"
                     iconAlt="Check-in"
                     label="CHECKED IN"
                     onClick={() => setShowDropdown(!showDropdown)}
@@ -141,7 +150,7 @@ export default function Header() {
                 <Button
                   href="/login"
                   color="amber"
-                  icon="/icons/ticket_bold.svg"
+                  icon="/icons/account.svg"
                   iconAlt="Check-in"
                   label="CHECK-IN"
                 />
