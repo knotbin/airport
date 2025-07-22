@@ -83,7 +83,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
           // Get PDS URL from the current service
           const pdsResponse = await fetch(`/api/resolve-pds?did=${userData.did}`);
           const pdsData = await pdsResponse.json();
-          
+
           setPassport({
             did: userData.did,
             handle: userData.handle,
@@ -424,7 +424,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
             <div class="text-center mb-4 mt-6">
               <h3 class="text-2xl font-bold text-red-600 mb-2 tracking-wide">Final Boarding Call</h3>
               <p class="text-gray-700 dark:text-gray-300 mb-2 text-base">
-                <span class="font-semibold text-red-500">Warning:</span> This migration process can be <strong>irreversible</strong>.<br />Airport is in <strong>alpha</strong> currently, and we don't recommend it for main accounts. Migrate at your own risk. We reccomend backing up your data before proceeding.
+                <span class="font-semibold text-red-500">Warning:</span> This migration is <strong>irreversible</strong> if coming from Bluesky servers.<br />Bluesky does not recommend it for main accounts. Migrate at your own risk. We reccomend backing up your data before proceeding.
               </p>
               <p class="text-gray-700 dark:text-gray-300 mb-4 text-base">
                 Please type <span class="font-mono font-bold text-blue-600">MIGRATE</span> below to confirm and proceed.

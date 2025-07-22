@@ -1,7 +1,7 @@
 import Ticket from "../islands/Ticket.tsx";
 import AirportSign from "../components/AirportSign.tsx";
 import SocialLinks from "../islands/SocialLinks.tsx";
-import { Button } from "../components/Button.tsx";
+import LoginButton from "../islands/LoginButton.tsx";
 
 export default function Home() {
   return (
@@ -14,25 +14,10 @@ export default function Home() {
             <p class="font-mono text-lg sm:text-xl font-bold mb-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
               Your terminal for seamless AT Protocol PDS migration and backup.
             </p>
-            <p class="font-mono mb-4 sm:mb-6 mt-0 text-center text-gray-600 dark:text-gray-300">
-              Airport is in <strong>alpha</strong> currently, and we don't recommend it for main accounts. <br/> Please use its migration tools at your own risk.
-            </p>
 
             <Ticket />
 
-            <div class="mt-6 sm:mt-8 text-center w-fit mx-auto">
-              <Button
-                href="/login"
-                color="blue"
-                label="MOBILE NOT SUPPORTED"
-                className="opacity-50 cursor-not-allowed sm:opacity-100 sm:cursor-pointer"
-                onClick={(e: MouseEvent) => {
-                  if (globalThis.innerWidth < 640) {
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </div>
+            <LoginButton />
             <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 text-center text-gray-600 dark:text-gray-300">
               Airport is made with love by <a class="text-blue-500 hover:underline" href="https://bsky.app/profile/knotbin.com">Roscoe</a> for <a class="text-blue-500 hover:underline" href="https://sprk.so">Spark</a>, a new short-video platform for AT Protocol.
             </p>
