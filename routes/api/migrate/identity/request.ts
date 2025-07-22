@@ -1,6 +1,4 @@
-import {
-  getSessionAgent,
-} from "../../../../lib/sessions.ts";
+import { getSessionAgent } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
 
 /**
@@ -36,7 +34,7 @@ export const handler = define.handlers({
           {
             status: 401,
             headers: { "Content-Type": "application/json" },
-          },
+          }
         );
       }
       if (!newAgent) {
@@ -48,7 +46,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          },
+          }
         );
       }
 
@@ -61,7 +59,7 @@ export const handler = define.handlers({
         console.error("Error requesting PLC operation signature:", {
           name: error instanceof Error ? error.name : "Unknown",
           message: error instanceof Error ? error.message : String(error),
-          status: 400
+          status: 400,
         });
         throw error;
       }
@@ -78,7 +76,7 @@ export const handler = define.handlers({
             "Content-Type": "application/json",
             ...Object.fromEntries(res.headers), // Include session cookie headers
           },
-        },
+        }
       );
     } catch (error) {
       console.error("Identity migration request error:", {
@@ -89,14 +87,15 @@ export const handler = define.handlers({
       return new Response(
         JSON.stringify({
           success: false,
-          message: error instanceof Error
-            ? error.message
-            : "Failed to request identity migration",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to request identity migration",
         }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        },
+        }
       );
     }
   },

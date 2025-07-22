@@ -1,5 +1,7 @@
 import { useState, useEffect } from "preact/hooks";
 import { Link } from "../components/Link.tsx";
+import { Secp256k1Keypair } from "@atproto/crypto";
+import { createRotationKey } from "../lib/plc.tsx";
 
 interface PlcUpdateStep {
   name: string;
@@ -490,25 +492,7 @@ export default function PlcUpdateProgress() {
 
     try {
       console.log("Requesting new key...");
-      const res = await fetch("/api/plc/keys");
-      const text = await res.text();
-      console.log("Key generation response:", text);
-
-      if (!res.ok) {
-        try {
-          const json = JSON.parse(text);
-          throw new Error(json.message || "Failed to generate key");
-        } catch {
-          throw new Error(text || "Failed to generate key");
-        }
-      }
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error("Invalid response from /api/plc/keys");
-      }
+      const data = await createRotationKey();
 
       if (!data.publicKeyDid || !data.privateKeyHex) {
         throw new Error("Key generation failed: missing key data");
@@ -969,7 +953,7 @@ export default function PlcUpdateProgress() {
                         <button
                           type="button"
                           onClick={handleTokenSubmit}
-                          disabled={!emailToken || step.status === "verifying"}
+                          disabled={step.status === "verifying"}
                           class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                         >
                           <span>
