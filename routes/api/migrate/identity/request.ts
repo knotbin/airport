@@ -2,6 +2,7 @@ import {
   getSessionAgent,
 } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 /**
  * Handle identity migration request
@@ -14,6 +15,9 @@ export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       console.log("Starting identity migration request...");
       const oldAgent = await getSessionAgent(ctx.req);
       console.log("Got old agent:", {

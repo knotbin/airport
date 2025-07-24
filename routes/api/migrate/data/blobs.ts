@@ -1,10 +1,14 @@
 import { getSessionAgent } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       console.log("Blob migration: Starting session retrieval");
       const oldAgent = await getSessionAgent(ctx.req);
       console.log("Blob migration: Got old agent:", !!oldAgent);
@@ -56,7 +60,7 @@ export const handler = define.handlers({
 
       const session = await oldAgent.com.atproto.server.getSession();
       const accountDid = session.data.did;
-      
+
       do {
         const pageStartTime = Date.now();
         console.log(`[${new Date().toISOString()}] Counting blobs on page ${pageCount + 1}...`);
@@ -69,10 +73,10 @@ export const handler = define.handlers({
         const newBlobs = listedBlobs.data.cids.length;
         totalBlobs += newBlobs;
         const pageTime = Date.now() - pageStartTime;
-        
+
         console.log(`[${new Date().toISOString()}] Found ${newBlobs} blobs on page ${pageCount + 1} in ${pageTime/1000} seconds, total so far: ${totalBlobs}`);
         migrationLogs.push(`[${new Date().toISOString()}] Found ${newBlobs} blobs on page ${pageCount + 1} in ${pageTime/1000} seconds, total so far: ${totalBlobs}`);
-        
+
         pageCount++;
         blobCursor = listedBlobs.data.cursor;
       } while (blobCursor);
@@ -172,7 +176,7 @@ export const handler = define.handlers({
       return new Response(
         JSON.stringify({
           success: true,
-          message: failedBlobs.length > 0 
+          message: failedBlobs.length > 0
             ? `Blob migration completed with ${failedBlobs.length} failed blobs`
             : "Blob migration completed successfully",
           migratedBlobs,
@@ -218,4 +222,4 @@ export const handler = define.handlers({
       );
     }
   }
-}); 
+});

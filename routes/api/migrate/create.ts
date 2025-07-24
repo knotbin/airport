@@ -2,6 +2,7 @@ import { getSessionAgent } from "../../../lib/sessions.ts";
 import { setCredentialSession } from "../../../lib/cred/sessions.ts";
 import { Agent } from "@atproto/api";
 import { define } from "../../../utils.ts";
+import { assertMigrationAllowed } from "../../../lib/migration-state.ts";
 
 /**
  * Handle account creation
@@ -19,6 +20,9 @@ export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       const body = await ctx.req.json();
       const serviceUrl = body.service;
       const newHandle = body.handle;

@@ -1,10 +1,14 @@
 import { getSessionAgent } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       console.log("Preferences migration: Starting session retrieval");
       const oldAgent = await getSessionAgent(ctx.req);
       console.log("Preferences migration: Got old agent:", !!oldAgent);
@@ -31,11 +35,11 @@ export const handler = define.handlers({
       // Fetch preferences
       console.log(`[${new Date().toISOString()}] Fetching preferences from old account...`);
       migrationLogs.push(`[${new Date().toISOString()}] Fetching preferences from old account...`);
-      
+
       const fetchStartTime = Date.now();
       const prefs = await oldAgent.app.bsky.actor.getPreferences();
       const fetchTime = Date.now() - fetchStartTime;
-      
+
       console.log(`[${new Date().toISOString()}] Preferences fetched in ${fetchTime/1000} seconds`);
       migrationLogs.push(`[${new Date().toISOString()}] Preferences fetched in ${fetchTime/1000} seconds`);
 
@@ -98,4 +102,4 @@ export const handler = define.handlers({
       );
     }
   }
-}); 
+});

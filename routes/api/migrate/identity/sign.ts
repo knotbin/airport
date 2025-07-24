@@ -4,6 +4,7 @@ import {
 import { Secp256k1Keypair } from "npm:@atproto/crypto";
 import * as ui8 from "npm:uint8arrays";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 /**
  * Handle identity migration sign
@@ -16,6 +17,8 @@ export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
       const url = new URL(ctx.req.url);
       const token = url.searchParams.get("token");
 

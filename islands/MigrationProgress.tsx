@@ -1,6 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
 
 /**
+ * The migration state info.
+ * @type {MigrationStateInfo}
+ */
+interface MigrationStateInfo {
+  state: "up" | "issue" | "maintenance";
+  message: string;
+  allowMigration: boolean;
+}
+
+/**
  * The migration progress props.
  * @type {MigrationProgressProps}
  */
@@ -30,6 +40,7 @@ interface MigrationStep {
  */
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
+  const [migrationState, setMigrationState] = useState<MigrationStateInfo | null>(null);
 
   const [steps, setSteps] = useState<MigrationStep[]>([
     { name: "Create Account", status: "pending" },
@@ -88,19 +99,41 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       invite: props.invite,
     });
 
-    if (!validateParams()) {
-      console.log("Parameter validation failed");
-      return;
-    }
+    // Check migration state first
+    const checkMigrationState = async () => {
+      try {
+        const migrationResponse = await fetch("/api/migration-state");
+        if (migrationResponse.ok) {
+          const migrationData = await migrationResponse.json();
+          setMigrationState(migrationData);
 
-    startMigration().catch((error) => {
-      console.error("Unhandled migration error:", error);
-      updateStepStatus(
-        0,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-    });
+          if (!migrationData.allowMigration) {
+            updateStepStatus(0, "error", migrationData.message);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check migration state:", error);
+        updateStepStatus(0, "error", "Unable to verify migration availability");
+        return;
+      }
+
+      if (!validateParams()) {
+        console.log("Parameter validation failed");
+        return;
+      }
+
+      startMigration().catch((error) => {
+        console.error("Unhandled migration error:", error);
+        updateStepStatus(
+          0,
+          "error",
+          error.message || "Unknown error occurred",
+        );
+      });
+    };
+
+    checkMigrationState();
   }, []);
 
   const getStepDisplayName = (step: MigrationStep, index: number) => {
@@ -112,13 +145,13 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         case 3: return "Migration Finalized";
       }
     }
-    
+
     if (step.status === "in-progress") {
       switch (index) {
         case 0: return "Creating your new account...";
         case 1: return "Migrating your data...";
-        case 2: return step.name === "Enter the token sent to your email to complete identity migration" 
-          ? step.name 
+        case 2: return step.name === "Enter the token sent to your email to complete identity migration"
+          ? step.name
           : "Migrating your identity...";
         case 3: return "Finalizing migration...";
       }
@@ -132,7 +165,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         case 3: return "Verifying migration completion...";
       }
     }
-    
+
     return step.name;
   };
 
@@ -310,7 +343,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             );
           }
           console.log("Identity migration requested successfully");
-          
+
           // Update step name to prompt for token
           setSteps(prevSteps =>
             prevSteps.map((step, i) =>
@@ -515,7 +548,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log(`Verification: Status response status:`, res.status);
       const data = await res.json();
       console.log(`Verification: Status data for step ${stepNum + 1}:`, data);
-      
+
       if (data.ready) {
         console.log(`Verification: Step ${stepNum + 1} is ready`);
         updateStepStatus(stepNum, "completed");
@@ -548,6 +581,29 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   return (
     <div class="space-y-8">
+      {/* Migration state alert */}
+      {migrationState && !migrationState.allowMigration && (
+        <div class={`p-4 rounded-lg border ${
+          migrationState.state === "maintenance"
+            ? "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200"
+            : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
+        }`}>
+          <div class="flex items-center">
+            <div class={`mr-3 ${
+              migrationState.state === "maintenance" ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
+            }`}>
+              {migrationState.state === "maintenance" ? "⚠️" : "🚫"}
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">
+                {migrationState.state === "maintenance" ? "Maintenance Mode" : "Service Unavailable"}
+              </h3>
+              <p class="text-sm">{migrationState.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div class="space-y-4">
         {steps.map((step, index) => (
           <div key={step.name} class={getStepClasses(step.status)}>

@@ -1,10 +1,14 @@
 import { getSessionAgent } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       console.log("Repo migration: Starting session retrieval");
       const oldAgent = await getSessionAgent(ctx.req);
       console.log("Repo migration: Got old agent:", !!oldAgent);
@@ -34,13 +38,13 @@ export const handler = define.handlers({
       // Get repo data from old account
       console.log(`[${new Date().toISOString()}] Fetching repo data from old account...`);
       migrationLogs.push(`[${new Date().toISOString()}] Fetching repo data from old account...`);
-      
+
       const fetchStartTime = Date.now();
       const repoData = await oldAgent.com.atproto.sync.getRepo({
         did: accountDid,
       });
       const fetchTime = Date.now() - fetchStartTime;
-      
+
       console.log(`[${new Date().toISOString()}] Repo data fetched in ${fetchTime/1000} seconds`);
       migrationLogs.push(`[${new Date().toISOString()}] Repo data fetched in ${fetchTime/1000} seconds`);
 
@@ -105,4 +109,4 @@ export const handler = define.handlers({
       );
     }
   }
-}); 
+});
