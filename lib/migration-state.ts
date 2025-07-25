@@ -28,7 +28,7 @@ export function getMigrationState(): MigrationStateInfo {
     case "maintenance":
       return {
         state: "maintenance",
-        message: "Migration services are temporarily unavailable for scheduled maintenance. Please try again later.",
+        message: "Migration services are temporarily unavailable for maintenance. Please try again later.",
         allowMigration: false,
       };
 

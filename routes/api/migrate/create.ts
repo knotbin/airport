@@ -45,10 +45,10 @@ export const handler = define.handlers({
         return new Response("Could not create new agent", { status: 400 });
       }
 
-      console.log("getting did")
+      console.log("getting did");
       const session = await oldAgent.com.atproto.server.getSession();
       const accountDid = session.data.did;
-      console.log("got did")
+      console.log("got did");
       const describeRes = await newAgent.com.atproto.server.describeServer();
       const newServerDid = describeRes.data.did;
       const inviteRequired = describeRes.data.inviteCodeRequired ?? false;

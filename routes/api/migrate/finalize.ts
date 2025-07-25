@@ -1,4 +1,5 @@
 import { getSessionAgent } from "../../../lib/sessions.ts";
+import { checkDidsMatch } from "../../../lib/check-dids.ts";
 import { define } from "../../../utils.ts";
 import { assertMigrationAllowed } from "../../../lib/migration-state.ts";
 
@@ -17,6 +18,18 @@ export const handler = define.handlers({
         return new Response("Migration session not found or invalid", {
           status: 400,
         });
+      }
+
+      // Verify DIDs match between sessions
+      const didsMatch = await checkDidsMatch(ctx.req);
+      if (!didsMatch) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Invalid state, original and target DIDs do not match",
+          }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
       }
 
       // Activate new account and deactivate old account

@@ -1,6 +1,5 @@
-import {
-  getSessionAgent,
-} from "../../../../lib/sessions.ts";
+import { getSessionAgent } from "../../../../lib/sessions.ts";
+import { checkDidsMatch } from "../../../../lib/check-dids.ts";
 import { define } from "../../../../utils.ts";
 import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
@@ -56,6 +55,21 @@ export const handler = define.handlers({
         );
       }
 
+      // Verify DIDs match between sessions
+      const didsMatch = await checkDidsMatch(ctx.req);
+      if (!didsMatch) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Invalid state, original and target DIDs do not match",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       // Request the signature
       console.log("Requesting PLC operation signature...");
       try {
@@ -65,7 +79,7 @@ export const handler = define.handlers({
         console.error("Error requesting PLC operation signature:", {
           name: error instanceof Error ? error.name : "Unknown",
           message: error instanceof Error ? error.message : String(error),
-          status: 400
+          status: 400,
         });
         throw error;
       }
