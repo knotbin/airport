@@ -17,7 +17,7 @@ export const handler = define.handlers({
         // Check conditions in sequence to determine the next step
         if (!newStatus.data) {
             nextStep = 1;
-        } else if (!(newStatus.data.repoCommit && 
+        } else if (!(newStatus.data.repoCommit &&
                    newStatus.data.indexedRecords === oldStatus.data.indexedRecords &&
                    newStatus.data.privateStateValues === oldStatus.data.privateStateValues &&
                    newStatus.data.expectedBlobs === newStatus.data.importedBlobs &&
@@ -42,4 +42,4 @@ export const handler = define.handlers({
             }
         });
     }
-}) 
+})

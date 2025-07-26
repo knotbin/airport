@@ -33,6 +33,16 @@ interface UserPassport {
 }
 
 /**
+ * The migration state info.
+ * @type {MigrationStateInfo}
+ */
+interface MigrationStateInfo {
+  state: "up" | "issue" | "maintenance";
+  message: string;
+  allowMigration: boolean;
+}
+
+/**
  * The migration setup component.
  * @param props - The migration setup props
  * @returns The migration setup component
@@ -54,6 +64,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
   const [passport, setPassport] = useState<UserPassport | null>(null);
+  const [migrationState, setMigrationState] = useState<MigrationStateInfo | null>(null);
 
   const ensureServiceUrl = (url: string): string => {
     if (!url) return url;
@@ -70,8 +81,16 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   useEffect(() => {
     if (!IS_BROWSER) return;
 
-    const fetchPassport = async () => {
+    const fetchInitialData = async () => {
       try {
+        // Check migration state first
+        const migrationResponse = await fetch("/api/migration-state");
+        if (migrationResponse.ok) {
+          const migrationData = await migrationResponse.json();
+          setMigrationState(migrationData);
+        }
+
+        // Fetch user passport
         const response = await fetch("/api/me", {
           credentials: "include",
         });
@@ -92,11 +111,11 @@ export default function MigrationSetup(props: MigrationSetupProps) {
           });
         }
       } catch (error) {
-        console.error("Failed to fetch passport:", error);
+        console.error("Failed to fetch initial data:", error);
       }
     };
 
-    fetchPassport();
+    fetchInitialData();
   }, []);
 
   const checkServerDescription = async (serviceUrl: string) => {
@@ -144,6 +163,12 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   const handleSubmit = (e: Event) => {
     e.preventDefault();
 
+    // Check migration state first
+    if (migrationState && !migrationState.allowMigration) {
+      setError(migrationState.message);
+      return;
+    }
+
     if (!service || !handlePrefix || !email || !password) {
       setError("Please fill in all required fields");
       return;
@@ -158,6 +183,12 @@ export default function MigrationSetup(props: MigrationSetupProps) {
   };
 
   const handleConfirmation = () => {
+    // Double-check migration state before proceeding
+    if (migrationState && !migrationState.allowMigration) {
+      setError(migrationState.message);
+      return;
+    }
+
     if (confirmationText !== "MIGRATE") {
       setError("Please type 'MIGRATE' to confirm");
       return;
@@ -188,6 +219,29 @@ export default function MigrationSetup(props: MigrationSetupProps) {
       <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
       <div class="absolute top-2 left-4 text-blue-500 text-sm font-mono">TERMINAL 1</div>
       <div class="absolute top-2 right-4 text-blue-500 text-sm font-mono">GATE M1</div>
+
+      {/* Migration state alert */}
+      {migrationState && !migrationState.allowMigration && (
+        <div class={`mb-6 mt-4 p-4 rounded-lg border ${
+          migrationState.state === "maintenance"
+            ? "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200"
+            : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
+        }`}>
+          <div class="flex items-center">
+            <div class={`mr-3 ${
+              migrationState.state === "maintenance" ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
+            }`}>
+              {migrationState.state === "maintenance" ? "⚠️" : "🚫"}
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">
+                {migrationState.state === "maintenance" ? "Maintenance Mode" : "Service Unavailable"}
+              </h3>
+              <p class="text-sm">{migrationState.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div class="text-center mb-8 relative">
         <p class="text-gray-600 dark:text-gray-400 mt-4">Please complete your migration check-in</p>
@@ -226,7 +280,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
 
       <form onSubmit={handleSubmit} class="space-y-6">
         {error && (
-          <div class="bg-red-50 dark:bg-red-900 rounded-lg">
+          <div class="bg-red-50 dark:bg-red-900 rounded-lg ">
             <p class="text-red-800 dark:text-red-200 flex items-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -398,7 +452,7 @@ export default function MigrationSetup(props: MigrationSetupProps) {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || Boolean(migrationState && !migrationState.allowMigration)}
           class="w-full flex justify-center items-center py-3 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

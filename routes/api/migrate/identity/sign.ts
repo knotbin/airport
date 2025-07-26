@@ -1,9 +1,9 @@
-import {
-  getSessionAgent,
-} from "../../../../lib/sessions.ts";
+import { getSessionAgent } from "../../../../lib/sessions.ts";
+import { checkDidsMatch } from "../../../../lib/check-dids.ts";
 import { Secp256k1Keypair } from "npm:@atproto/crypto";
 import * as ui8 from "npm:uint8arrays";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 /**
  * Handle identity migration sign
@@ -16,6 +16,8 @@ export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
       const url = new URL(ctx.req.url);
       const token = url.searchParams.get("token");
 
@@ -52,6 +54,21 @@ export const handler = define.handlers({
           JSON.stringify({
             success: false,
             message: "Migration session not found or invalid",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Verify DIDs match between sessions
+      const didsMatch = await checkDidsMatch(ctx.req);
+      if (!didsMatch) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Invalid state, original and target DIDs do not match",
           }),
           {
             status: 400,

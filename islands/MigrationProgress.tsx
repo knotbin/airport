@@ -1,6 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
 
 /**
+ * The migration state info.
+ * @type {MigrationStateInfo}
+ */
+interface MigrationStateInfo {
+  state: "up" | "issue" | "maintenance";
+  message: string;
+  allowMigration: boolean;
+}
+
+/**
  * The migration progress props.
  * @type {MigrationProgressProps}
  */
@@ -30,6 +40,9 @@ interface MigrationStep {
  */
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
+  const [migrationState, setMigrationState] = useState<
+    MigrationStateInfo | null
+  >(null);
 
   const [steps, setSteps] = useState<MigrationStep[]>([
     { name: "Create Account", status: "pending" },
@@ -88,51 +101,86 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       invite: props.invite,
     });
 
-    if (!validateParams()) {
-      console.log("Parameter validation failed");
-      return;
-    }
+    // Check migration state first
+    const checkMigrationState = async () => {
+      try {
+        const migrationResponse = await fetch("/api/migration-state");
+        if (migrationResponse.ok) {
+          const migrationData = await migrationResponse.json();
+          setMigrationState(migrationData);
 
-    startMigration().catch((error) => {
-      console.error("Unhandled migration error:", error);
-      updateStepStatus(
-        0,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-    });
+          if (!migrationData.allowMigration) {
+            updateStepStatus(0, "error", migrationData.message);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check migration state:", error);
+        updateStepStatus(0, "error", "Unable to verify migration availability");
+        return;
+      }
+
+      if (!validateParams()) {
+        console.log("Parameter validation failed");
+        return;
+      }
+
+      startMigration().catch((error) => {
+        console.error("Unhandled migration error:", error);
+        updateStepStatus(
+          0,
+          "error",
+          error.message || "Unknown error occurred",
+        );
+      });
+    };
+
+    checkMigrationState();
   }, []);
 
   const getStepDisplayName = (step: MigrationStep, index: number) => {
     if (step.status === "completed") {
       switch (index) {
-        case 0: return "Account Created";
-        case 1: return "Data Migrated";
-        case 2: return "Identity Migrated";
-        case 3: return "Migration Finalized";
+        case 0:
+          return "Account Created";
+        case 1:
+          return "Data Migrated";
+        case 2:
+          return "Identity Migrated";
+        case 3:
+          return "Migration Finalized";
       }
     }
-    
+
     if (step.status === "in-progress") {
       switch (index) {
-        case 0: return "Creating your new account...";
-        case 1: return "Migrating your data...";
-        case 2: return step.name === "Enter the token sent to your email to complete identity migration" 
-          ? step.name 
-          : "Migrating your identity...";
-        case 3: return "Finalizing migration...";
+        case 0:
+          return "Creating your new account...";
+        case 1:
+          return "Migrating your data...";
+        case 2:
+          return step.name ===
+              "Enter the token sent to your email to complete identity migration"
+            ? step.name
+            : "Migrating your identity...";
+        case 3:
+          return "Finalizing migration...";
       }
     }
 
     if (step.status === "verifying") {
       switch (index) {
-        case 0: return "Verifying account creation...";
-        case 1: return "Verifying data migration...";
-        case 2: return "Verifying identity migration...";
-        case 3: return "Verifying migration completion...";
+        case 0:
+          return "Verifying account creation...";
+        case 1:
+          return "Verifying data migration...";
+        case 2:
+          return "Verifying identity migration...";
+        case 3:
+          return "Verifying migration completion...";
       }
     }
-    
+
     return step.name;
   };
 
@@ -235,7 +283,10 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             console.error("Blob migration: Error response:", json);
             throw new Error(json.message || "Failed to migrate blobs");
           } catch {
-            console.error("Blob migration: Non-JSON error response:", blobsText);
+            console.error(
+              "Blob migration: Non-JSON error response:",
+              blobsText,
+            );
             throw new Error(blobsText || "Failed to migrate blobs");
           }
         }
@@ -257,7 +308,10 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             console.error("Preferences migration: Error response:", json);
             throw new Error(json.message || "Failed to migrate preferences");
           } catch {
-            console.error("Preferences migration: Non-JSON error response:", prefsText);
+            console.error(
+              "Preferences migration: Non-JSON error response:",
+              prefsText,
+            );
             throw new Error(prefsText || "Failed to migrate preferences");
           }
         }
@@ -296,9 +350,13 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         if (!requestRes.ok) {
           try {
             const json = JSON.parse(requestText);
-            throw new Error(json.message || "Failed to request identity migration");
+            throw new Error(
+              json.message || "Failed to request identity migration",
+            );
           } catch {
-            throw new Error(requestText || "Failed to request identity migration");
+            throw new Error(
+              requestText || "Failed to request identity migration",
+            );
           }
         }
 
@@ -310,12 +368,16 @@ export default function MigrationProgress(props: MigrationProgressProps) {
             );
           }
           console.log("Identity migration requested successfully");
-          
+
           // Update step name to prompt for token
-          setSteps(prevSteps =>
+          setSteps((prevSteps) =>
             prevSteps.map((step, i) =>
               i === 2
-                ? { ...step, name: "Enter the token sent to your email to complete identity migration" }
+                ? {
+                  ...step,
+                  name:
+                    "Enter the token sent to your email to complete identity migration",
+                }
                 : step
             )
           );
@@ -356,9 +418,13 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       if (!identityRes.ok) {
         try {
           const json = JSON.parse(identityData);
-          throw new Error(json.message || "Failed to complete identity migration");
+          throw new Error(
+            json.message || "Failed to complete identity migration",
+          );
         } catch {
-          throw new Error(identityData || "Failed to complete identity migration");
+          throw new Error(
+            identityData || "Failed to complete identity migration",
+          );
         }
       }
 
@@ -371,7 +437,6 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       } catch {
         throw new Error("Invalid response from server");
       }
-
 
       updateStepStatus(2, "verifying");
       const verified = await verifyStep(2);
@@ -515,13 +580,16 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       console.log(`Verification: Status response status:`, res.status);
       const data = await res.json();
       console.log(`Verification: Status data for step ${stepNum + 1}:`, data);
-      
+
       if (data.ready) {
         console.log(`Verification: Step ${stepNum + 1} is ready`);
         updateStepStatus(stepNum, "completed");
         return true;
       } else {
-        console.log(`Verification: Step ${stepNum + 1} is not ready:`, data.reason);
+        console.log(
+          `Verification: Step ${stepNum + 1} is not ready:`,
+          data.reason,
+        );
         const statusDetails = {
           activated: data.activated,
           validDid: data.validDid,
@@ -532,22 +600,62 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           indexedRecords: data.indexedRecords,
           privateStateValues: data.privateStateValues,
           expectedBlobs: data.expectedBlobs,
-          importedBlobs: data.importedBlobs
+          importedBlobs: data.importedBlobs,
         };
-        console.log(`Verification: Step ${stepNum + 1} status details:`, statusDetails);
-        const errorMessage = `${data.reason || "Verification failed"}\nStatus details: ${JSON.stringify(statusDetails, null, 2)}`;
+        console.log(
+          `Verification: Step ${stepNum + 1} status details:`,
+          statusDetails,
+        );
+        const errorMessage = `${
+          data.reason || "Verification failed"
+        }\nStatus details: ${JSON.stringify(statusDetails, null, 2)}`;
         updateStepStatus(stepNum, "error", errorMessage);
         return false;
       }
     } catch (e) {
       console.error(`Verification: Error in step ${stepNum + 1}:`, e);
-      updateStepStatus(stepNum, "error", e instanceof Error ? e.message : String(e));
+      updateStepStatus(
+        stepNum,
+        "error",
+        e instanceof Error ? e.message : String(e),
+      );
       return false;
     }
   };
 
   return (
     <div class="space-y-8">
+      {/* Migration state alert */}
+      {migrationState && !migrationState.allowMigration && (
+        <div
+          class={`p-4 rounded-lg border ${
+            migrationState.state === "maintenance"
+              ? "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200"
+              : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
+          }`}
+        >
+          <div class="flex items-center">
+            <div
+              class={`mr-3 ${
+                migrationState.state === "maintenance"
+                  ? "text-yellow-600 dark:text-yellow-400"
+                  : "text-red-600 dark:text-red-400"
+              }`}
+            >
+              {migrationState.state === "maintenance" ? "⚠️" : "🚫"}
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">
+                {migrationState.state === "maintenance"
+                  ? "Maintenance Mode"
+                  : "Service Unavailable"}
+              </h3>
+              <p class="text-sm">{migrationState.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div class="space-y-4">
         {steps.map((step, index) => (
           <div key={step.name} class={getStepClasses(step.status)}>
@@ -579,10 +687,13 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                 </p>
               )}
               {index === 2 && step.status === "in-progress" &&
-                step.name === "Enter the token sent to your email to complete identity migration" && (
+                step.name ===
+                  "Enter the token sent to your email to complete identity migration" &&
+                (
                   <div class="mt-4 space-y-4">
                     <p class="text-sm text-blue-800 dark:text-blue-200">
-                      Please check your email for the migration token and enter it below:
+                      Please check your email for the migration token and enter
+                      it below:
                     </p>
                     <div class="flex space-x-2">
                       <input
@@ -601,8 +712,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                       </button>
                     </div>
                   </div>
-                )
-              }
+                )}
             </div>
           </div>
         ))}
@@ -610,32 +720,67 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
       {steps[3].status === "completed" && (
         <div class="p-4 bg-green-50 dark:bg-green-900 rounded-lg border-2 border-green-200 dark:border-green-800">
-          <p class="text-sm text-green-800 dark:text-green-200">
-            Migration completed successfully! You can now close this page.
+          <p class="text-sm text-green-800 dark:text-green-200 pb-2">
+            Migration completed successfully! Sign out to finish the process and
+            return home.<br />
+            Please consider donating to Airport to support server and
+            development costs.
           </p>
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                const response = await fetch("/api/logout", {
-                  method: "POST",
-                  credentials: "include",
-                });
-                if (!response.ok) {
-                  throw new Error("Logout failed");
+          <div class="flex space-x-4">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const response = await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "include",
+                  });
+                  if (!response.ok) {
+                    throw new Error("Logout failed");
+                  }
+                  globalThis.location.href = "/";
+                } catch (error) {
+                  console.error("Failed to logout:", error);
                 }
-                globalThis.location.href = "/";
-              } catch (error) {
-                console.error("Failed to logout:", error);
-              }
-            }}
-            class="mt-4 mr-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200"
-          >
-            Sign Out
-          </button>
-          <a href="https://ko-fi.com/knotbin" target="_blank" class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200">
-            Donate
-          </a>
+              }}
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span>Sign Out</span>
+            </button>
+            <a
+              href="https://ko-fi.com/knotbin"
+              target="_blank"
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              <span>Support Us</span>
+            </a>
+          </div>
         </div>
       )}
     </div>

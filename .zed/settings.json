@@ -1,24 +1,50 @@
+// Folder-specific settings
+//
+// For a full list of overridable settings, and general information on folder-specific settings,
+// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
 {
+  "lsp": {
+    "deno": {
+      "settings": {
+        "deno": {
+          "enable": true,
+          "cacheOnSave": true,
+          "suggest": {
+            "imports": {
+              "autoDiscover": true
+            }
+          }
+        }
+      }
+    }
+  },
   "languages": {
+    "JavaScript": {
+      "language_servers": [
+        "deno",
+        "!vtsls",
+        "!eslint",
+        "..."
+      ]
+    },
     "TypeScript": {
       "language_servers": [
-        "wakatime",
         "deno",
         "!typescript-language-server",
         "!vtsls",
-        "!eslint"
-      ],
-      "formatter": "language_server"
+        "!eslint",
+        "..."
+      ]
     },
     "TSX": {
       "language_servers": [
-        "wakatime",
         "deno",
         "!typescript-language-server",
         "!vtsls",
-        "!eslint"
-      ],
-      "formatter": "language_server"
+        "!eslint",
+        "..."
+      ]
     }
-  }
+  },
+  "formatter": "language_server"
 }

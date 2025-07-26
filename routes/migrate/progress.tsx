@@ -10,7 +10,7 @@ export default function MigrateProgress(props: PageProps) {
 
   if (!service || !handle || !email || !password) {
     return (
-      <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+      <div class="bg-gray-50 dark:bg-gray-900 p-4">
         <div class="max-w-2xl mx-auto">
           <div class="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
             <p class="text-red-800 dark:text-red-200">
@@ -24,7 +24,7 @@ export default function MigrateProgress(props: PageProps) {
   }
 
   return (
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+    <div class="bg-gray-50 dark:bg-gray-900 p-4">
       <div class="max-w-2xl mx-auto">
         <h1 class="font-mono text-3xl font-bold text-gray-900 dark:text-white mb-8">
           Migration Progress

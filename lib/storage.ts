@@ -3,7 +3,7 @@ import type {
   NodeSavedSessionStore,
   NodeSavedState,
   NodeSavedStateStore,
-} from "jsr:@bigmoves/atproto-oauth-client";
+} from "@bigmoves/atproto-oauth-client";
 
 /**
  * The state store for sessions.

@@ -1,5 +1,7 @@
 import { getSessionAgent } from "../../../../lib/sessions.ts";
+import { checkDidsMatch } from "../../../../lib/check-dids.ts";
 import { define } from "../../../../utils.ts";
+import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
 /**
  * Handle identity migration request
@@ -12,6 +14,9 @@ export const handler = define.handlers({
   async POST(ctx) {
     const res = new Response();
     try {
+      // Check if migrations are currently allowed
+      assertMigrationAllowed();
+
       console.log("Starting identity migration request...");
       const oldAgent = await getSessionAgent(ctx.req);
       console.log("Got old agent:", {
@@ -47,6 +52,21 @@ export const handler = define.handlers({
             status: 400,
             headers: { "Content-Type": "application/json" },
           }
+        );
+      }
+
+      // Verify DIDs match between sessions
+      const didsMatch = await checkDidsMatch(ctx.req);
+      if (!didsMatch) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: "Invalid state, original and target DIDs do not match",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
         );
       }
 
