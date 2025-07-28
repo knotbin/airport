@@ -5,6 +5,8 @@
 .env.production.local
 .env.local
 
+.DS_Store
+
 # Fresh build directory
 _fresh/
 # npm dependencies
