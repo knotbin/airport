@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useState } from "preact/hooks";
 import { Link } from "../components/Link.tsx";
 
 interface PlcUpdateStep {
@@ -162,7 +162,6 @@ export default function PlcUpdateProgress() {
   const [emailToken, setEmailToken] = useState<string>("");
   const [updateResult, setUpdateResult] = useState<string>("");
   const [showDownload, setShowDownload] = useState(false);
-  const [showKeyInfo, setShowKeyInfo] = useState(false);
   const [hasDownloadedKey, setHasDownloadedKey] = useState(false);
   const [downloadedKeyId, setDownloadedKeyId] = useState<string | null>(null);
 
@@ -296,7 +295,7 @@ export default function PlcUpdateProgress() {
         if (!data.success) {
           throw new Error(data.message || "Failed to request token");
         }
-      } catch (error) {
+      } catch {
         throw new Error("Invalid response from server");
       }
 
@@ -433,11 +432,6 @@ export default function PlcUpdateProgress() {
         setEmailToken("");
       }
     }
-  };
-
-  const handleCompletePlcUpdate = async () => {
-    // This function is no longer needed as we handle everything in handleTokenSubmit
-    return;
   };
 
   const handleDownload = () => {
@@ -668,6 +662,7 @@ export default function PlcUpdateProgress() {
           <div class="mt-8 border-t border-dashed border-slate-200 dark:border-slate-700 pt-4">
             <div class="flex justify-between items-center">
               <button
+                type="button"
                 onClick={() =>
                   setCurrentChunkIndex((prev) => Math.max(0, prev - 1))}
                 class={`px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2 ${
@@ -693,6 +688,7 @@ export default function PlcUpdateProgress() {
               {currentChunkIndex === contentChunks.length - 1
                 ? (
                   <button
+                    type="button"
                     onClick={handleStart}
                     class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-mono rounded-md transition-colors duration-200 flex items-center space-x-2"
                   >
@@ -714,6 +710,7 @@ export default function PlcUpdateProgress() {
                 )
                 : (
                   <button
+                    type="button"
                     onClick={() =>
                       setCurrentChunkIndex((prev) =>
                         Math.min(contentChunks.length - 1, prev + 1)
@@ -767,7 +764,7 @@ export default function PlcUpdateProgress() {
           </h3>
           {/* Add a help tooltip */}
           <div class="relative group">
-            <button class="text-gray-400 hover:text-gray-500">
+            <button class="text-gray-400 hover:text-gray-500" type="button">
               <svg
                 class="w-5 h-5"
                 fill="none"
@@ -903,6 +900,7 @@ export default function PlcUpdateProgress() {
 
                   <div class="flex items-center justify-between">
                     <button
+                      type="button"
                       onClick={handleDownload}
                       class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
                     >
@@ -1019,6 +1017,7 @@ export default function PlcUpdateProgress() {
                                 a new code to try again.
                               </p>
                               <button
+                                type="button"
                                 onClick={requestNewToken}
                                 class="text-sm px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-700 dark:text-red-200 rounded-md transition-colors duration-200 flex items-center space-x-1"
                               >
