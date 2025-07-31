@@ -7,24 +7,27 @@ export const handler = define.handlers({
     const did = url.searchParams.get("did");
 
     if (!did) {
-      return new Response(JSON.stringify({ error: "DID parameter is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ error: "DID parameter is required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     try {
       const pds = await resolver.resolveDidToPdsUrl(did);
       return new Response(JSON.stringify({ pds }), {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
       console.error("Failed to resolve PDS:", error);
       return new Response(JSON.stringify({ error: "Failed to resolve PDS" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
     }
-  }
-}); 
+  },
+});

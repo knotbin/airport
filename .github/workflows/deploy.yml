@@ -32,5 +32,3 @@ jobs:
           project: "roscoerubin-airport-67"
           entrypoint: "main.ts"
           root: "."
-          
-          

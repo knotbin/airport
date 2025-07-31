@@ -15,20 +15,23 @@ export interface MigrationStateInfo {
  * @returns The migration state information
  */
 export function getMigrationState(): MigrationStateInfo {
-  const state = (Deno.env.get("MIGRATION_STATE") || "up").toLowerCase() as MigrationState;
+  const state = (Deno.env.get("MIGRATION_STATE") || "up")
+    .toLowerCase() as MigrationState;
 
   switch (state) {
     case "issue":
       return {
         state: "issue",
-        message: "Migration services are temporarily unavailable as we investigate an issue. Please try again later.",
+        message:
+          "Migration services are temporarily unavailable as we investigate an issue. Please try again later.",
         allowMigration: false,
       };
 
     case "maintenance":
       return {
         state: "maintenance",
-        message: "Migration services are temporarily unavailable for maintenance. Please try again later.",
+        message:
+          "Migration services are temporarily unavailable for maintenance. Please try again later.",
         allowMigration: false,
       };
 

@@ -1,5 +1,5 @@
 import { PageProps } from "fresh";
-import LoginSelector from "../../islands/LoginSelector.tsx"
+import LoginSelector from "../../islands/LoginSelector.tsx";
 
 export async function submitHandle(handle: string) {
   const response = await fetch("/api/oauth/initiate", {

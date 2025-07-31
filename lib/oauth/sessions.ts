@@ -1,7 +1,7 @@
 import { Agent } from "npm:@atproto/api";
 import { getIronSession, SessionOptions } from "npm:iron-session";
 import { oauthClient } from "./client.ts";
-import { OauthSession, createSessionOptions } from "../types.ts";
+import { createSessionOptions, OauthSession } from "../types.ts";
 
 let oauthSessionOptions: SessionOptions;
 
@@ -22,7 +22,7 @@ async function getOptions() {
  * @returns The OAuth session agent
  */
 export async function getOauthSessionAgent(
-  req: Request
+  req: Request,
 ) {
   try {
     console.log("Getting OAuth session...");

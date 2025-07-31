@@ -42,22 +42,21 @@ export const handler = define.handlers({
             "Content-Type": "application/json",
             ...Object.fromEntries(res.headers), // Include session cookie headers
           },
-        }
+        },
       );
     } catch (error) {
       console.error("PLC signature request error:", error);
       return new Response(
         JSON.stringify({
           success: false,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to get PLC operation signature (sending confirmation email)",
+          message: error instanceof Error
+            ? error.message
+            : "Failed to get PLC operation signature (sending confirmation email)",
         }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },

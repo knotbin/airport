@@ -1,6 +1,6 @@
-import { useState } from "preact/hooks"
-import HandleInput from "./HandleInput.tsx"
-import CredLogin from "./CredLogin.tsx"
+import { useState } from "preact/hooks";
+import HandleInput from "./HandleInput.tsx";
+import CredLogin from "./CredLogin.tsx";
 
 /**
  * The login method selector for OAuth or Credential.
@@ -8,7 +8,9 @@ import CredLogin from "./CredLogin.tsx"
  * @component
  */
 export default function LoginMethodSelector() {
-  const [loginMethod, setLoginMethod] = useState<'oauth' | 'password'>('password')
+  const [loginMethod, setLoginMethod] = useState<"oauth" | "password">(
+    "password",
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -18,35 +20,35 @@ export default function LoginMethodSelector() {
         <div className="flex gap-4 mb-6">
           <button
             type="button"
-            onClick={() => setLoginMethod('oauth')}
+            onClick={() => setLoginMethod("oauth")}
             className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-              loginMethod === 'oauth'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              loginMethod === "oauth"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             OAuth
           </button>
           <button
             type="button"
-            onClick={() => setLoginMethod('password')}
+            onClick={() => setLoginMethod("password")}
             className={`flex-1 px-4 py-2 rounded-md transition-colors ${
-              loginMethod === 'password'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              loginMethod === "password"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             Credential
           </button>
         </div>
 
-        {loginMethod === 'oauth' && (
+        {loginMethod === "oauth" && (
           <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded-md text-sm">
             Note: OAuth login cannot be used for migrations.
           </div>
         )}
 
-        {loginMethod === 'oauth' ? <HandleInput /> : <CredLogin />}
+        {loginMethod === "oauth" ? <HandleInput /> : <CredLogin />}
 
         <div className="mt-4 text-center">
           <a
@@ -58,5 +60,5 @@ export default function LoginMethodSelector() {
         </div>
       </div>
     </div>
-  )
+  );
 }

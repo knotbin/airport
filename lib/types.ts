@@ -15,14 +15,17 @@ interface SessionOptions extends BaseSessionOptions {
  * @param db - The Deno KV instance for the database
  * @returns The unlock function
  */
-async function createLock(key: string, db: Deno.Kv): Promise<() => Promise<void>> {
+async function createLock(
+  key: string,
+  db: Deno.Kv,
+): Promise<() => Promise<void>> {
   const lockKey = ["session_lock", key];
   const lockValue = Date.now();
-  
+
   // Try to acquire lock
   const result = await db.atomic()
-    .check({ key: lockKey, versionstamp: null })  // Only if key doesn't exist
-    .set(lockKey, lockValue, { expireIn: 5000 })  // 5 second TTL
+    .check({ key: lockKey, versionstamp: null }) // Only if key doesn't exist
+    .set(lockKey, lockValue, { expireIn: 5000 }) // 5 second TTL
     .commit();
 
   if (!result.ok) {
@@ -40,7 +43,7 @@ async function createLock(key: string, db: Deno.Kv): Promise<() => Promise<void>
  * @type {OauthSession}
  */
 export interface OauthSession {
-  did: string
+  did: string;
 }
 
 /**
@@ -68,26 +71,29 @@ let db: Deno.Kv;
  * @param cookieName - The name of the iron session cookie
  * @returns The session options for iron session
  */
-export const createSessionOptions = async (cookieName: string): Promise<SessionOptions> =>  {
-    const cookieSecret = Deno.env.get("COOKIE_SECRET");
-    if (!cookieSecret) {
-        throw new Error("COOKIE_SECRET is not set");
-    }
+export const createSessionOptions = async (
+  cookieName: string,
+): Promise<SessionOptions> => {
+  const cookieSecret = Deno.env.get("COOKIE_SECRET");
+  if (!cookieSecret) {
+    throw new Error("COOKIE_SECRET is not set");
+  }
 
-    if (!db) {
-      db = await Deno.openKv();
-    }
+  if (!db) {
+    db = await Deno.openKv();
+  }
 
-    return {
-        cookieName: cookieName,
-        password: cookieSecret,
-        cookieOptions: {
-            secure: Deno.env.get("NODE_ENV") === "production" || Deno.env.get("NODE_ENV") === "staging",
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            domain: undefined,
-        },
-        lockFn: (key: string) => createLock(key, db)
-    }
+  return {
+    cookieName: cookieName,
+    password: cookieSecret,
+    cookieOptions: {
+      secure: Deno.env.get("NODE_ENV") === "production" ||
+        Deno.env.get("NODE_ENV") === "staging",
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      domain: undefined,
+    },
+    lockFn: (key: string) => createLock(key, db),
+  };
 };

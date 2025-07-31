@@ -1,6 +1,6 @@
 import { Agent } from "npm:@atproto/api";
 import { getIronSession, SessionOptions } from "npm:iron-session";
-import { CredentialSession, createSessionOptions } from "../types.ts";
+import { createSessionOptions, CredentialSession } from "../types.ts";
 
 let migrationSessionOptions: SessionOptions;
 let credentialSessionOptions: SessionOptions;
@@ -34,7 +34,7 @@ async function getOptions(isMigration: boolean) {
 export async function getCredentialSession(
   req: Request,
   res: Response = new Response(),
-  isMigration: boolean = false
+  isMigration: boolean = false,
 ) {
   const options = await getOptions(isMigration);
   return getIronSession<CredentialSession>(req, res, options);
@@ -50,7 +50,7 @@ export async function getCredentialSession(
 export async function getCredentialAgent(
   req: Request,
   res: Response = new Response(),
-  isMigration: boolean = false
+  isMigration: boolean = false,
 ) {
   const session = await getCredentialSession(req, res, isMigration);
   if (
@@ -104,7 +104,7 @@ export async function setCredentialSession(
   req: Request,
   res: Response,
   data: CredentialSession,
-  isMigration: boolean = false
+  isMigration: boolean = false,
 ) {
   const session = await getCredentialSession(req, res, isMigration);
   session.did = data.did;
@@ -125,7 +125,7 @@ export async function setCredentialSession(
 export async function getCredentialSessionAgent(
   req: Request,
   res: Response = new Response(),
-  isMigration: boolean = false
+  isMigration: boolean = false,
 ) {
   const session = await getCredentialSession(req, res, isMigration);
 

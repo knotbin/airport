@@ -36,7 +36,7 @@ export const handler = define.handlers({
       }),
       {
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   },
 });

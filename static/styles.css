@@ -2,17 +2,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 @font-face {
-    font-family: "Skyfont";
-    src: url("fonts/skyfont.regular.otf") format("opentype");
-    font-weight: normal;
-    font-style: normal;
+  font-family: "Skyfont";
+  src: url("fonts/skyfont.regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: "F25_Bank_Printer";
-    src: url("fonts/F25_Bank_Printer.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
+  font-family: "F25_Bank_Printer";
+  src: url("fonts/F25_Bank_Printer.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }
 
 @tailwind base;
@@ -20,191 +20,200 @@
 @tailwind utilities;
 
 @keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    75% {
-        opacity: 1;
-    } /* Hold full opacity for most of the animation */
-    100% {
-        opacity: 0;
-    }
+  0% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  } /* Hold full opacity for most of the animation */
+  100% {
+    opacity: 0;
+  }
 }
 
 .status-message-fade {
-    animation: fadeOut 2s forwards;
+  animation: fadeOut 2s forwards;
 }
 
 .font-spectral {
-    font-family: "Spectral", serif;
+  font-family: "Spectral", serif;
 }
 
 .grow-wrap {
-    /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
-    display: grid;
+  /* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
+  display: grid;
 }
 .grow-wrap::after {
-    /* Note the weird space! Needed to preventy jumpy behavior */
-    content: attr(data-replicated-value) " ";
+  /* Note the weird space! Needed to preventy jumpy behavior */
+  content: attr(data-replicated-value) " ";
 
-    /* This is how textarea text behaves */
-    white-space: pre-wrap;
+  /* This is how textarea text behaves */
+  white-space: pre-wrap;
 
-    /* Hidden from view, clicks, and screen readers */
-    visibility: hidden;
+  /* Hidden from view, clicks, and screen readers */
+  visibility: hidden;
 }
 .grow-wrap > textarea {
-    /* You could leave this, but after a user resizes, then it ruins the auto sizing */
-    resize: none;
+  /* You could leave this, but after a user resizes, then it ruins the auto sizing */
+  resize: none;
 
-    /* Firefox shows scrollbar on growth, you can hide like this. */
-    overflow: hidden;
+  /* Firefox shows scrollbar on growth, you can hide like this. */
+  overflow: hidden;
 }
 .grow-wrap > textarea,
 .grow-wrap::after {
-    /* Identical styling required!! */
-    font: inherit;
+  /* Identical styling required!! */
+  font: inherit;
 
-    /* Place on top of each other */
-    grid-area: 1 / 1 / 2 / 2;
+  /* Place on top of each other */
+  grid-area: 1 / 1 / 2 / 2;
 }
 
 /* Base styling */
 @layer base {
-    body {
-        @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
-        font-family: Space Mono;
-    }
-    button {
-        @apply rounded-xl;
-    }
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    font-family: Space Mono;
+  }
+  button {
+    @apply rounded-xl;
+  }
 
-    input {
-        @apply px-4 py-2;
-    }
+  input {
+    @apply px-4 py-2;
+  }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
-        font-family:
-            Share Tech Mono,
-            monospace;
-    }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: Share Tech Mono, monospace;
+  }
 }
 
 .ticket {
-    font-family: F25_Bank_Printer, monospace;
-    @apply bg-white dark:bg-gray-800 p-8 relative overflow-hidden;
-    position: relative;
-    /* Angled corners */
-    clip-path: polygon(
-        20px 0,
-        /* Top left corner */ calc(100% - 20px) 0,
-        /* Top right corner */ 100% 20px,
-        /* Top right */ 100% calc(100% - 20px),
-        /* Bottom right */ calc(100% - 20px) 100%,
-        /* Bottom right corner */ 20px 100%,
-        /* Bottom left corner */ 0 calc(100% - 20px),
-        /* Bottom left */ 0 20px /* Back to top left */
-    );
+  font-family: F25_Bank_Printer, monospace;
+  @apply bg-white dark:bg-gray-800 p-8 relative overflow-hidden;
+  position: relative;
+  /* Angled corners */
+  clip-path: polygon(
+    20px 0,
+    /* Top left corner */ calc(100% - 20px) 0,
+    /* Top right corner */ 100% 20px,
+    /* Top right */ 100% calc(100% - 20px),
+    /* Bottom right */ calc(100% - 20px) 100%,
+    /* Bottom right corner */ 20px 100%,
+    /* Bottom left corner */ 0 calc(100% - 20px),
+    /* Bottom left */ 0 20px /* Back to top left */
+  );
 }
 
 /* Create side perforations using pseudo-elements */
 .ticket::before,
 .ticket::after {
-    content: "";
-    position: absolute;
-    top: 30px;
-    bottom: 30px;
-    width: 1px;
-    background-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        transparent 40%,
-        currentColor 40%,
-        currentColor 60%,
-        transparent 60%,
-        transparent 100%
-    );
-    background-size: 100% 20px;
-    background-repeat: repeat-y;
-    opacity: 0.2;
+  content: "";
+  position: absolute;
+  top: 30px;
+  bottom: 30px;
+  width: 1px;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 40%,
+    currentColor 40%,
+    currentColor 60%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 100% 20px;
+  background-repeat: repeat-y;
+  opacity: 0.2;
 }
 
 .ticket::before {
-    left: 8px;
+  left: 8px;
 }
 
 .ticket::after {
-    right: 8px;
+  right: 8px;
 }
 
 .dark .ticket {
-    background-image:
-        radial-gradient(
-            circle at 10px center,
-            rgb(17 24 39) 4px,
-            transparent 4px
-        ),
-        radial-gradient(
-            circle at calc(100% - 10px) center,
-            rgb(17 24 39) 4px,
-            transparent 4px
-        );
+  background-image:
+    radial-gradient(
+      circle at 10px center,
+      rgb(17 24 39) 4px,
+      transparent 4px
+    ),
+    radial-gradient(
+    circle at calc(100% - 10px) center,
+    rgb(17 24 39) 4px,
+    transparent 4px
+  );
 }
 
 /* Remove the previous background images and corner cuts */
 .ticket::before,
 .ticket::after {
-    display: none;
+  display: none;
 }
 
 .boarding-label {
-    @apply absolute top-2 right-2 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
-    transform: rotate(2deg);
+  @apply absolute top-2 right-2 bg-blue-100 dark:bg-blue-900 px-3 py-1
+    rounded-full text-xs font-bold uppercase tracking-wider;
+  transform: rotate(2deg);
 }
 
 .flight-info {
-    @apply flex justify-between items-center mt-4 pt-4 border-t border-dashed;
+  @apply flex justify-between items-center mt-4 pt-4 border-t border-dashed;
 }
 
 .passenger-info {
-    @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
+  @apply text-sm text-gray-600 dark:text-gray-400 mt-2;
 }
 
 /* Modern Airport Sign Styles */
 .airport-sign {
-    position: relative;
-    transform-origin: top;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 0.5rem;
-    backdrop-filter: blur(8px);
+  position: relative;
+  transform-origin: top;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(8px);
 }
 
 /* Dropdown panel styles */
 .airport-sign + div {
-    border-radius: 0.5rem;
-    backdrop-filter: blur(8px);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(8px);
 }
 
 /* Remove old texture styles */
 .airport-sign,
 .airport-sign + div {
-    background-blend-mode: overlay;
+  background-blend-mode: overlay;
 }
 
 @keyframes popin {
-  0% { opacity: 0; transform: scale(0.95); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .animate-popin {
-  animation: popin 0.25s cubic-bezier(0.4,0,0.2,1);
+  animation: popin 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @keyframes bounce-short {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 .animate-bounce-short {
   animation: bounce-short 0.5s;

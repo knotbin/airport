@@ -51,10 +51,10 @@ export default function Header() {
         setUser(
           userData
             ? {
-                did: userData.did,
-                handle: userData.handle,
-              }
-            : null
+              did: userData.did,
+              handle: userData.handle,
+            }
+            : null,
         );
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -117,44 +117,46 @@ export default function Header() {
 
             {/* Check-in (Login/Profile) */}
             <div className="relative">
-              {user?.did ? (
-                <div className="relative">
+              {user?.did
+                ? (
+                  <div className="relative">
+                    <Button
+                      color="amber"
+                      icon="/icons/account.svg"
+                      iconAlt="Check-in"
+                      label="CHECKED IN"
+                      onClick={() => setShowDropdown(!showDropdown)}
+                    />
+                    {showDropdown && (
+                      <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-slate-200 dark:border-slate-700">
+                        <div className="text-sm font-mono mb-2 pb-2 border-b border-slate-900/10">
+                          <div title={user.handle || "Anonymous"}>
+                            {truncateText(user.handle || "Anonymous", 20)}
+                          </div>
+                          <div className="text-xs opacity-75" title={user.did}>
+                            {truncateText(user.did, 25)}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="text-sm font-mono text-slate-900 hover:text-slate-700 w-full text-left transition-colors"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+                : (
                   <Button
+                    href="/login"
                     color="amber"
                     icon="/icons/account.svg"
                     iconAlt="Check-in"
-                    label="CHECKED IN"
-                    onClick={() => setShowDropdown(!showDropdown)}
+                    label="CHECK-IN"
                   />
-                  {showDropdown && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-lg p-4 border border-slate-200 dark:border-slate-700">
-                      <div className="text-sm font-mono mb-2 pb-2 border-b border-slate-900/10">
-                        <div title={user.handle || "Anonymous"}>
-                          {truncateText(user.handle || "Anonymous", 20)}
-                        </div>
-                        <div className="text-xs opacity-75" title={user.did}>
-                          {truncateText(user.did, 25)}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="text-sm font-mono text-slate-900 hover:text-slate-700 w-full text-left transition-colors"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Button
-                  href="/login"
-                  color="amber"
-                  icon="/icons/account.svg"
-                  iconAlt="Check-in"
-                  label="CHECK-IN"
-                />
-              )}
+                )}
             </div>
           </div>
         </div>

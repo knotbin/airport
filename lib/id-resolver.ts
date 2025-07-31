@@ -55,7 +55,7 @@ export function createBidirectionalResolver(resolver: IdResolver) {
     },
 
     async resolveHandleToDid(handle: string) {
-      return await resolver.handle.resolve(handle) as Did
+      return await resolver.handle.resolve(handle) as Did;
     },
 
     async resolveDidToPdsUrl(did: string): Promise<string | undefined> {
@@ -68,9 +68,9 @@ export function createBidirectionalResolver(resolver: IdResolver) {
           return didDoc.pds;
         } else {
           const forcedDidDoc = await resolver.did.resolveAtprotoData(
-            did, 
+            did,
             true,
-          )
+          );
           if (forcedDidDoc.pds) {
             return forcedDidDoc.pds;
           }

@@ -42,7 +42,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
       console.log("Using agent DID:", did);
@@ -61,7 +61,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
       console.log("Got DID document:", didDoc);
@@ -85,7 +85,7 @@ export const handler = define.handlers({
               "Content-Type": "application/json",
               ...Object.fromEntries(res.headers), // Include session cookie headers
             },
-          }
+          },
         );
       }
 
@@ -98,33 +98,31 @@ export const handler = define.handlers({
         {
           status: 404,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     } catch (error) {
       console.error("PLC verification error:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to verify rotation key";
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Failed to verify rotation key";
       console.log("Sending error response:", errorMessage);
 
       return new Response(
         JSON.stringify({
           success: false,
           message: errorMessage,
-          error:
-            error instanceof Error
-              ? {
-                  name: error.name,
-                  message: error.message,
-                  stack: error.stack,
-                }
-              : String(error),
+          error: error instanceof Error
+            ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+            : String(error),
         }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },

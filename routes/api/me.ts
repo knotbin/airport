@@ -8,7 +8,10 @@ export const handler = define.handlers({
     const res = new Response();
 
     try {
-      console.log("[/api/me] Request headers:", Object.fromEntries(req.headers.entries()));
+      console.log(
+        "[/api/me] Request headers:",
+        Object.fromEntries(req.headers.entries()),
+      );
 
       const agent = await getSessionAgent(req, res);
       if (!agent) {
@@ -17,8 +20,8 @@ export const handler = define.handlers({
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            "X-Response-Type": "null"
-          }
+            "X-Response-Type": "null",
+          },
         });
       }
 
@@ -28,15 +31,15 @@ export const handler = define.handlers({
 
       const responseData = {
         did: session.data.did,
-        handle
+        handle,
       };
 
       return new Response(JSON.stringify(responseData), {
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "X-Response-Type": "user"
-        }
+          "X-Response-Type": "user",
+        },
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -45,7 +48,7 @@ export const handler = define.handlers({
         stack: err instanceof Error ? err.stack : undefined,
         url: req.url,
         method: req.method,
-        headers: Object.fromEntries(req.headers.entries())
+        headers: Object.fromEntries(req.headers.entries()),
       });
 
       return new Response(JSON.stringify(null), {
@@ -53,8 +56,8 @@ export const handler = define.handlers({
         headers: {
           "Content-Type": "application/json",
           "X-Response-Type": "error",
-          "X-Error-Message": encodeURIComponent(message)
-        }
+          "X-Error-Message": encodeURIComponent(message),
+        },
       });
     }
   },

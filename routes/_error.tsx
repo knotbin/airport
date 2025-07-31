@@ -1,10 +1,10 @@
-import { PageProps, HttpError } from "fresh";
+import { HttpError, PageProps } from "fresh";
 import posthog from "posthog-js";
 
 export default function ErrorPage(props: PageProps) {
   const error = props.error; // Contains the thrown Error or HTTPError
   if (error instanceof HttpError) {
-    posthog.default.capture('error', {
+    posthog.default.capture("error", {
       error: error.message,
       status: error.status,
     });
@@ -32,8 +32,8 @@ export default function ErrorPage(props: PageProps) {
                     FLIGHT NOT FOUND
                   </p>
                   <p class="text-lg sm:text-xl text-slate-600 dark:text-white/70 max-w-2xl">
-                    We couldn't locate the destination you're looking for. Please
-                    check your flight number and try again.
+                    We couldn't locate the destination you're looking for.
+                    Please check your flight number and try again.
                   </p>
                   <div class="mt-8">
                     <a
@@ -48,7 +48,7 @@ export default function ErrorPage(props: PageProps) {
             </div>
           </div>
         </>
-      )
+      );
     }
   }
 

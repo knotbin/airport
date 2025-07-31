@@ -51,7 +51,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
       console.log("Using agent DID:", did);
@@ -70,7 +70,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
       console.log("Got DID document:", didDoc);
@@ -92,7 +92,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -124,31 +124,31 @@ export const handler = define.handlers({
             "Content-Type": "application/json",
             ...Object.fromEntries(res.headers), // Include session cookie headers
           },
-        }
+        },
       );
     } catch (error) {
       console.error("PLC update error:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to update your PLC";
+      const errorMessage = error instanceof Error
+        ? error.message
+        : "Failed to update your PLC";
       console.log("Sending error response:", errorMessage);
 
       return new Response(
         JSON.stringify({
           success: false,
           message: errorMessage,
-          error:
-            error instanceof Error
-              ? {
-                  name: error.name,
-                  message: error.message,
-                  stack: error.stack,
-                }
-              : String(error),
+          error: error instanceof Error
+            ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+            : String(error),
         }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },

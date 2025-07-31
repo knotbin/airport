@@ -21,7 +21,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -35,7 +35,7 @@ export const handler = define.handlers({
           {
             status: 401,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -49,7 +49,7 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
@@ -70,12 +70,13 @@ export const handler = define.handlers({
             "Content-Type": "application/json",
             ...Object.fromEntries(res.headers), // Include session cookie headers
           },
-        }
+        },
       );
     } catch (error) {
       console.error("PLC update completion error:", error);
-      const message =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const message = error instanceof Error
+        ? error.message
+        : "Unknown error occurred";
 
       return new Response(
         JSON.stringify({
@@ -85,7 +86,7 @@ export const handler = define.handlers({
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },

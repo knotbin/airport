@@ -34,10 +34,10 @@ export default function Ticket() {
         setUser(
           userData
             ? {
-                did: userData.did,
-                handle: userData.handle,
-              }
-            : null
+              did: userData.did,
+              handle: userData.handle,
+            }
+            : null,
         );
       } catch (error) {
         console.error("Failed to fetch user:", error);

@@ -13,8 +13,8 @@ export default function LoginButton() {
     checkMobile();
 
     // Listen for resize events
-    globalThis.addEventListener('resize', checkMobile);
-    return () => globalThis.removeEventListener('resize', checkMobile);
+    globalThis.addEventListener("resize", checkMobile);
+    return () => globalThis.removeEventListener("resize", checkMobile);
   }, []);
 
   return (
@@ -23,7 +23,9 @@ export default function LoginButton() {
         href={isMobile ? undefined : "/login"}
         color="blue"
         label={isMobile ? "MOBILE NOT SUPPORTED" : "GET STARTED"}
-        className={isMobile ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-pointer"}
+        className={isMobile
+          ? "opacity-50 cursor-not-allowed"
+          : "opacity-100 cursor-pointer"}
         onClick={(e: MouseEvent) => {
           if (isMobile) {
             e.preventDefault();

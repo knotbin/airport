@@ -21,7 +21,7 @@ export const handler = define.handlers({
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
     } catch (error) {
       console.error("Error checking migration state:", error);
@@ -29,7 +29,8 @@ export const handler = define.handlers({
       return new Response(
         JSON.stringify({
           state: "issue",
-          message: "Unable to determine migration state. Please try again later.",
+          message:
+            "Unable to determine migration state. Please try again later.",
           allowMigration: false,
         }),
         {
@@ -37,7 +38,7 @@ export const handler = define.handlers({
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
     }
   },

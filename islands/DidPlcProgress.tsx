@@ -1,4 +1,4 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { Link } from "../components/Link.tsx";
 
 interface PlcUpdateStep {
@@ -97,7 +97,8 @@ const contentChunks = [
                 account and identity
               </li>
               <li>
-                Store securely, like a password (e.g. <strong>DO NOT</strong>{" "}
+                Store securely, like a password (e.g. <strong>DO NOT</strong>
+                {" "}
                 keep it in Notes or any easily accessible app on an unlocked
                 device).
               </li>
@@ -107,8 +108,9 @@ const contentChunks = [
         <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
           <p class="text-slate-700 dark:text-slate-300">
             💡 We recommend adding a custom rotation key but recommend{" "}
-            <strong class="italic">against</strong> having more than one custom
-            rotation key, as more than one increases risk.
+            <strong class="italic">against</strong>{" "}
+            having more than one custom rotation key, as more than one increases
+            risk.
           </p>
         </div>
       </>
@@ -167,12 +169,12 @@ export default function PlcUpdateProgress() {
   const updateStepStatus = (
     index: number,
     status: PlcUpdateStep["status"],
-    error?: string
+    error?: string,
   ) => {
     console.log(
       `Updating step ${index} to ${status}${
         error ? ` with error: ${error}` : ""
-      }`
+      }`,
     );
     setSteps((prevSteps) =>
       prevSteps.map((step, i) =>
@@ -213,7 +215,7 @@ export default function PlcUpdateProgress() {
           return "Requesting PLC Operation Token...";
         case 2:
           return step.name ===
-            "Enter the code sent to your email to complete PLC update"
+              "Enter the code sent to your email to complete PLC update"
             ? step.name
             : "Completing PLC Update...";
       }
@@ -264,7 +266,7 @@ export default function PlcUpdateProgress() {
       updateStepStatus(
         1,
         "error",
-        "Please ensure you have the correct key loaded"
+        "Please ensure you have the correct key loaded",
       );
       return;
     }
@@ -304,10 +306,10 @@ export default function PlcUpdateProgress() {
         prevSteps.map((step, i) =>
           i === 1
             ? {
-                ...step,
-                name: "Enter the code sent to your email to complete PLC update",
-                status: "in-progress",
-              }
+              ...step,
+              name: "Enter the code sent to your email to complete PLC update",
+              status: "in-progress",
+            }
             : step
         )
       );
@@ -316,7 +318,7 @@ export default function PlcUpdateProgress() {
       updateStepStatus(
         1,
         "error",
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
   };
@@ -404,8 +406,8 @@ export default function PlcUpdateProgress() {
       }
 
       if (!verifyRes.ok || !verifyData.success) {
-        const errorMessage =
-          verifyData.message || "Failed to verify PLC update";
+        const errorMessage = verifyData.message ||
+          "Failed to verify PLC update";
         console.error("Verification failed:", errorMessage);
         throw new Error(errorMessage);
       }
@@ -418,7 +420,7 @@ export default function PlcUpdateProgress() {
       updateStepStatus(
         1,
         "error",
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
       updateStepStatus(2, "pending"); // Reset the final step
       setUpdateResult(error instanceof Error ? error.message : String(error));
@@ -527,7 +529,7 @@ export default function PlcUpdateProgress() {
       updateStepStatus(
         0,
         "error",
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
   };
@@ -640,7 +642,7 @@ export default function PlcUpdateProgress() {
       updateStepStatus(
         1,
         "error",
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       );
     }
   };
@@ -667,8 +669,7 @@ export default function PlcUpdateProgress() {
             <div class="flex justify-between items-center">
               <button
                 onClick={() =>
-                  setCurrentChunkIndex((prev) => Math.max(0, prev - 1))
-                }
+                  setCurrentChunkIndex((prev) => Math.max(0, prev - 1))}
                 class={`px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2 ${
                   currentChunkIndex === 0 ? "invisible" : ""
                 }`}
@@ -689,51 +690,52 @@ export default function PlcUpdateProgress() {
                 <span>Previous Gate</span>
               </button>
 
-              {currentChunkIndex === contentChunks.length - 1 ? (
-                <button
-                  onClick={handleStart}
-                  class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-mono rounded-md transition-colors duration-200 flex items-center space-x-2"
-                >
-                  <span>Begin Key Generation</span>
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {currentChunkIndex === contentChunks.length - 1
+                ? (
+                  <button
+                    onClick={handleStart}
+                    class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white font-mono rounded-md transition-colors duration-200 flex items-center space-x-2"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              ) : (
-                <button
-                  onClick={() =>
-                    setCurrentChunkIndex((prev) =>
-                      Math.min(contentChunks.length - 1, prev + 1)
-                    )
-                  }
-                  class="px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2"
-                >
-                  <span>Next Gate</span>
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    <span>Begin Key Generation</span>
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                )
+                : (
+                  <button
+                    onClick={() =>
+                      setCurrentChunkIndex((prev) =>
+                        Math.min(contentChunks.length - 1, prev + 1)
+                      )}
+                    class="px-4 py-2 font-mono text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-200 flex items-center space-x-2"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-              )}
+                    <span>Next Gate</span>
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                )}
             </div>
 
             {/* Progress Dots */}
@@ -853,101 +855,100 @@ export default function PlcUpdateProgress() {
               {index === 0 &&
                 step.status === "completed" &&
                 !hasDownloadedKey && (
-                  <div class="mt-4 space-y-4">
-                    <div class="bg-yellow-50 dark:bg-yellow-900/50 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                          <svg
-                            class="h-5 w-5 text-yellow-400"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                              clip-rule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <div class="ml-3">
-                          <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                            Critical Security Step
-                          </h3>
-                          <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                            <p class="mb-2">
-                              Your rotation key grants control over your
-                              identity:
-                            </p>
-                            <ul class="list-disc pl-5 space-y-2">
-                              <li>
-                                <strong>Store Securely:</strong> Use a password
-                                manager
-                              </li>
-                              <li>
-                                <strong>Keep Private:</strong> Never share with
-                                anyone
-                              </li>
-                              <li>
-                                <strong>Backup:</strong> Keep a secure backup
-                                copy
-                              </li>
-                              <li>
-                                <strong>Required:</strong> Needed for future DID
-                                modifications
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
+                <div class="mt-4 space-y-4">
+                  <div class="bg-yellow-50 dark:bg-yellow-900/50 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <div class="flex items-start">
+                      <div class="flex-shrink-0">
+                        <svg
+                          class="h-5 w-5 text-yellow-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
                       </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                      <button
-                        onClick={handleDownload}
-                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
-                      >
-                        <svg
-                          class="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                          />
-                        </svg>
-                        <span>Download Key</span>
-                      </button>
-
-                      <div class="flex items-center text-sm text-red-600 dark:text-red-400">
-                        <svg
-                          class="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                          />
-                        </svg>
-                        Download required to proceed
+                      <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                          Critical Security Step
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                          <p class="mb-2">
+                            Your rotation key grants control over your identity:
+                          </p>
+                          <ul class="list-disc pl-5 space-y-2">
+                            <li>
+                              <strong>Store Securely:</strong>{" "}
+                              Use a password manager
+                            </li>
+                            <li>
+                              <strong>Keep Private:</strong>{" "}
+                              Never share with anyone
+                            </li>
+                            <li>
+                              <strong>Backup:</strong> Keep a secure backup copy
+                            </li>
+                            <li>
+                              <strong>Required:</strong>{" "}
+                              Needed for future DID modifications
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
+
+                  <div class="flex items-center justify-between">
+                    <button
+                      onClick={handleDownload}
+                      class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                      <span>Download Key</span>
+                    </button>
+
+                    <div class="flex items-center text-sm text-red-600 dark:text-red-400">
+                      <svg
+                        class="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                      </svg>
+                      Download required to proceed
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Email Code Input */}
               {index === 1 &&
                 (step.status === "in-progress" ||
                   step.status === "verifying") &&
                 step.name ===
-                  "Enter the code sent to your email to complete PLC update" && (
+                  "Enter the code sent to your email to complete PLC update" &&
+                (
                   <div class="mt-4 space-y-4">
                     <div class="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg">
                       <p class="text-sm text-blue-800 dark:text-blue-200 mb-3">
@@ -960,8 +961,7 @@ export default function PlcUpdateProgress() {
                             type="text"
                             value={emailToken}
                             onChange={(e) =>
-                              setEmailToken(e.currentTarget.value)
-                            }
+                              setEmailToken(e.currentTarget.value)}
                             placeholder="Enter verification code"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
                           />

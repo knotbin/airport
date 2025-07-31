@@ -1,4 +1,3 @@
-
 import { Agent } from "@atproto/api";
 import { getSessionAgent } from "../../../lib/sessions.ts";
 import { define } from "../../../utils.ts";
@@ -21,5 +20,5 @@ export const handler = define.handlers({
     }
     const result = await agent.com.atproto.server.describeServer();
     return Response.json(result);
-  }
+  },
 });
