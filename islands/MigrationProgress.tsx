@@ -74,7 +74,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         i === index
           ? { ...step, status, error, isVerificationError }
           : i > index
-          ? { ...step, status: "pending", error: undefined, isVerificationError: undefined }
+          ? {
+            ...step,
+            status: "pending",
+            error: undefined,
+            isVerificationError: undefined,
+          }
           : step
       )
     );
@@ -790,7 +795,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                       <button
                         type="button"
                         onClick={() => retryVerification(index)}
-                        class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors duration-200"
+                        class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors duration-200 dark:bg-blue-500 dark:hover:bg-blue-400"
                       >
                         Retry Verification
                       </button>
@@ -798,7 +803,8 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                         <button
                           type="button"
                           onClick={() => continueAnyway(index)}
-                          class="px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors duration-200"
+                          class="px-3 py-1 text-xs bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 rounded transition-colors duration-200
+                                 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                           Continue Anyway
                         </button>
