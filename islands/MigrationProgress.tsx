@@ -247,8 +247,8 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           return;
         }
 
-        // If verification succeeds, continue to data migration
-        await startDataMigration();
+        // verifyStep will handle continuing to the next step via continueToNextStep
+        // No need to call startDataMigration here
       } catch (error) {
         updateStepStatus(
           0,
@@ -298,16 +298,18 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         throw new Error("Invalid response from server");
       }
 
+      // Verify the identity migration succeeded
       updateStepStatus(2, "verifying");
-      const verified = await verifyStep(2);
+      const verified = await verifyStep(2, true); // Pass true to allow verification for manual submission
       if (!verified) {
         console.log(
-          "Identity migration: Verification failed, waiting for user action",
+          "Identity migration: Verification failed after token submission",
         );
         return;
       }
-
-      // If verification succeeds, continue to finalization
+      
+      // If verification succeeds, mark as completed and continue
+      updateStepStatus(2, "completed");
       await startFinalization();
     } catch (error) {
       console.error("Identity migration error:", error);
@@ -396,8 +398,15 @@ export default function MigrationProgress(props: MigrationProgressProps) {
   };
 
   // Helper to verify a step after completion
-  const verifyStep = async (stepNum: number) => {
+  const verifyStep = async (stepNum: number, isManualSubmission: boolean = false) => {
     console.log(`Verification: Starting step ${stepNum + 1}`);
+    
+    // Skip automatic verification for step 2 (identity migration) unless it's after manual token submission
+    if (stepNum === 2 && !isManualSubmission) {
+      console.log(`Verification: Skipping automatic verification for identity migration step`);
+      return false;
+    }
+    
     updateStepStatus(stepNum, "verifying");
     try {
       console.log(`Verification: Fetching status for step ${stepNum + 1}`);
@@ -481,7 +490,9 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   const retryVerification = async (stepNum: number) => {
     console.log(`Retrying verification for step ${stepNum + 1}`);
-    await verifyStep(stepNum);
+    // For identity migration step, pass true if it's after manual submission
+    const isManualSubmission = stepNum === 2 && steps[2].name === "Enter the token sent to your email to complete identity migration";
+    await verifyStep(stepNum, isManualSubmission);
   };
 
   const continueAnyway = (stepNum: number) => {
@@ -601,8 +612,8 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         return;
       }
 
-      // If verification succeeds, continue to next step
-      await startIdentityMigration();
+      // verifyStep will handle continuing to the next step via continueToNextStep
+      // No need to call startIdentityMigration here
     } catch (error) {
       console.error("Data migration: Error caught:", error);
       updateStepStatus(
@@ -616,6 +627,12 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   const startIdentityMigration = async () => {
     // Step 3: Request Identity Migration
+    // Check if already in progress to prevent duplicate calls
+    if (steps[2].status === "in-progress" || steps[2].status === "completed") {
+      console.log("Identity migration already in progress or completed, skipping duplicate call");
+      return;
+    }
+    
     updateStepStatus(2, "in-progress");
     console.log("Requesting identity migration...");
 
@@ -663,7 +680,9 @@ export default function MigrationProgress(props: MigrationProgressProps) {
               : step
           )
         );
-        // Don't continue with migration - wait for token input
+        // Don't verify or continue - wait for token input
+        // Skip automatic verification for identity migration step
+        console.log("Identity migration: Waiting for user token input, skipping auto-verification");
         return;
       } catch (e) {
         console.error("Failed to parse identity request response:", e);
