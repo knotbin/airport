@@ -298,8 +298,18 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         throw new Error("Invalid response from server");
       }
 
+      // Verify the identity migration succeeded
+      updateStepStatus(2, "verifying");
+      const verified = await verifyStep(2, true); // Pass true to allow verification for manual submission
+      if (!verified) {
+        console.log(
+          "Identity migration: Verification failed after token submission",
+        );
+        return;
+      }
+      
+      // If verification succeeds, mark as completed and continue
       updateStepStatus(2, "completed");
-      // Mark as completed and continue to finalization
       await startFinalization();
     } catch (error) {
       console.error("Identity migration error:", error);
@@ -388,12 +398,11 @@ export default function MigrationProgress(props: MigrationProgressProps) {
   };
 
   // Helper to verify a step after completion
-  const verifyStep = async (stepNum: number) => {
+  const verifyStep = async (stepNum: number, isManualSubmission: boolean = false) => {
     console.log(`Verification: Starting step ${stepNum + 1}`);
     
-    // Skip automatic verification for step 2 (identity migration)
-    // This step requires manual token submission
-    if (stepNum === 2) {
+    // Skip automatic verification for step 2 (identity migration) unless it's after manual token submission
+    if (stepNum === 2 && !isManualSubmission) {
       console.log(`Verification: Skipping automatic verification for identity migration step`);
       return false;
     }
@@ -481,7 +490,9 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   const retryVerification = async (stepNum: number) => {
     console.log(`Retrying verification for step ${stepNum + 1}`);
-    await verifyStep(stepNum);
+    // For identity migration step, pass true if it's after manual submission
+    const isManualSubmission = stepNum === 2 && steps[2].name === "Enter the token sent to your email to complete identity migration";
+    await verifyStep(stepNum, isManualSubmission);
   };
 
   const continueAnyway = (stepNum: number) => {
