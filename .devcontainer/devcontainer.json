@@ -1,0 +1,11 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	"features": {
+		"ghcr.io/devcontainers/features/nix:1": {},
+		"ghcr.io/devcontainers-extra/features/direnv:1": {},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "lts"
+		}
+	},
+	"postCreateCommand": "mkdir -p ~/.config/nix && echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf && direnv hook bash >> ~/.bashrc"
+}
