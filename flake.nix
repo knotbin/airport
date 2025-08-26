@@ -25,7 +25,6 @@
         drv = packages.default;
       };
 
-
       packages.default = pkgs.deno2nix.mkExecutable {
         pname = "template";
         version = "0.1.0";
@@ -72,6 +71,15 @@
           yarn-berry
           git-lfs
         ];
+
+        shellHook = ''
+          if [ ! -f .env ]; then
+            echo "COOKIE_SECRET=$(openssl rand -hex 32)" > .env
+            echo ".env file created with COOKIE_SECRET"
+          else
+            echo ".env file already exists"
+          fi
+        '';
       };
     });
 }
