@@ -14,15 +14,17 @@ export const createClient = (db: Deno.Kv) => {
   const publicUrl = Deno.env.get("PUBLIC_URL");
   const url = publicUrl || `http://127.0.0.1:8000`;
   const enc = encodeURIComponent;
+  const clientId = publicUrl
+    ? `${url}/oauth-client-metadata.json`
+    : `http://localhost?redirect_uri=${
+      enc(`${url}/api/oauth/callback`)
+    }&scope=${enc("atproto transition:generic transition:chat.bsky")}`;
+  console.log(`ClientId: ${clientId}`);
 
   return new AtprotoOAuthClient({
     clientMetadata: {
       client_name: "Statusphere React App",
-      client_id: publicUrl
-        ? `${url}/oauth-client-metadata.json`
-        : `http://localhost?redirect_uri=${
-          enc(`${url}/api/oauth/callback`)
-        }&scope=${enc("atproto transition:generic transition:chat.bsky")}`,
+      client_id: clientId,
       client_uri: url,
       redirect_uris: [`${url}/api/oauth/callback`],
       scope: "atproto transition:generic transition:chat.bsky",
