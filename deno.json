@@ -15,7 +15,8 @@
     }
   },
   "exclude": [
-    "**/_fresh/*"
+    "**/_fresh/*",
+    "**/tests/**"
   ],
   "imports": {
     "@atproto/api": "npm:@atproto/api@^0.15.6",
