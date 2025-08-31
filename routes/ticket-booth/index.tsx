@@ -1,11 +1,6 @@
-import { PageProps } from "fresh";
-import MigrationSetup from "../../islands/MigrationSetup.tsx";
 import DidPlcProgress from "../../islands/DidPlcProgress.tsx";
 
-export default function TicketBooth(props: PageProps) {
-  const service = props.url.searchParams.get("service");
-  const handle = props.url.searchParams.get("handle");
-
+export default function TicketBooth() {
   return (
     <div class=" bg-gray-50 dark:bg-gray-900 p-4">
       <div class="max-w-2xl mx-auto">

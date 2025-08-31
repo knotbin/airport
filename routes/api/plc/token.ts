@@ -1,6 +1,4 @@
 import { getSessionAgent } from "../../../lib/sessions.ts";
-import { setCredentialSession } from "../../../lib/cred/sessions.ts";
-import { Agent } from "@atproto/api";
 import { define } from "../../../utils.ts";
 
 /**

@@ -1,4 +1,3 @@
-import { Agent } from "@atproto/api";
 import { getSessionAgent } from "../../../../lib/sessions.ts";
 import { define } from "../../../../utils.ts";
 

@@ -3,6 +3,11 @@ import { checkDidsMatch } from "../../../../lib/check-dids.ts";
 import { define } from "../../../../utils.ts";
 import { assertMigrationAllowed } from "../../../../lib/migration-state.ts";
 
+// Simple in-memory cache for rate limiting
+// In a production environment, you might want to use Redis or another shared cache
+const requestCache = new Map<string, number>();
+const COOLDOWN_PERIOD_MS = 60000; // 1 minute cooldown
+
 /**
  * Handle identity migration request
  * Sends a PLC operation signature request to the old account's email
@@ -70,11 +75,58 @@ export const handler = define.handlers({
         );
       }
 
+      // Check if we've recently sent a request for this DID
+      const did = oldAgent.did || "";
+      const now = Date.now();
+      const lastRequestTime = requestCache.get(did);
+
+      if (lastRequestTime && now - lastRequestTime < COOLDOWN_PERIOD_MS) {
+        console.log(
+          `Rate limiting PLC request for ${did}, last request was ${
+            (now - lastRequestTime) / 1000
+          } seconds ago`,
+        );
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message:
+              "A PLC code was already sent to your email. Please check your inbox and spam folder.",
+            rateLimited: true,
+            cooldownRemaining: Math.ceil(
+              (COOLDOWN_PERIOD_MS - (now - lastRequestTime)) / 1000,
+            ),
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              ...Object.fromEntries(res.headers),
+            },
+          },
+        );
+      }
+
       // Request the signature
       console.log("Requesting PLC operation signature...");
       try {
         await oldAgent.com.atproto.identity.requestPlcOperationSignature();
         console.log("Successfully requested PLC operation signature");
+
+        // Store the request time
+        if (did) {
+          requestCache.set(did, now);
+
+          // Optionally, set up cache cleanup for DIDs that haven't been used in a while
+          setTimeout(() => {
+            if (
+              did &&
+              requestCache.has(did) &&
+              Date.now() - requestCache.get(did)! > COOLDOWN_PERIOD_MS * 2
+            ) {
+              requestCache.delete(did);
+            }
+          }, COOLDOWN_PERIOD_MS * 2);
+        }
       } catch (error) {
         console.error("Error requesting PLC operation signature:", {
           name: error instanceof Error ? error.name : "Unknown",
