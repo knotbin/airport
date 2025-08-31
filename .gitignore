@@ -11,3 +11,6 @@
 _fresh/
 # npm dependencies
 node_modules/
+
+# direnv
+.direnv
