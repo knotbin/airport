@@ -1,37 +1,12 @@
 import { useEffect, useState } from "preact/hooks";
-
-/**
- * The migration state info.
- * @type {MigrationStateInfo}
- */
-interface MigrationStateInfo {
-  state: "up" | "issue" | "maintenance";
-  message: string;
-  allowMigration: boolean;
-}
-
-/**
- * The migration progress props.
- * @type {MigrationProgressProps}
- */
-interface MigrationProgressProps {
-  service: string;
-  handle: string;
-  email: string;
-  password: string;
-  invite?: string;
-}
-
-/**
- * The migration step.
- * @type {MigrationStep}
- */
-interface MigrationStep {
-  name: string;
-  status: "pending" | "in-progress" | "verifying" | "completed" | "error";
-  error?: string;
-  isVerificationError?: boolean;
-}
+import {
+  MigrationClient,
+  MigrationError,
+  MigrationErrorType,
+  MigrationProgressProps,
+  MigrationStateInfo,
+  MigrationStep
+} from "../lib/client.ts";
 
 /**
  * The migration progress component.
@@ -105,50 +80,98 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     return true;
   };
 
-  useEffect(() => {
-    console.log("Starting migration with props:", {
-      service: props.service,
-      handle: props.handle,
-      email: props.email,
-      hasPassword: !!props.password,
-      invite: props.invite,
-    });
-
-    // Check migration state first
-    const checkMigrationState = async () => {
-      try {
-        const migrationResponse = await fetch("/api/migration-state");
-        if (migrationResponse.ok) {
-          const migrationData = await migrationResponse.json();
-          setMigrationState(migrationData);
-
-          if (!migrationData.allowMigration) {
-            updateStepStatus(0, "error", migrationData.message);
-            return;
-          }
-        }
-      } catch (error) {
-        console.error("Failed to check migration state:", error);
-        updateStepStatus(0, "error", "Unable to verify migration availability");
-        return;
+    const client = new MigrationClient(
+    {
+      updateStepStatus,
+    nextStepHook(stepNum) {
+      if(stepNum == 2){
+        // Update step name to prompt for token
+        setSteps((prevSteps) =>
+          prevSteps.map((step, i) =>
+            i === 2
+              ? {
+                ...step,
+                name:
+                  "Enter the token sent to your email to complete identity migration",
+              }
+              : step
+          )
+        );
       }
+    },
+    setRetryAttempts,
+    setShowContinueAnyway,
+    }
+  );
 
+  const continueAnyway = (stepNum: number) => {
+    console.log(`Continuing anyway for step ${stepNum + 1}`);
+    updateStepStatus(stepNum, "completed");
+    setShowContinueAnyway((prev) => ({ ...prev, [stepNum]: false }));
+
+    // Continue with next step if not the last one
+    if (stepNum < 3) {
+      client.continueToNextStep(stepNum + 1);
+    }
+  };
+
+  const handleIdentityMigration = async () => {
+    if (!token.trim()) {
+      updateStepStatus(2, "error", "Please enter a valid token");
+      return;
+    }
+
+    try {
+      await client.handleIdentityMigration(token);
+      // If successful, continue to next step
+      client.continueToNextStep(3);
+    } catch (error) {
+      console.error("Identity migration error:", error);
+      updateStepStatus(
+        2,
+        "error",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
       if (!validateParams()) {
         console.log("Parameter validation failed");
         return;
       }
 
-      startMigration().catch((error) => {
+      try {
+        await client.checkState();
+      } catch (error) {
+        console.error("Failed to check migration state:", error);
+        if (
+          error instanceof MigrationError &&
+          error.type === MigrationErrorType.NOT_ALLOWED
+        ) {
+          updateStepStatus(0, "error", error.message);
+        } else {
+          updateStepStatus(
+            0,
+            "error",
+            "Unable to verify migration availability",
+          );
+        }
+        return;
+      }
+
+      try {
+        await client.startMigration(props);
+      } catch (error) {
         console.error("Unhandled migration error:", error);
         updateStepStatus(
           0,
           "error",
           error.message || "Unknown error occurred",
         );
-      });
-    };
-
-    checkMigrationState();
+      }
+    })();
   }, []);
 
   const getStepDisplayName = (step: MigrationStep, index: number) => {
@@ -195,130 +218,6 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     }
 
     return step.name;
-  };
-
-  const startMigration = async () => {
-    try {
-      // Step 1: Create Account
-      updateStepStatus(0, "in-progress");
-      console.log("Starting account creation...");
-
-      try {
-        const createRes = await fetch("/api/migrate/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service: props.service,
-            handle: props.handle,
-            password: props.password,
-            email: props.email,
-            ...(props.invite ? { invite: props.invite } : {}),
-          }),
-        });
-
-        console.log("Create account response status:", createRes.status);
-        const responseText = await createRes.text();
-        console.log("Create account response:", responseText);
-
-        if (!createRes.ok) {
-          try {
-            const json = JSON.parse(responseText);
-            throw new Error(json.message || "Failed to create account");
-          } catch {
-            throw new Error(responseText || "Failed to create account");
-          }
-        }
-
-        try {
-          const jsonData = JSON.parse(responseText);
-          if (!jsonData.success) {
-            throw new Error(jsonData.message || "Account creation failed");
-          }
-        } catch (e) {
-          console.log("Response is not JSON or lacks success field:", e);
-        }
-
-        updateStepStatus(0, "verifying");
-        const verified = await verifyStep(0);
-        if (!verified) {
-          console.log(
-            "Account creation: Verification failed, waiting for user action",
-          );
-          return;
-        }
-
-        // verifyStep will handle continuing to the next step via continueToNextStep
-        // No need to call startDataMigration here
-      } catch (error) {
-        updateStepStatus(
-          0,
-          "error",
-          error instanceof Error ? error.message : String(error),
-        );
-        throw error;
-      }
-    } catch (error) {
-      console.error("Migration error in try/catch:", error);
-    }
-  };
-
-  const handleIdentityMigration = async () => {
-    if (!token) return;
-
-    try {
-      const identityRes = await fetch(
-        `/api/migrate/identity/sign?token=${encodeURIComponent(token)}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-
-      const identityData = await identityRes.text();
-      if (!identityRes.ok) {
-        try {
-          const json = JSON.parse(identityData);
-          throw new Error(
-            json.message || "Failed to complete identity migration",
-          );
-        } catch {
-          throw new Error(
-            identityData || "Failed to complete identity migration",
-          );
-        }
-      }
-
-      let data;
-      try {
-        data = JSON.parse(identityData);
-        if (!data.success) {
-          throw new Error(data.message || "Identity migration failed");
-        }
-      } catch {
-        throw new Error("Invalid response from server");
-      }
-
-      // Verify the identity migration succeeded
-      updateStepStatus(2, "verifying");
-      const verified = await verifyStep(2, true); // Pass true to allow verification for manual submission
-      if (!verified) {
-        console.log(
-          "Identity migration: Verification failed after token submission",
-        );
-        return;
-      }
-      
-      // If verification succeeds, mark as completed and continue
-      updateStepStatus(2, "completed");
-      await startFinalization();
-    } catch (error) {
-      console.error("Identity migration error:", error);
-      updateStepStatus(
-        2,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-    }
   };
 
   const getStepIcon = (status: MigrationStep["status"]) => {
@@ -397,355 +296,6 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     }
   };
 
-  // Helper to verify a step after completion
-  const verifyStep = async (stepNum: number, isManualSubmission: boolean = false) => {
-    console.log(`Verification: Starting step ${stepNum + 1}`);
-    
-    // Skip automatic verification for step 2 (identity migration) unless it's after manual token submission
-    if (stepNum === 2 && !isManualSubmission) {
-      console.log(`Verification: Skipping automatic verification for identity migration step`);
-      return false;
-    }
-    
-    updateStepStatus(stepNum, "verifying");
-    try {
-      console.log(`Verification: Fetching status for step ${stepNum + 1}`);
-      const res = await fetch(`/api/migrate/status?step=${stepNum + 1}`);
-      console.log(`Verification: Status response status:`, res.status);
-      const data = await res.json();
-      console.log(`Verification: Status data for step ${stepNum + 1}:`, data);
-
-      if (data.ready) {
-        console.log(`Verification: Step ${stepNum + 1} is ready`);
-        updateStepStatus(stepNum, "completed");
-        // Reset retry state on success
-        setRetryAttempts((prev) => ({ ...prev, [stepNum]: 0 }));
-        setShowContinueAnyway((prev) => ({ ...prev, [stepNum]: false }));
-
-        // Continue to next step if not the last one
-        if (stepNum < 3) {
-          setTimeout(() => continueToNextStep(stepNum + 1), 500);
-        }
-
-        return true;
-      } else {
-        console.log(
-          `Verification: Step ${stepNum + 1} is not ready:`,
-          data.reason,
-        );
-        const statusDetails = {
-          activated: data.activated,
-          validDid: data.validDid,
-          repoCommit: data.repoCommit,
-          repoRev: data.repoRev,
-          repoBlocks: data.repoBlocks,
-          expectedRecords: data.expectedRecords,
-          indexedRecords: data.indexedRecords,
-          privateStateValues: data.privateStateValues,
-          expectedBlobs: data.expectedBlobs,
-          importedBlobs: data.importedBlobs,
-        };
-        console.log(
-          `Verification: Step ${stepNum + 1} status details:`,
-          statusDetails,
-        );
-        const errorMessage = `${
-          data.reason || "Verification failed"
-        }\nStatus details: ${JSON.stringify(statusDetails, null, 2)}`;
-
-        // Track retry attempts
-        const currentAttempts = retryAttempts[stepNum] || 0;
-        setRetryAttempts((prev) => ({
-          ...prev,
-          [stepNum]: currentAttempts + 1,
-        }));
-
-        // Show continue anyway option if this is the second failure
-        if (currentAttempts >= 1) {
-          setShowContinueAnyway((prev) => ({ ...prev, [stepNum]: true }));
-        }
-
-        updateStepStatus(stepNum, "error", errorMessage, true);
-        return false;
-      }
-    } catch (e) {
-      console.error(`Verification: Error in step ${stepNum + 1}:`, e);
-      const currentAttempts = retryAttempts[stepNum] || 0;
-      setRetryAttempts((prev) => ({ ...prev, [stepNum]: currentAttempts + 1 }));
-
-      // Show continue anyway option if this is the second failure
-      if (currentAttempts >= 1) {
-        setShowContinueAnyway((prev) => ({ ...prev, [stepNum]: true }));
-      }
-
-      updateStepStatus(
-        stepNum,
-        "error",
-        e instanceof Error ? e.message : String(e),
-        true,
-      );
-      return false;
-    }
-  };
-
-  const retryVerification = async (stepNum: number) => {
-    console.log(`Retrying verification for step ${stepNum + 1}`);
-    // For identity migration step, pass true if it's after manual submission
-    const isManualSubmission = stepNum === 2 && steps[2].name === "Enter the token sent to your email to complete identity migration";
-    await verifyStep(stepNum, isManualSubmission);
-  };
-
-  const continueAnyway = (stepNum: number) => {
-    console.log(`Continuing anyway for step ${stepNum + 1}`);
-    updateStepStatus(stepNum, "completed");
-    setShowContinueAnyway((prev) => ({ ...prev, [stepNum]: false }));
-
-    // Continue with next step if not the last one
-    if (stepNum < 3) {
-      continueToNextStep(stepNum + 1);
-    }
-  };
-
-  const continueToNextStep = async (stepNum: number) => {
-    switch (stepNum) {
-      case 1:
-        // Continue to data migration
-        await startDataMigration();
-        break;
-      case 2:
-        // Continue to identity migration
-        await startIdentityMigration();
-        break;
-      case 3:
-        // Continue to finalization
-        await startFinalization();
-        break;
-    }
-  };
-
-  const startDataMigration = async () => {
-    // Step 2: Migrate Data
-    updateStepStatus(1, "in-progress");
-    console.log("Starting data migration...");
-
-    try {
-      // Step 2.1: Migrate Repo
-      console.log("Data migration: Starting repo migration");
-      const repoRes = await fetch("/api/migrate/data/repo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Repo migration: Response status:", repoRes.status);
-      const repoText = await repoRes.text();
-      console.log("Repo migration: Raw response:", repoText);
-
-      if (!repoRes.ok) {
-        try {
-          const json = JSON.parse(repoText);
-          console.error("Repo migration: Error response:", json);
-          throw new Error(json.message || "Failed to migrate repo");
-        } catch {
-          console.error("Repo migration: Non-JSON error response:", repoText);
-          throw new Error(repoText || "Failed to migrate repo");
-        }
-      }
-
-      // Step 2.2: Migrate Blobs
-      console.log("Data migration: Starting blob migration");
-      const blobsRes = await fetch("/api/migrate/data/blobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Blob migration: Response status:", blobsRes.status);
-      const blobsText = await blobsRes.text();
-      console.log("Blob migration: Raw response:", blobsText);
-
-      if (!blobsRes.ok) {
-        try {
-          const json = JSON.parse(blobsText);
-          console.error("Blob migration: Error response:", json);
-          throw new Error(json.message || "Failed to migrate blobs");
-        } catch {
-          console.error(
-            "Blob migration: Non-JSON error response:",
-            blobsText,
-          );
-          throw new Error(blobsText || "Failed to migrate blobs");
-        }
-      }
-
-      // Step 2.3: Migrate Preferences
-      console.log("Data migration: Starting preferences migration");
-      const prefsRes = await fetch("/api/migrate/data/prefs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Preferences migration: Response status:", prefsRes.status);
-      const prefsText = await prefsRes.text();
-      console.log("Preferences migration: Raw response:", prefsText);
-
-      if (!prefsRes.ok) {
-        try {
-          const json = JSON.parse(prefsText);
-          console.error("Preferences migration: Error response:", json);
-          throw new Error(json.message || "Failed to migrate preferences");
-        } catch {
-          console.error(
-            "Preferences migration: Non-JSON error response:",
-            prefsText,
-          );
-          throw new Error(prefsText || "Failed to migrate preferences");
-        }
-      }
-
-      console.log("Data migration: Starting verification");
-      updateStepStatus(1, "verifying");
-      const verified = await verifyStep(1);
-      console.log("Data migration: Verification result:", verified);
-      if (!verified) {
-        console.log(
-          "Data migration: Verification failed, waiting for user action",
-        );
-        return;
-      }
-
-      // verifyStep will handle continuing to the next step via continueToNextStep
-      // No need to call startIdentityMigration here
-    } catch (error) {
-      console.error("Data migration: Error caught:", error);
-      updateStepStatus(
-        1,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-      throw error;
-    }
-  };
-
-  const startIdentityMigration = async () => {
-    // Step 3: Request Identity Migration
-    // Check if already in progress to prevent duplicate calls
-    if (steps[2].status === "in-progress" || steps[2].status === "completed") {
-      console.log("Identity migration already in progress or completed, skipping duplicate call");
-      return;
-    }
-    
-    updateStepStatus(2, "in-progress");
-    console.log("Requesting identity migration...");
-
-    try {
-      const requestRes = await fetch("/api/migrate/identity/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      console.log("Identity request response status:", requestRes.status);
-      const requestText = await requestRes.text();
-      console.log("Identity request response:", requestText);
-
-      if (!requestRes.ok) {
-        try {
-          const json = JSON.parse(requestText);
-          throw new Error(
-            json.message || "Failed to request identity migration",
-          );
-        } catch {
-          throw new Error(
-            requestText || "Failed to request identity migration",
-          );
-        }
-      }
-
-      try {
-        const jsonData = JSON.parse(requestText);
-        if (!jsonData.success) {
-          throw new Error(
-            jsonData.message || "Identity migration request failed",
-          );
-        }
-        console.log("Identity migration requested successfully");
-
-        // Update step name to prompt for token
-        setSteps((prevSteps) =>
-          prevSteps.map((step, i) =>
-            i === 2
-              ? {
-                ...step,
-                name:
-                  "Enter the token sent to your email to complete identity migration",
-              }
-              : step
-          )
-        );
-        // Don't verify or continue - wait for token input
-        // Skip automatic verification for identity migration step
-        console.log("Identity migration: Waiting for user token input, skipping auto-verification");
-        return;
-      } catch (e) {
-        console.error("Failed to parse identity request response:", e);
-        throw new Error(
-          "Invalid response from server during identity request",
-        );
-      }
-    } catch (error) {
-      updateStepStatus(
-        2,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-      throw error;
-    }
-  };
-
-  const startFinalization = async () => {
-    // Step 4: Finalize Migration
-    updateStepStatus(3, "in-progress");
-    try {
-      const finalizeRes = await fetch("/api/migrate/finalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const finalizeData = await finalizeRes.text();
-      if (!finalizeRes.ok) {
-        try {
-          const json = JSON.parse(finalizeData);
-          throw new Error(json.message || "Failed to finalize migration");
-        } catch {
-          throw new Error(finalizeData || "Failed to finalize migration");
-        }
-      }
-
-      try {
-        const jsonData = JSON.parse(finalizeData);
-        if (!jsonData.success) {
-          throw new Error(jsonData.message || "Finalization failed");
-        }
-      } catch {
-        throw new Error("Invalid response from server during finalization");
-      }
-
-      updateStepStatus(3, "verifying");
-      const verified = await verifyStep(3);
-      if (!verified) {
-        console.log(
-          "Finalization: Verification failed, waiting for user action",
-        );
-        return;
-      }
-    } catch (error) {
-      updateStepStatus(
-        3,
-        "error",
-        error instanceof Error ? error.message : String(error),
-      );
-      throw error;
-    }
-  };
-
   return (
     <div class="space-y-8">
       {/* Migration state alert */}
@@ -813,7 +363,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
                     <div class="flex space-x-2 mt-2">
                       <button
                         type="button"
-                        onClick={() => retryVerification(index)}
+                        onClick={() => client.retryVerification(index, steps)}
                         class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors duration-200 dark:bg-blue-500 dark:hover:bg-blue-400"
                       >
                         Retry Verification
