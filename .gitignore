@@ -14,3 +14,5 @@ node_modules/
 
 # direnv
 .direnv
+
+tests/nohup.out
