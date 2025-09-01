@@ -1,0 +1,12 @@
+Task not found: dev
+[0m[32mAvailable tasks:[0m
+- [0m[36mtest[0m [0m[3m[38;5;8m(package.json)[0m
+    jest --bail --verbose --no-coverage --detectOpenHandles ./e2e
+- [0m[36mtest:watch[0m [0m[3m[38;5;8m(package.json)[0m
+    jest --watch
+- [0m[36mtest:verbose[0m [0m[3m[38;5;8m(package.json)[0m
+    jest --verbose --detectOpenHandles --no-coverage
+- [0m[36mdevenv[0m [0m[3m[38;5;8m(package.json)[0m
+    ts-node tools/devenv.ts
+- [0m[36mdevenv:test[0m [0m[3m[38;5;8m(package.json)[0m
+    jest ./tools

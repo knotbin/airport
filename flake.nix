@@ -5,11 +5,42 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }: {
+  outputs = { self, nixpkgs }: let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs { inherit system; };
+  in {
+    devShells.${system}.default = pkgs.mkShell {
+      buildInputs = with pkgs; [
+        deno
+        just
+        gcc
 
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+        # Sharp dependencies
+        vips
+        pkg-config
 
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+        # SQLite dependencies
+        sqlite
+        # Build tools for native modules
+        nodePackages.node-gyp
+        gnumake
 
+        # Standard C++ library and other common dependencies
+        stdenv.cc.cc.lib
+
+        nodejs
+        yarn
+        git-lfs
+      ];
+
+      shellHook = ''
+        if [ ! -f .env ]; then
+          echo "COOKIE_SECRET=$(openssl rand -hex 32)" > .env
+          echo ".env file created with COOKIE_SECRET"
+        else
+          echo ".env file already exists"
+        fi
+      '';
+    };
   };
 }
