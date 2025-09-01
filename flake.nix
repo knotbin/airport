@@ -30,24 +30,9 @@
         version = "0.1.0";
 
         src = ./.;
-        lockfile = "./deno.lock";
-        config = "./deno.json";
-        entrypoint = "./dev.ts";
-        
-        buildInputs = with pkgs; [
-          vips
-          pkg-config
-          stdenv.cc.cc.lib
-          glib
-          cairo
-          pango
-          libjpeg
-          giflib
-          librsvg
-          python3
-          nodejs
-          yarn
-        ];
+        lockfile = "./lock.json";
+        config = "./deno.jsonc";
+        entrypoint = "./src/index.ts";
       };
 
       devShell = pkgs.mkShell {
@@ -74,7 +59,7 @@
           git-lfs
         ];
 
-        shellHook = ''
+                shellHook = ''
           if [ ! -f .env ]; then
             echo "COOKIE_SECRET=$(openssl rand -hex 32)" > .env
             echo ".env file created with COOKIE_SECRET"
