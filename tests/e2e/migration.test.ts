@@ -275,9 +275,6 @@ describe("e2e migration test", () => {
       );
     }
 
-    //@ts-expect-error
-    agent = undefined;
-    console.log(agent);
     agent = new Agent(session);
   });
 
