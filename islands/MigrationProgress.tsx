@@ -83,8 +83,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     const client = new MigrationClient(
     {
       updateStepStatus,
-    nextStepHook(stepNum) {
-      if(stepNum == 2){
+      if(stepNum === 2){
         // Update step name to prompt for token
         setSteps((prevSteps) =>
           prevSteps.map((step, i) =>
