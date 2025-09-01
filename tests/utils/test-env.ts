@@ -126,7 +126,7 @@ export class TestEnvironment {
         hideSTARTTLS: true,
         onData: (stream, session, callback) => {
           let emailData = "";
-          stream.on("data", (chunk) => emailData += chunk);
+          stream.on("data", (chunk) => emailData += chunk.toString('utf8'));
           stream.on("end", () => {
             const $ = cheerio.load(emailData);
             const codeEl = $("code").first();
