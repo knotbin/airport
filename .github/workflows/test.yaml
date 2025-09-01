@@ -44,6 +44,9 @@ jobs:
         if: failure()
         run: cat dev.log
 
+      - name: Set PLC_URL in .env
+        run: echo "PLC_URL=http://localhost:2580" >> .env
+
       - name: Install dependencies
         working-directory: ./tests
         run: yarn install
