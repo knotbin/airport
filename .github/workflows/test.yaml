@@ -22,7 +22,7 @@ jobs:
           echo "Server running in background"
 
       - name: Wait for server
-        run: npx -y wait-on http://127.0.0.1:8000 -t 10m
+        run: npx -y wait-on tcp:8000 -t 10m
       
       - name: Print server log on failure
         if: failure()
