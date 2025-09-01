@@ -60,11 +60,15 @@ export class TestEnvironment {
     const plc = await TestPlc.create({
       port: PLC_PORT,
     });
-    const env = new TestEnvironment(null as any, null as any, plc, null as any);
-    const pds = await env.setupMockPDS(plc.url);
-    env.sourcePds = pds.sourcePds;
-    env.targetPds = pds.targetPds;
-    env.smtp = await env.createSMTPServer();
+
+    const pds = await TestEnvironment.setupMockPDS(plc.url);
+    const env = new TestEnvironment(
+      pds.sourcePds,
+      pds.targetPds,
+      plc,
+      await env.createSMTPServer(),
+    );
+
     return env;
   }
 
@@ -160,7 +164,7 @@ export class TestEnvironment {
     });
   }
 
-  private async setupMockPDS(plcUrl: string) {
+  private static async setupMockPDS(plcUrl: string) {
     const sourcePds = await TestPds.create({
       didPlcUrl: plcUrl,
       port: PDS_A_PORT,
