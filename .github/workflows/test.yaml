@@ -1,8 +1,6 @@
 name: Test Workflow
 
-on:
-  - push
-  - pull_request
+on: [push, pull_request]
 
 jobs:
   test:
@@ -15,12 +13,12 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v25
 
+      - name: Start Deno dev task in background
+        run: nohup deno task dev &
+
       - name: Install dependencies
         working-directory: ./tests
         run: yarn install
-
-      - name: Start Deno dev task in background
-        run: nohup deno task dev &
 
       - name: Wait for dev server to be ready
         run: |
