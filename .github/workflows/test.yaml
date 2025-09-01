@@ -18,9 +18,8 @@ jobs:
           nohup deno task dev > dev.log 2>&1 &
           echo "Server running in background"
           
-      - name: Wait for dev server to be ready
-        run: |
-          sleep 10
+      - name: Wait for server
+        run: npx -y wait-on http://127.0.0.1:8000
 
       - name: Install dependencies
         working-directory: ./tests
