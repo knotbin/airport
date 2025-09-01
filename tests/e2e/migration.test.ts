@@ -4,7 +4,11 @@ import { Agent, AtpAgent, BskyAgent, CredentialSession } from "@atproto/api";
 import { consola } from "consola";
 import { TestEnvironment, TestPDSConfig } from "../utils/test-env";
 import { TEST_CONFIG } from "../utils/config";
-import { MigrationClient, MigrationError, MigrationErrorType } from "../../lib/client";
+import {
+  MigrationClient,
+  MigrationError,
+  MigrationErrorType,
+} from "../../lib/client";
 
 describe("e2e migration test", () => {
   let testEnv: TestEnvironment;
@@ -124,6 +128,7 @@ describe("e2e migration test", () => {
 
     try {
       testEnv = await TestEnvironment.create();
+      console.log(`Using Airport URL: ${TEST_CONFIG.airportUrl}`);
       migrationClient = new MigrationClient(
         {
           baseUrl: TEST_CONFIG.airportUrl,
@@ -134,21 +139,21 @@ describe("e2e migration test", () => {
               throw new MigrationError(
                 `Step ${stepIndex} failed: ${error}`,
                 stepIndex,
-                MigrationErrorType.OTHER
+                MigrationErrorType.OTHER,
               );
             }
           },
           async nextStepHook(stepNum) {
-            if(stepNum == 2){
+            if (stepNum == 2) {
               const verificationCode = await testEnv.awaitMail(10000);
-      consola.info(`Got verification code: ${verificationCode}`);
+              consola.info(`Got verification code: ${verificationCode}`);
 
-            await migrationClient.handleIdentityMigration(verificationCode);
-      // If successful, continue to next step
-      migrationClient.continueToNextStep(3);
+              await migrationClient.handleIdentityMigration(verificationCode);
+              // If successful, continue to next step
+              migrationClient.continueToNextStep(3);
             }
           },
-        }
+        },
       );
       cookieHelper = createCookieFetch(TEST_CONFIG.airportUrl);
       consola.success("Test environment setup completed");
@@ -242,21 +247,20 @@ describe("e2e migration test", () => {
       },
     };
 
-
-            await migrationClient.startMigration(
+    await migrationClient.startMigration(
       {
         ...TEST_CONFIG,
         handle: TEST_CONFIG.targetHandle,
         service: testEnv.targetPds.url,
-      }
+      },
     );
 
     consola.success("Migration flow completed successfully");
   });
 
   test("login to new pds", async () => {
-        // login
-        const session = new CredentialSession(new URL(testEnv.targetPds.url));
+    // login
+    const session = new CredentialSession(new URL(testEnv.targetPds.url));
 
     const result = await session.login({
       identifier: agent.assertDid,
@@ -279,6 +283,7 @@ describe("e2e migration test", () => {
 
   test("make sure it's on correct pds", async () => {
     const doc = await testEnv.plc.getClient().getDocumentData(agent.assertDid);
+    console.log(doc);
     expect(doc).toBeDefined();
     expect(doc.services["atproto_pds"]).toBeDefined();
     expect(doc.services["atproto_pds"].endpoint).toBe(testEnv.targetPds.url);
@@ -290,7 +295,7 @@ describe("e2e migration test", () => {
       repo: agent.assertDid,
     });
 
-    console.log(records.data.records)
+    console.log(records.data.records);
 
     expect(records.success).toBe(true);
     expect(records).toBeDefined();
