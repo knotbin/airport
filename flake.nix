@@ -45,6 +45,8 @@
           giflib
           librsvg
           python3
+          nodejs
+          yarn
         ];
       };
 
@@ -68,7 +70,7 @@
           stdenv.cc.cc.lib
 
           nodejs
-          yarn-berry
+          yarn
           git-lfs
         ];
 
