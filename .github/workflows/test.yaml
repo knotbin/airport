@@ -1,0 +1,33 @@
+name: Test Workflow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+
+      - name: Install dependencies
+        working-directory: ./tests
+        run: yarn install
+
+      - name: Start Deno dev task in background
+        run: nohup deno task dev &
+
+      - name: Wait for dev server to be ready
+        run: |
+          sleep 10
+
+      - name: Run tests
+        run: yarn test
+        working-directory: ./tests
