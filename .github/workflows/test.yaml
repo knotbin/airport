@@ -14,7 +14,7 @@ jobs:
         uses: cachix/install-nix-action@v25
       - uses: nicknovitski/nix-develop@v1
 
-      - run: deno -v
+      - run: deno install
       - name: Start dev server
         run: |
           nohup deno task dev > dev.log 2>&1 &
@@ -25,7 +25,7 @@ jobs:
         run: cat dev.log || true
 
       - name: Wait for server
-        run: npx -y wait-on http://127.0.0.1:8000 -t 5m
+        run: npx -y wait-on http://127.0.0.1:8000 -t 1m
 
       - name: Install dependencies
         working-directory: ./tests
