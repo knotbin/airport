@@ -31,6 +31,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deno-
 
+      - name: Set PLC_URL in .env
+        run: echo "PLC_URL=http://localhost:2580" >> .env
       - run: deno install
       - name: Start dev server
         run: |
@@ -43,9 +45,6 @@ jobs:
       - name: Print server log on failure
         if: failure()
         run: cat dev.log
-
-      - name: Set PLC_URL in .env
-        run: echo "PLC_URL=http://localhost:2580" >> .env
 
       - name: Install dependencies
         working-directory: ./tests
