@@ -5,7 +5,7 @@ import {
   MigrationErrorType,
   MigrationProgressProps,
   MigrationStateInfo,
-  MigrationStep
+  MigrationStep,
 } from "../lib/client.ts";
 
 /**
@@ -80,27 +80,28 @@ export default function MigrationProgress(props: MigrationProgressProps) {
     return true;
   };
 
-    const client = new MigrationClient(
+  const client = new MigrationClient(
     {
       updateStepStatus,
-      if(stepNum === 2){
-        // Update step name to prompt for token
-        setSteps((prevSteps) =>
-          prevSteps.map((step, i) =>
-            i === 2
-              ? {
-                ...step,
-                name:
-                  "Enter the token sent to your email to complete identity migration",
-              }
-              : step
-          )
-        );
-      }
+      nextStepHook(stepNum) {
+        if (stepNum === 2) {
+          // Update step name to prompt for token
+          setSteps((prevSteps) =>
+            prevSteps.map((step, i) =>
+              i === 2
+                ? {
+                  ...step,
+                  name:
+                    "Enter the token sent to your email to complete identity migration",
+                }
+                : step
+            )
+          );
+        }
+      },
+      setRetryAttempts,
+      setShowContinueAnyway,
     },
-    setRetryAttempts,
-    setShowContinueAnyway,
-    }
   );
 
   const continueAnyway = (stepNum: number) => {
