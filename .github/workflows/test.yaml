@@ -35,3 +35,7 @@ jobs:
       - name: Run tests
         run: yarn test
         working-directory: ./tests
+        
+      - name: Print server log on failure
+        if: failure()
+        run: cat dev.log
