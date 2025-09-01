@@ -18,17 +18,29 @@ jobs:
         with:
           run: |
             deno task dev
+
           wait-on: |
             http://127.0.0.1:8000
+
           tail: true # true = stderr,stdout
+
+          log-output-resume: stderr
+          # Eliminates previously output stderr log entries from post-run output
+
+          wait-for: 20s
+
+          log-output: stderr,stdout # same as true
+
+          log-output-if: failure
+          # failure = exit-early or timeout
 
       - name: Install dependencies
         working-directory: ./tests
         run: yarn install
 
-      # - name: Wait for dev server to be ready
-      #   run: |
-      #     sleep 10
+      - name: Wait for dev server to be ready
+        run: |
+          sleep 10
 
       - name: Run tests
         run: yarn test
