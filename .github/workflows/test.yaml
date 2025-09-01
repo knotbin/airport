@@ -17,7 +17,11 @@ jobs:
         run: |
           nohup deno task dev > dev.log 2>&1 &
           echo "Server running in background"
-          
+          sleep 5  # Give the server a moment to start
+
+      - name: Show initial server logs
+        run: cat dev.log || true
+
       - name: Wait for server
         run: npx -y wait-on http://127.0.0.1:8000
 
