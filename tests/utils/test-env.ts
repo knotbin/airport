@@ -88,6 +88,13 @@ export class TestEnvironment {
    * @returns Promise that resolves with the verification code
    */
   async awaitMail(timeoutMs: number = 10000): Promise<string> {
+    // First, check if a verification code is already present in the mailbox
+    const existing = this.mailbox.find((email) => email.verificationCode);
+    if (existing && existing.verificationCode) {
+      return existing.verificationCode;
+    }
+
+    // Otherwise, wait for a new code to arrive
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.codeWaiters.delete(waiterId);
