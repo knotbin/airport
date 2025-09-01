@@ -12,8 +12,7 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v25
-      - run: nix develop
-      - run: nix flake check
+      - uses: nicknovitski/nix-develop@v1
 
       - name: Start dev server
         run: |
