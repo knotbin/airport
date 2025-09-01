@@ -13,16 +13,22 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v25
 
-      - name: Start Deno dev task in background
-        run: nohup deno task dev &
+      - uses: JarvusInnovations/background-action@v1
+        name: Start Deno dev task in background
+        with:
+          run: |
+            deno task dev
+          wait-on: |
+            http://127.0.0.1:8000
+          tail: true # true = stderr,stdout
 
       - name: Install dependencies
         working-directory: ./tests
         run: yarn install
 
-      - name: Wait for dev server to be ready
-        run: |
-          sleep 10
+      # - name: Wait for dev server to be ready
+      #   run: |
+      #     sleep 10
 
       - name: Run tests
         run: yarn test
