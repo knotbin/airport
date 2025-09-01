@@ -56,8 +56,12 @@ export class MigrationClient {
     error?: string,
     isVerificationError?: boolean,
   ) => void;
-  private setRetryAttempts?: (value: (prev: Record<number, number>) => Record<number, number>) => void;
-  private setShowContinueAnyway?: (value: (prev: Record<number, boolean>) => Record<number, boolean>) => void;
+  private setRetryAttempts?: (
+    value: (prev: Record<number, number>) => Record<number, number>,
+  ) => void;
+  private setShowContinueAnyway?: (
+    value: (prev: Record<number, boolean>) => Record<number, boolean>,
+  ) => void;
   private baseUrl = "";
   private nextStepHook?: (stepNum: number) => unknown;
 
@@ -74,8 +78,12 @@ export class MigrationClient {
       error?: string,
       isVerificationError?: boolean,
     ) => void;
-    setRetryAttempts?: (value: (prev: Record<number, number>) => Record<number, number>) => void;
-    setShowContinueAnyway?: (value: (prev: Record<number, boolean>) => Record<number, boolean>) => void;
+    setRetryAttempts?: (
+      value: (prev: Record<number, number>) => Record<number, number>,
+    ) => void;
+    setShowContinueAnyway?: (
+      value: (prev: Record<number, boolean>) => Record<number, boolean>,
+    ) => void;
     baseUrl?: string;
     nextStepHook?: (stepNum: number) => unknown;
   }) {
@@ -88,7 +96,9 @@ export class MigrationClient {
 
   async checkState() {
     try {
-      const migrationResponse = await fetch(`${this.baseUrl}/api/migration-state`);
+      const migrationResponse = await fetch(
+        `${this.baseUrl}/api/migration-state`,
+      );
       if (migrationResponse.ok) {
         const migrationData = await migrationResponse.json();
 
@@ -171,8 +181,9 @@ export class MigrationClient {
         }
 
         this.updateStepStatus(0, "completed");
-        // Continue to next step
-        await this.continueToNextStep(1);
+        if (this.nextStepHook) {
+          await this.nextStepHook(0);
+        }
       } catch (error) {
         this.updateStepStatus(
           0,
@@ -181,8 +192,29 @@ export class MigrationClient {
         );
         throw error;
       }
+
+      // Step 2: Data Migration
+      await this.startDataMigration();
+      if (this.nextStepHook) {
+        await this.nextStepHook(1);
+      }
+
+      // Step 3: Identity Migration (request email)
+      await this.startIdentityMigration();
+      if (this.nextStepHook) {
+        await this.nextStepHook(2);
+      }
+
+      // Step 4: Finalize Migration
+      await this.finalizeMigration();
+      if (this.nextStepHook) {
+        await this.nextStepHook(3);
+      }
+
+      return;
     } catch (error) {
       console.error("Migration error in try/catch:", error);
+      throw error;
     }
   }
 
@@ -276,7 +308,7 @@ export class MigrationClient {
 
     this.updateStepStatus(1, "completed");
     // Continue to next step
-    await this.continueToNextStep(2);
+    //await this.continueToNextStep(2);
   }
 
   async startIdentityMigration() {
@@ -285,10 +317,13 @@ export class MigrationClient {
     console.log("Starting identity migration...");
 
     try {
-      const identityRes = await fetch(`${this.baseUrl}/api/migrate/identity/request`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const identityRes = await fetch(
+        `${this.baseUrl}/api/migrate/identity/request`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
       const identityData = await identityRes.text();
 
@@ -323,7 +358,9 @@ export class MigrationClient {
     }
 
     const identityRes = await fetch(
-      `${this.baseUrl}/api/migrate/identity/sign?token=${encodeURIComponent(token)}`,
+      `${this.baseUrl}/api/migrate/identity/sign?token=${
+        encodeURIComponent(token)
+      }`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -435,7 +472,9 @@ export class MigrationClient {
     this.updateStepStatus(stepNum, "verifying");
     try {
       console.log(`Verification: Fetching status for step ${stepNum + 1}`);
-      const res = await fetch(`${this.baseUrl}/api/migrate/status?step=${stepNum + 1}`);
+      const res = await fetch(
+        `${this.baseUrl}/api/migrate/status?step=${stepNum + 1}`,
+      );
       console.log(`Verification: Status response status:`, res.status);
       const data = await res.json();
       console.log(`Verification: Status data for step ${stepNum + 1}:`, data);
@@ -449,7 +488,10 @@ export class MigrationClient {
           this.setRetryAttempts((prev: any) => ({ ...prev, [stepNum]: 0 }));
         }
         if (this.setShowContinueAnyway) {
-          this.setShowContinueAnyway((prev: any) => ({ ...prev, [stepNum]: false }));
+          this.setShowContinueAnyway((prev: any) => ({
+            ...prev,
+            [stepNum]: false,
+          }));
         }
 
         return true;
@@ -549,7 +591,7 @@ export class MigrationClient {
           await this.startDataMigration();
           break;
         case 2:
-          await this.startIdentityMigration(); 
+          await this.startIdentityMigration();
           break;
         case 3:
           await this.finalizeMigration();
@@ -565,5 +607,5 @@ export class MigrationClient {
         error instanceof Error ? error.message : String(error),
       );
     }
-}
+  }
 }
