@@ -40,20 +40,18 @@ export class TestEnvironment {
   sourcePds: TestPds;
   targetPds: TestPds;
   plc: TestPlc;
-  smtp: SMTPServer;
+  smtp!: SMTPServer;
   private mailbox: Email[] = [];
   private codeWaiters: Map<string, (code: string) => void> = new Map();
 
-  constructor(
+  private constructor(
     sourcePds: TestPds,
     targetPds: TestPds,
     plc: TestPlc,
-    smtp: SMTPServer,
   ) {
     this.sourcePds = sourcePds;
     this.targetPds = targetPds;
     this.plc = plc;
-    this.smtp = smtp;
   }
 
   static async create(): Promise<TestEnvironment> {
@@ -66,8 +64,9 @@ export class TestEnvironment {
       pds.sourcePds,
       pds.targetPds,
       plc,
-      await env.createSMTPServer(),
     );
+
+    env.smtp = await env.createSMTPServer();
 
     return env;
   }
