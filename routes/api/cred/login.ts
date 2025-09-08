@@ -25,15 +25,14 @@ export const handler = define.handlers({
           {
             status: 400,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
 
       console.log("Resolving handle:", handle);
-      const did =
-        typeof handle == "string" && handle.startsWith("did:")
-          ? handle
-          : await resolver.resolveHandleToDid(handle);
+      const did = typeof handle == "string" && handle.startsWith("did:")
+        ? handle
+        : await resolver.resolveHandleToDid(handle);
       const service = await resolver.resolveDidToPdsUrl(did);
       console.log("Resolved service:", service);
 
@@ -45,7 +44,7 @@ export const handler = define.handlers({
           }),
           {
             status: 400,
-          }
+          },
         );
       }
 
@@ -73,7 +72,7 @@ export const handler = define.handlers({
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
 
         // Create and save our client session with tokens
@@ -103,7 +102,7 @@ export const handler = define.handlers({
           {
             status: 401,
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
       }
     } catch (error) {
@@ -117,7 +116,7 @@ export const handler = define.handlers({
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
   },

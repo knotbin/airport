@@ -1,0 +1,59 @@
+name: Test Workflow
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v25
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: nicknovitski/nix-develop@v1
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: ./tests/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('tests/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
+
+      - name: Set PLC_URL in .env
+        run: echo "PLC_URL=http://localhost:2580" >> .env
+      - run: deno install
+      - name: Start dev server
+        run: |
+          nohup deno task dev > dev.log 2>&1 &
+          echo "Server running in background"
+
+      - name: Wait for server
+        run: npx -y wait-on tcp:8000 -t 10m
+
+      - name: Print server log on failure
+        if: failure()
+        run: cat dev.log
+
+      - name: Install dependencies
+        working-directory: ./tests
+        run: yarn install
+
+      - name: Run tests
+        run: yarn test
+        working-directory: ./tests
+
+      - name: Print server log on failure
+        if: failure()
+        run: cat dev.log

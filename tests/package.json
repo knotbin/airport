@@ -1,0 +1,32 @@
+{
+  "devDependencies": {
+    "@jest/globals": "^30.0.5",
+    "@types/jest": "^30.0.0",
+    "@types/smtp-server": "^3",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.15.6",
+    "@atproto/dev-env": "^0.3.164",
+    "@types/node": "^22.5.0",
+    "cheerio": "^1.1.2",
+    "consola": "^3.4.2",
+    "node-fetch": "^3.3.2",
+    "smtp-server": "^3.14.0"
+  },
+  "scripts": {
+    "test": "jest --bail --verbose --no-coverage --detectOpenHandles ./e2e",
+    "test:watch": "jest --watch",
+    "test:verbose": "jest --verbose --detectOpenHandles --no-coverage",
+    "devenv": "ts-node tools/devenv.ts",
+    "devenv:test": "jest ./tools"
+  },
+  "name": "tests",
+  "version": "1.0.0",
+  "main": "./e2e/migration.test.ts",
+  "license": "MIT",
+  "packageManager": "yarn@4.9.3"
+}
