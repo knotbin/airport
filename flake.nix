@@ -29,7 +29,7 @@
         stdenv.cc.cc.lib
 
         nodejs
-        yarn
+        yarn-berry
         git-lfs
       ];
 
