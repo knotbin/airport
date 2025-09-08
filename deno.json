@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "check": "deno fmt --check . && deno lint . && deno check **/*.ts && deno check **/*.tsx",
+    "ok": "deno fmt --check && deno lint && deno check",
     "dev": "deno run -A --env --watch=static/,routes/ dev.ts",
     "build": "deno run -A dev.ts build",
     "start": "deno run -A main.ts",
@@ -12,7 +12,19 @@
         "fresh",
         "recommended"
       ]
-    }
+    },
+    "exclude": [
+      "**/_fresh/*",
+      "**/tests/**",
+      "**/.yarn/**"
+    ]
+  },
+  "fmt": {
+    "exclude": [
+      "**/_fresh/*",
+      "**/tests/**",
+      "**/.yarn/**"
+    ]
   },
   "exclude": [
     "**/_fresh/*",

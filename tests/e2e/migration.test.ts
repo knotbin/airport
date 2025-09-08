@@ -1,14 +1,14 @@
-import { beforeAll, describe, test } from "@jest/globals";
+import { afterAll, beforeAll, describe, expect, test } from "@jest/globals";
 
-import { Agent, AtpAgent, BskyAgent, CredentialSession } from "@atproto/api";
+import { Agent, CredentialSession } from "@atproto/api";
 import { consola } from "consola";
-import { TestEnvironment, TestPDSConfig } from "../utils/test-env";
-import { TEST_CONFIG } from "../utils/config";
+import { TestEnvironment } from "../utils/test-env.ts";
+import { TEST_CONFIG } from "../utils/config.ts";
 import {
   MigrationClient,
   MigrationError,
   MigrationErrorType,
-} from "../../lib/client";
+} from "../../lib/client.ts";
 
 describe("e2e migration test", () => {
   let testEnv: TestEnvironment;
@@ -106,18 +106,6 @@ describe("e2e migration test", () => {
     };
   }
 
-  async function waitUntil(
-    fn: () => boolean,
-    timeout = TEST_CONFIG.timeout,
-  ): Promise<boolean> {
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      if (fn()) return true;
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    return false;
-  }
-
   beforeAll(async () => {
     const serverAvailable = await isServerAvailable(TEST_CONFIG.airportUrl);
     if (!serverAvailable) {
@@ -132,7 +120,7 @@ describe("e2e migration test", () => {
       migrationClient = new MigrationClient(
         {
           baseUrl: TEST_CONFIG.airportUrl,
-          updateStepStatus(stepIndex, status, error, isVerificationError) {
+          updateStepStatus(stepIndex, status, error) {
             consola.log(`Step ${stepIndex} updated: ${status}`);
             if (error) {
               consola.error(`Step ${stepIndex} error: ${error}`);
@@ -240,13 +228,6 @@ describe("e2e migration test", () => {
   });
 
   test("should start migration flow", async () => {
-    const stepsLog: string[] = [];
-    const callbacks = {
-      onStepUpdate: (i: number, s: { status: string; name: string }) => {
-        stepsLog.push(`${i}:${s.status}:${s.name}`);
-      },
-    };
-
     await migrationClient.startMigration(
       {
         ...TEST_CONFIG,

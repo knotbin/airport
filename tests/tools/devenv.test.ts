@@ -1,6 +1,7 @@
-import { TestEnvironment } from "../utils/test-env";
+import { TestEnvironment } from "../utils/test-env.ts";
 import { Agent, CredentialSession } from "@atproto/api";
-import { TEST_CONFIG } from "../utils/config";
+import { TEST_CONFIG } from "../utils/config.ts";
+import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 
 describe("devenv.ts", () => {
   let env: TestEnvironment;

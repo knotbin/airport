@@ -43,6 +43,9 @@ submit pull requests that are relevant to the project. This project targets
 people with a non-advanced understanding of AT Protocol, so please avoid
 submitting pull requests that add features that complicate the user experience.
 
+When contributing, please make sure to run tests to ensure your changes do not
+break existing functionality, and add any additional tests for new changes.
+
 ## License
 
 [MIT License](LICENSE)

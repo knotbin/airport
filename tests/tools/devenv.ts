@@ -1,8 +1,7 @@
 import consola from "consola";
-import { TestEnvironment } from "../utils/test-env";
-import { Agent, CredentialSession } from "@atproto/api";
-import { TEST_CONFIG } from "../utils/config";
-import { SMTPServer } from "smtp-server";
+import { TestEnvironment } from "../utils/test-env.ts";
+import { CredentialSession } from "@atproto/api";
+import { TEST_CONFIG } from "../utils/config.ts";
 
 async function main() {
   const env = await TestEnvironment.create();

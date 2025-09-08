@@ -7,6 +7,7 @@ import {
   MigrationStateInfo,
   MigrationStep,
 } from "../lib/client.ts";
+import { getMigrationState } from "../lib/migration-state.ts";
 
 /**
  * The migration progress component.
@@ -16,12 +17,7 @@ import {
  */
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
-  const [migrationState, setMigrationState] = useState<
-    MigrationStateInfo | null
-  >(null);
-  const [retryAttempts, setRetryAttempts] = useState<Record<number, number>>(
-    {},
-  );
+  const migrationState: MigrationStateInfo = getMigrationState();
   const [showContinueAnyway, setShowContinueAnyway] = useState<
     Record<number, boolean>
   >({});
@@ -99,7 +95,6 @@ export default function MigrationProgress(props: MigrationProgressProps) {
           );
         }
       },
-      setRetryAttempts,
       setShowContinueAnyway,
     },
   );
@@ -168,7 +163,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         updateStepStatus(
           0,
           "error",
-          error.message || "Unknown error occurred",
+          error as string ?? "Unknown error occurred",
         );
       }
     })();

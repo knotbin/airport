@@ -90,7 +90,7 @@ export class TestEnvironment {
    * @param timeoutMs - Timeout in milliseconds
    * @returns Promise that resolves with the verification code
    */
-  async awaitMail(timeoutMs: number = 10000): Promise<string> {
+  awaitMail(timeoutMs: number = 10000): Promise<string> | string {
     // First, check if a verification code is already present in the mailbox
     const existing = this.mailbox.find((email) => email.verificationCode);
     if (existing && existing.verificationCode) {
@@ -126,7 +126,7 @@ export class TestEnvironment {
         hideSTARTTLS: true,
         onData: (stream, session, callback) => {
           let emailData = "";
-          stream.on("data", (chunk) => emailData += chunk.toString('utf8'));
+          stream.on("data", (chunk) => emailData += chunk.toString("utf8"));
           stream.on("end", () => {
             const $ = cheerio.load(emailData);
             const codeEl = $("code").first();
