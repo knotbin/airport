@@ -1,5 +1,6 @@
 import { type PageProps } from "fresh";
 import Header from "../islands/Header.tsx";
+import { Partial } from "fresh/runtime";
 
 export default function App({ Component }: PageProps) {
   return (
@@ -26,11 +27,13 @@ export default function App({ Component }: PageProps) {
         data-website-id={Deno.env.get("UMAMI_ID")}
       >
       </script>
-      <body>
-        <Header />
-        <main className="pt-8">
-          <Component />
-        </main>
+      <body f-client-nav>
+        <Partial name="body">
+          <Header />
+          <main className="pt-8">
+            <Component />
+          </main>
+        </Partial>
       </body>
     </html>
   );

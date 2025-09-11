@@ -18,7 +18,7 @@ export default function LoginButton() {
   }, []);
 
   return (
-    <div class="mt-6 sm:mt-8 text-center w-fit mx-auto">
+    <div class="mt-6 sm:mt-8 text-center w-fit mx-auto mb-2">
       <Button
         href={isMobile ? undefined : "/login"}
         color="blue"

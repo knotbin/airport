@@ -31,11 +31,6 @@ Start the project in development mode:
 deno task dev
 ```
 
-## About
-
-Airport is developed with ❤️ by [Roscoe](https://bsky.app/profile/knotbin.com)
-for [Spark](https://sprk.so), a new short-video platform for AT Protocol.
-
 ## Contributing
 
 We welcome contributions! Please feel free to submit a Pull Request. Please only

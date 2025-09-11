@@ -43,13 +43,9 @@ export function Button(props: Props) {
 
   const baseStyles = "airport-sign flex items-center [transition:none]";
   const paddingStyles = condensed ? "px-2 py-1.5" : "px-3 py-2 sm:px-6 sm:py-3";
-  const transformStyles =
-    "translate-y-0 hover:translate-y-1 hover:transition-transform hover:duration-200 hover:ease-in-out";
   const colorStyles = {
-    blue:
-      "bg-gradient-to-r from-blue-400 to-blue-500 text-white hover:from-blue-500 hover:to-blue-600",
-    amber:
-      "bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 hover:from-amber-500 hover:to-amber-600",
+    blue: "bg-blue-500 text-white hover:bg-blue-500",
+    amber: "bg-amber-400 text-slate-900 hover:bg-amber-500",
   };
 
   const buttonContent = (
@@ -74,7 +70,7 @@ export function Button(props: Props) {
     </>
   );
 
-  const buttonStyles = `${baseStyles} ${paddingStyles} ${transformStyles} ${
+  const buttonStyles = `${baseStyles} ${paddingStyles} ${
     colorStyles[color]
   } ${className}`;
 

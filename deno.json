@@ -31,17 +31,16 @@
     "**/tests/**"
   ],
   "imports": {
-    "@atproto/api": "npm:@atproto/api@^0.15.6",
+    "@atproto/api": "npm:@atproto/api@^0.15.27",
     "@bigmoves/atproto-oauth-client": "jsr:@bigmoves/atproto-oauth-client@^0.2.0",
     "@knotbin/posthog-fresh": "jsr:@knotbin/posthog-fresh@^0.1.3",
-    "fresh": "jsr:@fresh/core@2.0.0-alpha.33",
-    "@fresh/plugin-tailwind": "jsr:@fresh/plugin-tailwind@0.0.1-alpha.7",
-    "posthog-js": "npm:posthog-js@1.120.0",
-    "preact": "npm:preact@^10.26.6",
-    "@preact/signals": "npm:@preact/signals@^2.0.4",
-    "tailwindcss": "npm:tailwindcss@3.4.3",
+    "fresh": "jsr:@fresh/core@^2.0.0",
+    "@fresh/plugin-tailwind": "jsr:@fresh/plugin-tailwind@1.0.0",
+    "preact": "npm:preact@^10.27.1",
+    "@preact/signals": "npm:@preact/signals@^2.3.1",
     "@atproto/crypto": "npm:@atproto/crypto@^0.4.4",
-    "@did-plc/lib": "npm:@did-plc/lib@^0.0.4"
+    "@did-plc/lib": "npm:@did-plc/lib@^0.0.4",
+    "tailwindcss": "npm:tailwindcss@^4.1.13"
   },
   "compilerOptions": {
     "lib": [
@@ -58,7 +57,15 @@
       "source",
       "body",
       "html",
-      "head"
+      "head",
+      "title",
+      "meta",
+      "script",
+      "link",
+      "style",
+      "base",
+      "noscript",
+      "template"
     ],
     "types": [
       "node"

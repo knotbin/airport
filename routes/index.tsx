@@ -18,19 +18,6 @@ export default function Home() {
             <Ticket />
 
             <LoginButton />
-            <p class="font-mono text-lg sm:text-xl mb-4 mt-4 sm:mb-6 text-center text-gray-600 dark:text-gray-300">
-              Airport is made with love by{" "}
-              <a
-                class="text-blue-500 hover:underline"
-                href="https://bsky.app/profile/knotbin.com"
-              >
-                Roscoe
-              </a>{" "}
-              for{" "}
-              <a class="text-blue-500 hover:underline" href="https://sprk.so">
-                Spark
-              </a>, a new short-video platform for AT Protocol.
-            </p>
             <div class="text-center mb-4">
               <a
                 href="/about"
