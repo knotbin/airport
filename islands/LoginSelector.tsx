@@ -9,7 +9,7 @@ import CredLogin from "./CredLogin.tsx";
  */
 export default function LoginMethodSelector() {
   const [loginMethod, setLoginMethod] = useState<"oauth" | "password">(
-    "oauth",
+    "password",
   );
 
   return (
