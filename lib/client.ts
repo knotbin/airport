@@ -205,12 +205,8 @@ export class MigrationClient {
         await this.nextStepHook(2);
       }
 
-      // Step 4: Finalize Migration
-      await this.finalizeMigration();
-      if (this.nextStepHook) {
-        await this.nextStepHook(3);
-      }
-
+      // Stop here - finalization will be called from handleIdentityMigration
+      // after user enters the token
       return;
     } catch (error) {
       console.error("Migration error in try/catch:", error);

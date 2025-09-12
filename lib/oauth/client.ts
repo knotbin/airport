@@ -1,6 +1,23 @@
 import { AtprotoOAuthClient } from "@bigmoves/atproto-oauth-client";
 import { SessionStore, StateStore } from "../storage.ts";
 
+export const scope = [
+  "atproto",
+  "account:email",
+  "account:status?action=manage",
+  "identity:*",
+  "rpc:*?aud=did:web:api.bsky.app#bsky_appview",
+  "rpc:com.atproto.server.createAccount?aud=*",
+].join(" ");
+const publicUrl = Deno.env.get("PUBLIC_URL");
+const url = publicUrl || `http://127.0.0.1:8000`;
+export const clientId = publicUrl
+  ? `${url}/oauth-client-metadata.json`
+  : `http://localhost?redirect_uri=${
+    encodeURIComponent(`${url}/api/oauth/callback`)
+  }&scope=${encodeURIComponent(scope)}`;
+console.log(`ClientId: ${clientId}`);
+
 /**
  * Create the OAuth client.
  * @param db - The Deno KV instance for the database
@@ -11,23 +28,13 @@ export const createClient = (db: Deno.Kv) => {
     throw new Error("PUBLIC_URL is not set");
   }
 
-  const publicUrl = Deno.env.get("PUBLIC_URL");
-  const url = publicUrl || `http://127.0.0.1:8000`;
-  const enc = encodeURIComponent;
-  const clientId = publicUrl
-    ? `${url}/oauth-client-metadata.json`
-    : `http://localhost?redirect_uri=${
-      enc(`${url}/api/oauth/callback`)
-    }&scope=${enc("atproto transition:generic transition:chat.bsky")}`;
-  console.log(`ClientId: ${clientId}`);
-
   return new AtprotoOAuthClient({
     clientMetadata: {
       client_name: "Statusphere React App",
       client_id: clientId,
       client_uri: url,
       redirect_uris: [`${url}/api/oauth/callback`],
-      scope: "atproto transition:generic transition:chat.bsky",
+      scope: scope,
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
       application_type: "web",
@@ -36,6 +43,7 @@ export const createClient = (db: Deno.Kv) => {
     },
     stateStore: new StateStore(db),
     sessionStore: new SessionStore(db),
+    didCache: undefined,
   });
 };
 

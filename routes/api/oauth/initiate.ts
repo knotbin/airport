@@ -1,5 +1,5 @@
 import { isValidHandle } from "npm:@atproto/syntax";
-import { oauthClient } from "../../../lib/oauth/client.ts";
+import { oauthClient, scope } from "../../../lib/oauth/client.ts";
 import { define } from "../../../utils.ts";
 
 function isValidUrl(url: string): boolean {
@@ -26,7 +26,7 @@ export const handler = define.handlers({
     // Initiate the OAuth flow
     try {
       const url = await oauthClient.authorize(handle, {
-        scope: "atproto transition:generic transition:chat.bsky",
+        scope,
       });
       return Response.json({ redirectUrl: url.toString() });
     } catch (err) {

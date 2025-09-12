@@ -37,18 +37,27 @@ export default function MigrationProgress(props: MigrationProgressProps) {
       }`,
     );
     setSteps((prevSteps) =>
-      prevSteps.map((step, i) =>
-        i === index
-          ? { ...step, status, error, isVerificationError }
-          : i > index
-          ? {
-            ...step,
-            status: "pending",
-            error: undefined,
-            isVerificationError: undefined,
+      prevSteps.map((step, i) => {
+        if (i === index) {
+          // Update the current step
+          return { ...step, status, error, isVerificationError };
+        } else if (i > index) {
+          // Reset future steps to pending only if current step is erroring
+          if (status === "error") {
+            return {
+              ...step,
+              status: "pending",
+              error: undefined,
+              isVerificationError: undefined,
+            };
           }
-          : step
-      )
+          // Otherwise keep future steps as they are
+          return step;
+        } else {
+          // Keep previous steps as they are (preserve completed status)
+          return step;
+        }
+      })
     );
   };
 
@@ -152,16 +161,7 @@ export default function MigrationProgress(props: MigrationProgressProps) {
         return;
       }
 
-      try {
-        await client.startMigration(props);
-      } catch (error) {
-        console.error("Unhandled migration error:", error);
-        updateStepStatus(
-          0,
-          "error",
-          error as string ?? "Unknown error occurred",
-        );
-      }
+      await client.startMigration(props);
     })();
   }, []);
 

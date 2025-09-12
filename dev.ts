@@ -1,7 +1,8 @@
 import { Builder } from "fresh/dev";
 import { tailwind } from "@fresh/plugin-tailwind";
+import { State } from "./utils.ts";
 
-const builder = new Builder({ target: "safari12" });
+const builder = new Builder<State>({ target: "safari12" });
 tailwind(builder);
 
 if (Deno.args.includes("build")) {
