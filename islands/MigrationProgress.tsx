@@ -4,11 +4,8 @@ import {
   MigrationError,
   MigrationErrorType,
   MigrationProgressProps,
-  MigrationStateInfo,
   MigrationStep,
 } from "../lib/client.ts";
-import { getMigrationState } from "../lib/migration-state.ts";
-
 /**
  * The migration progress component.
  * @param props - The migration progress props
@@ -17,7 +14,6 @@ import { getMigrationState } from "../lib/migration-state.ts";
  */
 export default function MigrationProgress(props: MigrationProgressProps) {
   const [token, setToken] = useState("");
-  const migrationState: MigrationStateInfo = getMigrationState();
   const [showContinueAnyway, setShowContinueAnyway] = useState<
     Record<number, boolean>
   >({});
@@ -293,37 +289,6 @@ export default function MigrationProgress(props: MigrationProgressProps) {
 
   return (
     <div class="space-y-8">
-      {/* Migration state alert */}
-      {migrationState && !migrationState.allowMigration && (
-        <div
-          class={`p-4 rounded-lg border ${
-            migrationState.state === "maintenance"
-              ? "bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200"
-              : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
-          }`}
-        >
-          <div class="flex items-center">
-            <div
-              class={`mr-3 ${
-                migrationState.state === "maintenance"
-                  ? "text-yellow-600 dark:text-yellow-400"
-                  : "text-red-600 dark:text-red-400"
-              }`}
-            >
-              {migrationState.state === "maintenance" ? "⚠️" : "🚫"}
-            </div>
-            <div>
-              <h3 class="font-semibold mb-1">
-                {migrationState.state === "maintenance"
-                  ? "Maintenance Mode"
-                  : "Service Unavailable"}
-              </h3>
-              <p class="text-sm">{migrationState.message}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div class="space-y-4">
         {steps.map((step, index) => (
           <div key={step.name} class={getStepClasses(step.status)}>
