@@ -162,6 +162,9 @@ export default function PlcUpdateProgress() {
   const [emailToken, setEmailToken] = useState<string>("");
   const [hasDownloadedKey, setHasDownloadedKey] = useState(false);
   const [downloadedKeyId, setDownloadedKeyId] = useState<string | null>(null);
+  const [hasContinuedPastDownload, setHasContinuedPastDownload] = useState(
+    false,
+  );
 
   const updateStepStatus = (
     index: number,
@@ -444,28 +447,31 @@ export default function PlcUpdateProgress() {
 
     try {
       const jsonString = JSON.stringify(keyJson, null, 2);
-      const blob = new Blob([jsonString], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `plc-key-${keyJson.publicKeyDid || "unknown"}.json`;
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const filename = `plc-key-${keyJson.publicKeyDid || "unknown"}.json`;
 
-      console.log("Download completed, proceeding to next step...");
+      // Create data URL
+      const dataStr = "data:text/json;charset=utf-8," +
+        encodeURIComponent(jsonString);
+
+      // Create download link
+      const downloadAnchorNode = document.createElement("a");
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", filename);
+
+      // For Chrome/Firefox compatibility
+      downloadAnchorNode.style.display = "none";
+      document.body.appendChild(downloadAnchorNode);
+
+      // Trigger download
+      downloadAnchorNode.click();
+
+      // Cleanup
+      document.body.removeChild(downloadAnchorNode);
+
+      console.log("Download completed, showing continue button...");
       setHasDownloadedKey(true);
       setDownloadedKeyId(keyJson.publicKeyDid);
-
-      // Automatically proceed to the next step after successful download
-      setTimeout(() => {
-        console.log("Auto-proceeding with key:", keyJson.publicKeyDid);
-        handleStartPlcUpdate(keyJson.publicKeyDid);
-      }, 1000);
+      // Keep step 0 in completed state but don't auto-proceed
     } catch (error) {
       console.error("Download failed:", error);
     }
@@ -845,7 +851,7 @@ export default function PlcUpdateProgress() {
               {/* Key Download Warning */}
               {index === 0 &&
                 step.status === "completed" &&
-                !hasDownloadedKey && (
+                !hasContinuedPastDownload && (
                 <div class="mt-4 space-y-4">
                   <div class="bg-yellow-50 dark:bg-yellow-900/50 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                     <div class="flex items-start">
@@ -893,43 +899,76 @@ export default function PlcUpdateProgress() {
                   </div>
 
                   <div class="flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={handleDownload}
-                      class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    <div class="flex items-center space-x-3">
+                      <button
+                        type="button"
+                        onClick={handleDownload}
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                        />
-                      </svg>
-                      <span>Download Key</span>
-                    </button>
+                        <svg
+                          class="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                        <span>Download Key</span>
+                      </button>
 
-                    <div class="flex items-center text-sm text-red-600 dark:text-red-400">
-                      <svg
-                        class="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                      </svg>
-                      Download required to proceed
+                      {hasDownloadedKey && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            console.log(
+                              "Continue clicked, proceeding to PLC update",
+                            );
+                            setHasContinuedPastDownload(true);
+                            handleStartPlcUpdate(keyJson.publicKeyDid);
+                          }}
+                          class="px-4 py-2  bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors duration-200 flex items-center space-x-2"
+                        >
+                          <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                          <span>Continue</span>
+                        </button>
+                      )}
                     </div>
+
+                    {!hasDownloadedKey && (
+                      <div class="flex items-center text-sm text-red-600 dark:text-red-400">
+                        <svg
+                          class="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        Download required to proceed
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
