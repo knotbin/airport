@@ -44,6 +44,8 @@ export const createClient = (db: Deno.Kv) => {
     stateStore: new StateStore(db),
     sessionStore: new SessionStore(db),
     didCache: undefined,
+    allowHttp: Deno.env.get("NODE_ENV") !== "production",
+    plcDirectoryUrl: Deno.env.get("PLC_URL") ?? "https://plc.directory",
   });
 };
 
