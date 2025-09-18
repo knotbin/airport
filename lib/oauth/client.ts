@@ -1,6 +1,7 @@
 import { AtprotoOAuthClient } from "@bigmoves/atproto-oauth-client";
 import { SessionStore, StateStore } from "../storage.ts";
 
+const isDev = Deno.env.get("NODE_ENV") !== "production";
 export const scope = [
   "atproto",
   "account:email",
@@ -44,7 +45,7 @@ export const createClient = (db: Deno.Kv) => {
     stateStore: new StateStore(db),
     sessionStore: new SessionStore(db),
     didCache: undefined,
-    allowHttp: Deno.env.get("NODE_ENV") !== "production",
+    allowHttp: isDev,
     plcDirectoryUrl: Deno.env.get("PLC_URL") ?? "https://plc.directory",
   });
 };
