@@ -138,7 +138,7 @@ describe("e2e migration test", () => {
 
               await migrationClient.handleIdentityMigration(verificationCode);
               // If successful, continue to next step
-              migrationClient.continueToNextStep(3);
+              await migrationClient.finalizeMigration();
             }
           },
         },
