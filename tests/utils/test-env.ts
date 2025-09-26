@@ -3,7 +3,7 @@
  */
 
 import { Agent } from "@atproto/api";
-import { TestPds, TestPlc } from "@atproto/dev-env";
+import { TestBsky, TestPds, TestPlc } from "@atproto/dev-env";
 import { ComAtprotoServerCreateAccount } from "@atproto/api";
 import { SMTPServer, SMTPServerAddress } from "smtp-server";
 import * as cheerio from "cheerio";
@@ -171,6 +171,7 @@ export class TestEnvironment {
       devMode: true,
       emailSmtpUrl: `smtp://localhost:${SMTP_PORT}`,
       emailFromAddress: `noreply@localhost:${SMTP_PORT}`,
+      bskyAppViewDid: "did:web:api.bsky.app",
     });
 
     const targetPds = await TestPds.create({
@@ -181,6 +182,7 @@ export class TestEnvironment {
       devMode: true,
       emailSmtpUrl: `smtp://localhost:${SMTP_PORT}`,
       emailFromAddress: `noreply@localhost:${SMTP_PORT}`,
+      bskyAppViewDid: "did:web:api.bsky.app",
     });
 
     return {

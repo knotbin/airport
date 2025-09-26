@@ -18,7 +18,8 @@ export const handler = define.handlers({
     const handle = data.handle;
     if (
       typeof handle !== "string" ||
-      !(isValidHandle(handle) || isValidUrl(handle))
+      !(isValidHandle(handle) || isValidUrl(handle) ||
+        handle.startsWith("did:"))
     ) {
       return new Response("Invalid Handle", { status: 400 });
     }
