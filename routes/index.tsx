@@ -2,6 +2,7 @@ import Ticket from "../islands/Ticket.tsx";
 import AirportSign from "../components/AirportSign.tsx";
 import SocialLinks from "../islands/SocialLinks.tsx";
 import LoginButton from "../islands/LoginButton.tsx";
+import { Button } from "../components/Button.tsx";
 
 export default function Home() {
   return (
@@ -18,6 +19,16 @@ export default function Home() {
             <Ticket />
 
             <LoginButton />
+            <div class="flex justify-center mb-4">
+              <Button
+                href="/downloads"
+                color="blue"
+                icon="/icons/download_bold.svg"
+                iconAlt="Downloads"
+                label="GET THE APPS"
+                className="shadow"
+              />
+            </div>
             <div class="text-center mb-4">
               <a
                 href="/about"

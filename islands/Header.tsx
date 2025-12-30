@@ -97,6 +97,13 @@ export default function Header() {
           />
 
           <div className="flex items-center gap-3">
+            <Button
+              href="/downloads"
+              color="blue"
+              icon="/icons/download_bold.svg"
+              iconAlt="Downloads"
+              label="DOWNLOADS"
+            />
             {/* Ticket booth (did:plc update) */}
             <Button
               href="/ticket-booth"
